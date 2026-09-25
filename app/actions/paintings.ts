@@ -1,7 +1,9 @@
 "use server";
 
+import { createHmac } from "node:crypto";
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { ALLOWED_IMAGE_TYPES } from "@/lib/validations/painting";
 
 interface CreatePaintingInput {
@@ -13,6 +15,29 @@ interface CreatePaintingInput {
   guestName?: string;
 }
 
+const EXT_BY_MIME: Record<string, string> = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/webp": "webp",
+  "image/gif": "gif",
+};
+
+async function hashedClientIp(): Promise<string> {
+  const h = await headers();
+  const ip =
+    h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    h.get("x-real-ip") ||
+    "unknown";
+  // Salted so the stored value can't be reversed to an IP by brute force.
+  return createHmac("sha256", process.env.SUPABASE_SECRET_KEY!)
+    .update(ip)
+    .digest("hex");
+}
+
+// Uploads go through the service-role client: browser-side roles have no
+// storage-upload or create_painting permission (see migration
+// 20260925000007), so this action -- and its rate limit -- is the only way in.
+// Accounts are paused, so every upload is a guest upload.
 export async function createPaintingAction(
   input: CreatePaintingInput
 ): Promise<{ error: string } | { success: true; paintingId: string }> {
@@ -26,52 +51,49 @@ export async function createPaintingAction(
     return { error: "File must be a PNG, JPEG, WEBP, or GIF image." };
   }
 
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const userId = data?.claims?.sub ?? null;
-
   const guestName = input.guestName?.trim() ?? "";
-  if (!userId && guestName.length === 0) {
-    return { error: "Add your name." };
+  if (guestName.length === 0) return { error: "Add your name." };
+
+  const admin = createAdminClient();
+
+  const { error: slotError } = await admin.rpc("claim_upload_slot", {
+    p_ip_hash: await hashedClientIp(),
+  });
+  if (slotError) {
+    if (slotError.message.includes("rate_limited_ip")) {
+      return { error: "You've posted a lot recently — try again in a bit." };
+    }
+    if (slotError.message.includes("rate_limited_site")) {
+      return { error: "Lots of uploads right now — try again in a little while." };
+    }
+    return { error: "Couldn't start the upload — try again." };
   }
 
-  const EXT_BY_MIME: Record<string, string> = {
-    "image/png": "png",
-    "image/jpeg": "jpg",
-    "image/webp": "webp",
-    "image/gif": "gif",
-  };
   const paintingId = crypto.randomUUID();
-  const ext = EXT_BY_MIME[input.image.type];
-  const path = `${userId ?? "guest"}/${paintingId}.${ext}`;
+  const path = `guest/${paintingId}.${EXT_BY_MIME[input.image.type]}`;
 
-  const { error: uploadError } = await supabase.storage
+  const { error: uploadError } = await admin.storage
     .from("paintings")
     .upload(path, input.image, { contentType: input.image.type, upsert: false });
-
   if (uploadError) {
     return { error: `Upload failed: ${uploadError.message}` };
   }
 
-  const tagNames = input.tags.map((t) => t.trim()).filter(Boolean);
-
-  const { data: rpcData, error: rpcError } = await supabase.rpc("create_painting", {
+  const { data: rpcData, error: rpcError } = await admin.rpc("create_painting", {
     p_id: paintingId,
     p_title: title,
     p_description: input.description.trim(),
     p_image_path: path,
     p_aspect: input.aspect,
-    p_tag_names: tagNames,
-    p_guest_name: userId ? undefined : guestName,
+    p_tag_names: input.tags.map((t) => t.trim()).filter(Boolean),
+    p_guest_name: guestName,
   });
 
   if (rpcError) {
-    await supabase.storage.from("paintings").remove([path]);
+    await admin.storage.from("paintings").remove([path]);
     return { error: rpcError.message };
   }
 
   revalidatePath("/");
-  if (userId) revalidatePath(`/artist/${userId}`);
-
   return { success: true, paintingId: rpcData as string };
 }

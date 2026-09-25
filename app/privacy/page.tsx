@@ -55,6 +55,11 @@ export default function PrivacyPage() {
               timestamps — used only to operate and secure the site, not to
               track you.
             </li>
+            <li>
+              When you upload, a scrambled (one-way hashed) version of your IP
+              address, kept for two days to limit how many uploads can come
+              from one place. We never store your actual IP.
+            </li>
           </ul>
         </section>
 

@@ -233,11 +233,30 @@ export type Database = {
         }
         Relationships: []
       }
+      upload_log: {
+        Row: {
+          created_at: string
+          id: number
+          ip_hash: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          ip_hash: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          ip_hash?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      claim_upload_slot: { Args: { p_ip_hash: string }; Returns: undefined }
       create_painting: {
         Args: {
           p_aspect: string

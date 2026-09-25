@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { UploadForm } from "@/components/upload-form";
 import { getCurrentUser } from "@/lib/current-user";
+import { getAllTags } from "@/lib/paintings";
 
 export const metadata: Metadata = {
   title: "Upload a painting — justpaint",
 };
 
 export default async function UploadPage() {
-  const currentUser = await getCurrentUser();
+  const [currentUser, tags] = await Promise.all([getCurrentUser(), getAllTags()]);
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
@@ -21,7 +22,7 @@ export default async function UploadPage() {
       </p>
 
       <div className="mt-10">
-        <UploadForm currentUser={currentUser} />
+        <UploadForm currentUser={currentUser} tags={tags} />
       </div>
     </main>
   );

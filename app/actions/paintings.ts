@@ -7,7 +7,7 @@ import { ALLOWED_IMAGE_TYPES } from "@/lib/validations/painting";
 interface CreatePaintingInput {
   title: string;
   description: string;
-  tags: string;
+  tags: string[];
   aspect: "portrait" | "landscape" | "square";
   image: File;
   guestName?: string;
@@ -53,10 +53,7 @@ export async function createPaintingAction(
     return { error: `Upload failed: ${uploadError.message}` };
   }
 
-  const tagNames = input.tags
-    .split(",")
-    .map((t) => t.trim())
-    .filter(Boolean);
+  const tagNames = input.tags.map((t) => t.trim()).filter(Boolean);
 
   const { data: rpcData, error: rpcError } = await supabase.rpc("create_painting", {
     p_id: paintingId,

@@ -21,6 +21,8 @@ import {
   type PaintingFormValues,
 } from "@/lib/validations/painting";
 import { createPaintingAction } from "@/app/actions/paintings";
+import { TagSelect } from "@/components/tag-select";
+import type { Tag } from "@/lib/types";
 
 function detectAspect(file: File): Promise<"portrait" | "landscape" | "square"> {
   return new Promise((resolve) => {
@@ -43,8 +45,10 @@ function detectAspect(file: File): Promise<"portrait" | "landscape" | "square"> 
 
 export function UploadForm({
   currentUser,
+  tags,
 }: {
   currentUser: { id: string; displayName: string } | null;
+  tags: Tag[];
 }) {
   const router = useRouter();
   const [preview, setPreview] = useState<string | null>(null);
@@ -52,7 +56,7 @@ export function UploadForm({
 
   const form = useForm<PaintingFormValues>({
     resolver: zodResolver(paintingSchema),
-    defaultValues: { name: "", title: "", description: "", tags: "" },
+    defaultValues: { name: "", title: "", description: "", tags: [] },
   });
 
   async function onSubmit(values: PaintingFormValues) {
@@ -68,7 +72,7 @@ export function UploadForm({
     const result = await createPaintingAction({
       title: values.title,
       description: values.description ?? "",
-      tags: values.tags ?? "",
+      tags: values.tags ?? [],
       aspect,
       image: values.image,
       guestName: currentUser ? undefined : values.name,
@@ -79,7 +83,7 @@ export function UploadForm({
       return;
     }
 
-    form.reset({ name: "", title: "", description: "", tags: "" });
+    form.reset({ name: "", title: "", description: "", tags: [] });
     setPreview(null);
     router.push(`/painting/${result.paintingId}`);
   }
@@ -198,13 +202,13 @@ export function UploadForm({
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <FieldLabel htmlFor="tags">Tags</FieldLabel>
-                <Input
+                <TagSelect
                   id="tags"
-                  placeholder="oil, landscape, abstract"
-                  {...field}
-                  aria-invalid={fieldState.invalid}
+                  tags={tags}
+                  value={field.value ?? []}
+                  onChange={field.onChange}
                 />
-                <FieldDescription>Comma-separated.</FieldDescription>
+                <FieldDescription>Pick as many as fit.</FieldDescription>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}

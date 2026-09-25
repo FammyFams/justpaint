@@ -15,7 +15,7 @@ export const paintingSchema = z.object({
     .trim()
     .max(600, "Keep it under 600 characters")
     .optional(),
-  tags: z.string().trim().max(200).optional(),
+  tags: z.array(z.string()).optional(),
   image: z
     .instanceof(File, { message: "Add an image of your painting" })
     .refine((file) => file.size > 0, "Add an image of your painting")

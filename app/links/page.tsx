@@ -17,8 +17,8 @@ const LINKS = [
   },
   {
     label: "TikTok",
-    handle: "@itsthew",
-    href: "https://www.tiktok.com/@itsthew",
+    handle: "@its.thew",
+    href: "https://www.tiktok.com/@its.thew",
     icon: Music2,
   },
   {

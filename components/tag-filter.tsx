@@ -1,8 +1,14 @@
 import Link from "next/link";
-import { tags } from "@/lib/mock-data";
+import type { Tag } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-export function TagFilter({ activeTag }: { activeTag?: string }) {
+export function TagFilter({
+  tags,
+  activeTag,
+}: {
+  tags: Tag[];
+  activeTag?: string;
+}) {
   return (
     <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
       <Link

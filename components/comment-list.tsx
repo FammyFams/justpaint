@@ -1,37 +1,48 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CommentForm } from "@/components/comment-form";
-import { getArtistById } from "@/lib/mock-data";
 import { getAvatarClasses, getInitials, formatRelativeTime } from "@/lib/format";
+import { addCommentAction } from "@/app/actions/comments";
 import type { Comment } from "@/lib/types";
-
-let nextId = 1000;
 
 export function CommentList({
   initialComments,
   paintingId,
+  isLoggedIn,
 }: {
   initialComments: Comment[];
   paintingId: string;
+  isLoggedIn: boolean;
 }) {
-  const [comments, setComments] = useState(initialComments);
+  const router = useRouter();
+  const comments = initialComments;
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleAdd(body: string) {
-    const comment: Comment = {
-      id: `local-${nextId++}`,
-      paintingId,
-      artistId: "you",
-      body,
-      createdAt: new Date().toISOString(),
-    };
-    setComments((prev) => [...prev, comment]);
+  async function handleAdd(body: string) {
+    if (!isLoggedIn) {
+      router.push("/login");
+      return;
+    }
+
+    setSubmitting(true);
+    const result = await addCommentAction(paintingId, body);
+    setSubmitting(false);
+
+    if ("error" in result) {
+      toast.error(result.error);
+      return;
+    }
+
+    router.refresh();
   }
 
   return (
     <div className="flex flex-col gap-5">
-      <CommentForm onSubmit={handleAdd} />
+      <CommentForm onSubmit={handleAdd} submitting={submitting} />
 
       {comments.length === 0 ? (
         <p className="text-sm text-muted-foreground">
@@ -39,30 +50,24 @@ export function CommentList({
         </p>
       ) : (
         <ul className="flex flex-col gap-4">
-          {comments.map((comment) => {
-            const author = getArtistById(comment.artistId);
-            const name = author?.displayName ?? "You";
-            return (
-              <li key={comment.id} className="flex gap-3">
-                <Avatar className="size-8 shrink-0">
-                  <AvatarFallback className={getAvatarClasses(name)}>
-                    {getInitials(name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-sm font-medium">{name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {formatRelativeTime(comment.createdAt)}
-                    </span>
-                  </div>
-                  <p className="mt-0.5 text-sm text-foreground/90">
-                    {comment.body}
-                  </p>
+          {comments.map((comment) => (
+            <li key={comment.id} className="flex gap-3">
+              <Avatar className="size-8 shrink-0">
+                <AvatarFallback className={getAvatarClasses(comment.authorName)}>
+                  {getInitials(comment.authorName)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-sm font-medium">{comment.authorName}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {formatRelativeTime(comment.createdAt)}
+                  </span>
                 </div>
-              </li>
-            );
-          })}
+                <p className="mt-0.5 text-sm text-foreground/90">{comment.body}</p>
+              </div>
+            </li>
+          ))}
         </ul>
       )}
     </div>

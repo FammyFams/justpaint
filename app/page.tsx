@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getFeed, getTagById } from "@/lib/mock-data";
+import { getAllTags, getFeed } from "@/lib/paintings";
 import { PaintingGrid } from "@/components/painting-grid";
 import { TagFilter } from "@/components/tag-filter";
 
@@ -13,8 +13,8 @@ export default async function Home({
   searchParams: Promise<{ tag?: string }>;
 }) {
   const { tag } = await searchParams;
-  const paintings = getFeed(tag);
-  const activeTag = tag ? getTagById(tag) : undefined;
+  const [paintings, tags] = await Promise.all([getFeed(tag), getAllTags()]);
+  const activeTag = tag ? tags.find((t) => t.slug === tag) : undefined;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
@@ -29,7 +29,7 @@ export default async function Home({
       </div>
 
       <div className="mb-8">
-        <TagFilter activeTag={tag} />
+        <TagFilter tags={tags} activeTag={tag} />
       </div>
 
       {activeTag && (

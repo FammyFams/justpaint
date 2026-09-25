@@ -7,9 +7,11 @@ import type { Artist } from "@/lib/types";
 export function ProfileHeader({
   artist,
   paintingCount,
+  isOwnProfile,
 }: {
   artist: Artist;
   paintingCount: number;
+  isOwnProfile: boolean;
 }) {
   return (
     <div className="mb-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -33,11 +35,13 @@ export function ProfileHeader({
         </div>
       </div>
 
-      <Button
-        variant="outline"
-        nativeButton={false}
-        render={<Link href={`/artist/${artist.id}/edit`}>Edit profile</Link>}
-      />
+      {isOwnProfile && (
+        <Button
+          variant="outline"
+          nativeButton={false}
+          render={<Link href={`/artist/${artist.id}/edit`}>Edit profile</Link>}
+        />
+      )}
     </div>
   );
 }

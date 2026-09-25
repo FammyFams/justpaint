@@ -6,8 +6,10 @@ import { Textarea } from "@/components/ui/textarea";
 
 export function CommentForm({
   onSubmit,
+  submitting = false,
 }: {
   onSubmit: (body: string) => void;
+  submitting?: boolean;
 }) {
   const [value, setValue] = useState("");
 
@@ -30,8 +32,8 @@ export function CommentForm({
         className="resize-none bg-card"
       />
       <div className="flex justify-end">
-        <Button type="submit" size="sm" disabled={!value.trim()}>
-          Post comment
+        <Button type="submit" size="sm" disabled={!value.trim() || submitting}>
+          {submitting ? "Posting…" : "Post comment"}
         </Button>
       </div>
     </form>

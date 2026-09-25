@@ -2,7 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Heart } from "lucide-react";
 import type { Painting } from "@/lib/types";
-import { getPaintingAuthorName, getTagsForPainting } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
 
 const aspectRatio: Record<Painting["aspect"], string> = {
@@ -18,8 +17,7 @@ export function PaintingCard({
   painting: Painting;
   index?: number;
 }) {
-  const authorName = getPaintingAuthorName(painting);
-  const tags = getTagsForPainting(painting);
+  const { authorName, tags } = painting;
 
   return (
     <Link
@@ -32,7 +30,7 @@ export function PaintingCard({
           className={`relative w-full overflow-hidden rounded-[2px] bg-muted ${aspectRatio[painting.aspect]}`}
         >
           <Image
-            src={painting.imagePath}
+            src={painting.imageUrl}
             alt={painting.title}
             fill
             sizes="(min-width: 1024px) 24vw, (min-width: 640px) 40vw, 90vw"

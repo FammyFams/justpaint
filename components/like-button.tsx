@@ -1,21 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Heart } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toggleLikeAction } from "@/app/actions/likes";
 
-export function LikeButton({ initialCount }: { initialCount: number }) {
-  const [liked, setLiked] = useState(false);
+export function LikeButton({
+  paintingId,
+  initialCount,
+  initialLiked,
+  isLoggedIn,
+}: {
+  paintingId: string;
+  initialCount: number;
+  initialLiked: boolean;
+  isLoggedIn: boolean;
+}) {
+  const router = useRouter();
+  const [liked, setLiked] = useState(initialLiked);
   const [count, setCount] = useState(initialCount);
+  const [isPending, startTransition] = useTransition();
+
+  function handleClick() {
+    if (!isLoggedIn) {
+      router.push("/login");
+      return;
+    }
+
+    const nextLiked = !liked;
+    setLiked(nextLiked);
+    setCount((prev) => (nextLiked ? prev + 1 : prev - 1));
+
+    startTransition(async () => {
+      const result = await toggleLikeAction(paintingId);
+      if ("error" in result) {
+        // Roll back on failure.
+        setLiked(!nextLiked);
+        setCount((prev) => (nextLiked ? prev - 1 : prev + 1));
+        toast.error("Couldn't update your like — try again.");
+      }
+    });
+  }
 
   return (
     <Button
       variant={liked ? "default" : "outline"}
-      onClick={() => {
-        setLiked((prev) => !prev);
-        setCount((prev) => (liked ? prev - 1 : prev + 1));
-      }}
+      onClick={handleClick}
+      disabled={isPending}
       className="gap-1.5"
     >
       <Heart

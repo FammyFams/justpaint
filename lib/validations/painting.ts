@@ -1,7 +1,7 @@
 import * as z from "zod";
 
 export const paintingSchema = z.object({
-  name: z.string().trim().min(1, "Add your name").max(60),
+  name: z.string().trim().max(60).optional(),
   title: z.string().trim().min(2, "Give it a title").max(80),
   description: z
     .string()

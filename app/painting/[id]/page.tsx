@@ -3,12 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  getArtistById,
   getCommentsForPainting,
-  getPaintingAuthorName,
   getPaintingById,
-  getTagsForPainting,
-} from "@/lib/mock-data";
+  hasUserLiked,
+} from "@/lib/paintings";
+import { getCurrentUser } from "@/lib/current-user";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { LikeButton } from "@/components/like-button";
@@ -21,7 +20,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const painting = getPaintingById(id);
+  const painting = await getPaintingById(id);
   return { title: painting ? `${painting.title} — justpaint` : "justpaint" };
 }
 
@@ -31,13 +30,16 @@ export default async function PaintingPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const painting = getPaintingById(id);
+  const painting = await getPaintingById(id);
   if (!painting) notFound();
 
-  const artist = getArtistById(painting.artistId);
-  const authorName = getPaintingAuthorName(painting);
-  const tags = getTagsForPainting(painting);
-  const comments = getCommentsForPainting(painting.id);
+  const [comments, currentUser] = await Promise.all([
+    getCommentsForPainting(painting.id),
+    getCurrentUser(),
+  ]);
+  const liked = currentUser
+    ? await hasUserLiked(painting.id, currentUser.id)
+    : false;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
@@ -45,7 +47,7 @@ export default async function PaintingPage({
         <div className="rounded-sm border border-border/70 bg-card p-3 shadow-[0_1px_2px_rgba(32,26,19,0.06)] sm:p-4">
           <div className="relative w-full overflow-hidden rounded-[2px] bg-muted">
             <Image
-              src={painting.imagePath}
+              src={painting.imageUrl}
               alt={painting.title}
               width={1000}
               height={
@@ -67,19 +69,19 @@ export default async function PaintingPage({
             {painting.title}
           </h1>
 
-          {artist ? (
+          {painting.artistId ? (
             <Link
-              href={`/artist/${artist.id}`}
+              href={`/artist/${painting.artistId}`}
               className="mt-4 flex items-center gap-2.5"
             >
               <Avatar className="size-9">
-                <AvatarFallback className={getAvatarClasses(artist.displayName)}>
-                  {getInitials(artist.displayName)}
+                <AvatarFallback className={getAvatarClasses(painting.authorName)}>
+                  {getInitials(painting.authorName)}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <p className="text-sm font-medium leading-tight">
-                  {artist.displayName}
+                  {painting.authorName}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {formatDate(painting.createdAt)}
@@ -89,13 +91,13 @@ export default async function PaintingPage({
           ) : (
             <div className="mt-4 flex items-center gap-2.5">
               <Avatar className="size-9">
-                <AvatarFallback className={getAvatarClasses(authorName)}>
-                  {getInitials(authorName)}
+                <AvatarFallback className={getAvatarClasses(painting.authorName)}>
+                  {getInitials(painting.authorName)}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <p className="text-sm font-medium leading-tight">
-                  {authorName}{" "}
+                  {painting.authorName}{" "}
                   <span className="font-normal text-muted-foreground">
                     · posted as a guest
                   </span>
@@ -112,7 +114,7 @@ export default async function PaintingPage({
           </p>
 
           <div className="mt-4 flex flex-wrap gap-1.5">
-            {tags.map((tag) => (
+            {painting.tags.map((tag) => (
               <Link key={tag.id} href={`/?tag=${tag.slug}`}>
                 <Badge variant="secondary" className="rounded-sm font-normal">
                   {tag.name}
@@ -122,14 +124,23 @@ export default async function PaintingPage({
           </div>
 
           <div className="mt-6">
-            <LikeButton initialCount={painting.likeCount} />
+            <LikeButton
+              paintingId={painting.id}
+              initialCount={painting.likeCount}
+              initialLiked={liked}
+              isLoggedIn={Boolean(currentUser)}
+            />
           </div>
 
           <div className="mt-10 border-t border-border pt-6">
             <h2 className="mb-4 font-heading text-lg italic">
               Comments{comments.length > 0 ? ` (${comments.length})` : ""}
             </h2>
-            <CommentList initialComments={comments} paintingId={painting.id} />
+            <CommentList
+              initialComments={comments}
+              paintingId={painting.id}
+              isLoggedIn={Boolean(currentUser)}
+            />
           </div>
         </div>
       </div>

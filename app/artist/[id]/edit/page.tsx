@@ -1,43 +1,22 @@
-"use client";
+import { notFound, redirect } from "next/navigation";
+import { getArtistById } from "@/lib/paintings";
+import { getCurrentUser } from "@/lib/current-user";
+import { ProfileEditForm } from "@/components/profile-edit-form";
 
-import { use } from "react";
-import { notFound } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
-import { getArtistById } from "@/lib/mock-data";
-import { profileSchema, type ProfileFormValues } from "@/lib/validations/profile";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldDescription,
-} from "@/components/ui/field";
-
-export default function EditProfilePage({
+export default async function EditProfilePage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  const artist = getArtistById(id);
+  const { id } = await params;
+  const [artist, currentUser] = await Promise.all([
+    getArtistById(id),
+    getCurrentUser(),
+  ]);
   if (!artist) notFound();
 
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: { displayName: artist.displayName, bio: artist.bio },
-  });
-
-  function onSubmit(values: ProfileFormValues) {
-    toast.success("Profile updated locally — not saved yet.", {
-      description: "Account persistence lands once the backend is wired up.",
-    });
-    console.log("profile update (not persisted)", values);
-  }
+  if (!currentUser) redirect("/login");
+  if (currentUser.id !== artist.id) redirect(`/artist/${artist.id}`);
 
   return (
     <main className="mx-auto max-w-lg px-4 py-10 sm:px-6 sm:py-14">
@@ -45,58 +24,10 @@ export default function EditProfilePage({
         Edit profile
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Changes here are local to your browser for now — nothing is saved to
-        an account yet.
+        This is what other people see on your profile.
       </p>
 
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="mt-8"
-        noValidate
-      >
-        <FieldGroup>
-          <Controller
-            name="displayName"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="displayName">Display name</FieldLabel>
-                <Input
-                  id="displayName"
-                  {...field}
-                  aria-invalid={fieldState.invalid}
-                />
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-
-          <Controller
-            name="bio"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="bio">Bio</FieldLabel>
-                <Textarea
-                  id="bio"
-                  rows={4}
-                  className="resize-none"
-                  {...field}
-                  aria-invalid={fieldState.invalid}
-                />
-                <FieldDescription>
-                  A line or two about what you paint.
-                </FieldDescription>
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-
-          <div className="flex justify-end gap-2">
-            <Button type="submit">Save changes</Button>
-          </div>
-        </FieldGroup>
-      </form>
+      <ProfileEditForm artist={artist} />
     </main>
   );
 }

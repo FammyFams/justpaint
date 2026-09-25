@@ -41,50 +41,39 @@ export async function Navbar() {
 
         <div className="flex items-center gap-2">
           {user ? (
-            <>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="hidden sm:inline-flex"
-                nativeButton={false}
-                render={<Link href="/upload">Upload</Link>}
-              />
-              <DropdownMenu>
-                <DropdownMenuTrigger className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring/50">
-                  <Avatar className="size-8">
-                    <AvatarFallback className={getAvatarClasses(user.displayName)}>
-                      {getInitials(user.displayName)}
-                    </AvatarFallback>
-                  </Avatar>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <div className="px-1.5 py-1 text-sm font-medium">
-                    {user.displayName}
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    render={<Link href={`/artist/${user.id}`}>My profile</Link>}
-                  />
-                  <DropdownMenuItem
-                    render={<Link href={`/artist/${user.id}/edit`}>Edit profile</Link>}
-                  />
-                  <DropdownMenuSeparator />
-                  <LogoutMenuItem />
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring/50">
+                <Avatar className="size-8">
+                  <AvatarFallback className={getAvatarClasses(user.displayName)}>
+                    {getInitials(user.displayName)}
+                  </AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <div className="px-1.5 py-1 text-sm font-medium">
+                  {user.displayName}
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  render={<Link href={`/artist/${user.id}`}>My profile</Link>}
+                />
+                <DropdownMenuItem
+                  render={<Link href={`/artist/${user.id}/edit`}>Edit profile</Link>}
+                />
+                <DropdownMenuSeparator />
+                <LogoutMenuItem />
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <>
               <Button
                 variant="ghost"
                 size="sm"
-                className="hidden sm:inline-flex"
                 nativeButton={false}
                 render={<Link href="/login">Log in</Link>}
               />
               <Button
                 size="sm"
-                className="hidden sm:inline-flex"
                 nativeButton={false}
                 render={<Link href="/signup">Sign up</Link>}
               />
@@ -93,7 +82,6 @@ export async function Navbar() {
           <Button
             size="icon"
             variant="secondary"
-            className="sm:hidden"
             nativeButton={false}
             render={
               <Link href="/upload" aria-label="Upload a painting">

@@ -67,16 +67,23 @@ export function UploadForm({
       return;
     }
 
-    const aspect = await detectAspect(values.image);
-
-    const result = await createPaintingAction({
-      title: values.title,
-      description: values.description ?? "",
-      tags: values.tags ?? [],
-      aspect,
-      image: values.image,
-      guestName: currentUser ? undefined : values.name,
-    });
+    let result;
+    try {
+      const aspect = await detectAspect(values.image);
+      result = await createPaintingAction({
+        title: values.title,
+        description: values.description ?? "",
+        tags: values.tags ?? [],
+        aspect,
+        image: values.image,
+        guestName: currentUser ? undefined : values.name,
+      });
+    } catch {
+      setFormError(
+        "Something went wrong sending that — check your connection and try again."
+      );
+      return;
+    }
 
     if ("error" in result) {
       setFormError(result.error);

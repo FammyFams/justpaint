@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { LikeButton } from "@/components/like-button";
 import { CommentList } from "@/components/comment-list";
+import { Watermark } from "@/components/watermark";
 import { getAvatarClasses, getInitials, formatDate } from "@/lib/format";
 
 export async function generateMetadata({
@@ -61,6 +62,7 @@ export default async function PaintingPage({
               className="h-auto w-full"
               priority
             />
+            <Watermark />
           </div>
         </div>
 

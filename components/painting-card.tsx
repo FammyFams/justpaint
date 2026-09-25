@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Heart } from "lucide-react";
 import type { Painting } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
+import { Watermark } from "@/components/watermark";
 
 const aspectRatio: Record<Painting["aspect"], string> = {
   portrait: "aspect-[3/4]",
@@ -37,6 +38,7 @@ export function PaintingCard({
             priority={index < 8}
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
           />
+          <Watermark size="sm" />
         </div>
 
         <div className="px-1 pt-3 pb-1.5">

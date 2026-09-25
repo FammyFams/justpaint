@@ -82,25 +82,48 @@ export default function TermsPage() {
 
         <section>
           <h2 className="mb-2 font-heading text-xl">Copyright (DMCA)</h2>
-          <p className="mb-2 rounded-sm border border-border bg-card px-3 py-2 text-muted-foreground">
-            Our designated agent registration with the U.S. Copyright Office
-            (DMCA-1081094) is in progress. Full agent contact details will be
-            listed here once it&rsquo;s finalized &mdash; until then, send
-            notices to the email below.
+          <p className="mb-4">
+            We respond to copyright infringement notices under the Digital
+            Millennium Copyright Act. If a post on justpaint uses your work
+            without permission, contact our designated agent.
           </p>
-          <p className="mb-2">
-            We respond to notices of copyright infringement under the Digital
-            Millennium Copyright Act. To report a post that uses your work,
-            email our designated agent at{" "}
-            <a
-              href="mailto:matthewzhenghi@gmail.com"
-              className="text-primary hover:underline"
-            >
-              matthewzhenghi@gmail.com
-            </a>{" "}
-            with:
-          </p>
-          <ul className="mb-4 list-disc space-y-1 pl-5">
+
+          <dl className="mb-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-sm border border-border bg-card px-4 py-4 shadow-[0_1px_2px_rgba(32,26,19,0.06)]">
+            <dt className="text-muted-foreground">Designated agent</dt>
+            <dd className="font-medium text-foreground">Matthew Zheng</dd>
+            <dt className="text-muted-foreground">Email</dt>
+            <dd>
+              <a
+                href="mailto:matthewzhenghi@gmail.com?subject=DMCA%20notice"
+                className="text-primary hover:underline"
+              >
+                matthewzhenghi@gmail.com
+              </a>
+            </dd>
+            <dt className="text-muted-foreground">Registration</dt>
+            <dd>
+              <span className="text-foreground">DMCA-1081094</span>{" "}
+              <span className="ml-1 inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
+                Active
+              </span>
+            </dd>
+            <dt className="text-muted-foreground">Directory</dt>
+            <dd>
+              <a
+                href="https://dmca.copyright.gov/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                U.S. Copyright Office DMCA Agent Directory
+              </a>
+            </dd>
+          </dl>
+
+          <h3 className="mb-2 font-medium text-foreground">
+            What to include in a notice
+          </h3>
+          <ol className="mb-6 list-decimal space-y-1 pl-5">
             <li>The link to the post on justpaint.</li>
             <li>A description of your original work, or a link to it.</li>
             <li>Your name, mailing address, phone number, and email.</li>
@@ -113,21 +136,29 @@ export default function TermsPage() {
               accurate and that you own the work or are authorized to act for
               the owner.
             </li>
-            <li>Your physical or electronic signature (typing your full name works).</li>
-          </ul>
-          <p className="mb-2">
-            When we get a complete notice, we&rsquo;ll remove the post. If your
-            post was removed and you believe that was a mistake, you can send a
-            counter-notice to the same address with the removed post&rsquo;s
-            link, a statement under penalty of perjury that it was removed by
-            mistake or misidentification, your name and contact details, your
-            consent to the jurisdiction of your local federal district court,
-            and your signature.
+            <li>
+              Your physical or electronic signature &mdash; typing your full
+              name works.
+            </li>
+          </ol>
+
+          <h3 className="mb-2 font-medium text-foreground">
+            If your post was removed
+          </h3>
+          <p className="mb-6">
+            When we get a complete notice, we remove the post. If you believe
+            yours was removed by mistake, send a counter-notice to the same
+            email with the removed post&rsquo;s link, a statement under penalty
+            of perjury that it was removed by mistake or misidentification,
+            your name and contact details, your consent to the jurisdiction of
+            your local federal district court, and your signature.
           </p>
+
+          <h3 className="mb-2 font-medium text-foreground">Repeat infringers</h3>
           <p>
-            We remove repeat infringers: if we learn someone has repeatedly
-            posted other people&rsquo;s work, we&rsquo;ll take down their posts
-            and, where we can, stop them from posting again.
+            If we learn someone has repeatedly posted other people&rsquo;s
+            work, we&rsquo;ll take down their posts and, where we can, stop
+            them from posting again.
           </p>
         </section>
 

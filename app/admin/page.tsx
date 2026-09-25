@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { isAdmin } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { formatDate } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { AdminLoginForm } from "@/components/admin-login-form";
 import { AdminDeleteButton } from "@/components/admin-delete-button";
@@ -83,7 +83,7 @@ export default async function AdminPage() {
                   {p.title}
                 </Link>
                 <p className="truncate text-sm text-muted-foreground">
-                  {author} · {formatDate(p.created_at)}
+                  {author} · {formatDateTime(p.created_at)}
                 </p>
               </div>
               <AdminDeleteButton paintingId={p.id} title={p.title} />

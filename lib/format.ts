@@ -46,6 +46,20 @@ export function formatRelativeTime(isoDate: string): string {
   });
 }
 
+// Pinned to Pacific time: server-rendered pages run in UTC on Vercel, which
+// would otherwise show times 7-8 hours off.
+export function formatDateTime(isoDate: string): string {
+  return new Date(isoDate).toLocaleString("en-US", {
+    timeZone: "America/Los_Angeles",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  });
+}
+
 export function formatDate(isoDate: string): string {
   return new Date(isoDate).toLocaleDateString(undefined, {
     month: "long",

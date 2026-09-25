@@ -6,8 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ImagePlus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ImagePlus, Upload } from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -15,7 +15,6 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldDescription,
 } from "@/components/ui/field";
 import {
   paintingSchema,
@@ -64,7 +63,6 @@ export function UploadForm({
       title: "",
       description: "",
       tags: [],
-      over13: false,
       agreedToTerms: false,
     },
   });
@@ -87,7 +85,6 @@ export function UploadForm({
         aspect,
         image: values.image,
         guestName: currentUser ? undefined : values.name,
-        over13: values.over13,
         agreedToTerms: values.agreedToTerms,
       });
     } catch {
@@ -118,7 +115,7 @@ export function UploadForm({
               <FieldLabel htmlFor="image">Image</FieldLabel>
               <label
                 htmlFor="image"
-                className="group relative flex aspect-[4/5] w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-sm border border-dashed border-border bg-card text-center transition-colors hover:border-primary/60"
+                className={`group relative flex ${preview ? "aspect-[4/5]" : "h-40"} w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-sm border border-dashed border-border bg-card text-center transition-colors hover:border-primary/60`}
               >
                 {preview ? (
                   <Image
@@ -155,6 +152,16 @@ export function UploadForm({
                   }}
                 />
               </label>
+              <label
+                htmlFor="image"
+                className={buttonVariants({
+                  variant: preview ? "outline" : "default",
+                  className: "cursor-pointer self-start",
+                })}
+              >
+                <Upload />
+                {preview ? "Change photo" : "Upload photo"}
+              </label>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
@@ -167,16 +174,18 @@ export function UploadForm({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="name">Your name</FieldLabel>
+                  <FieldLabel htmlFor="name">
+                    <span className="shrink-0">Your name</span>
+                    <span className="font-normal text-muted-foreground">
+                      · Shown next to your painting.
+                    </span>
+                  </FieldLabel>
                   <Input
                     id="name"
                     placeholder="What should we call you?"
                     {...field}
                     aria-invalid={fieldState.invalid}
                   />
-                  <FieldDescription>
-                    Shown next to your painting. No account needed to post.
-                  </FieldDescription>
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -224,79 +233,61 @@ export function UploadForm({
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <FieldLabel htmlFor="tags">Tags</FieldLabel>
+                <FieldLabel htmlFor="tags">
+                  Tags
+                  <span className="font-normal text-muted-foreground">
+                    · Pick at least one
+                  </span>
+                </FieldLabel>
                 <TagSelect
                   id="tags"
                   tags={tags}
                   value={field.value ?? []}
                   onChange={field.onChange}
                 />
-                <FieldDescription>Pick at least one.</FieldDescription>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
           />
 
-          <div className="flex flex-col gap-3">
-            <Controller
-              name="over13"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <label className="flex items-start gap-2.5 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={field.value}
-                      onChange={(e) => field.onChange(e.target.checked)}
-                      onBlur={field.onBlur}
-                      aria-invalid={fieldState.invalid}
-                      className="mt-0.5 size-4 shrink-0 accent-primary"
-                    />
-                    I&rsquo;m 13 or older.
-                  </label>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
-            <Controller
-              name="agreedToTerms"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <label className="flex items-start gap-2.5 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={field.value}
-                      onChange={(e) => field.onChange(e.target.checked)}
-                      onBlur={field.onBlur}
-                      aria-invalid={fieldState.invalid}
-                      className="mt-0.5 size-4 shrink-0 accent-primary"
-                    />
-                    <span>
-                      I agree to the{" "}
-                      <Link
-                        href="/terms"
-                        target="_blank"
-                        className="text-primary underline-offset-2 hover:underline"
-                      >
-                        Terms of Use
-                      </Link>{" "}
-                      and{" "}
-                      <Link
-                        href="/privacy"
-                        target="_blank"
-                        className="text-primary underline-offset-2 hover:underline"
-                      >
-                        Privacy Policy
-                      </Link>
-                      .
-                    </span>
-                  </label>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
-          </div>
+          <Controller
+            name="agreedToTerms"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <label className="flex items-start gap-2.5 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={field.value}
+                    onChange={(e) => field.onChange(e.target.checked)}
+                    onBlur={field.onBlur}
+                    aria-invalid={fieldState.invalid}
+                    className="mt-0.5 size-4 shrink-0 accent-primary"
+                  />
+                  <span>
+                    I&rsquo;m 13 or older and agree to the{" "}
+                    <Link
+                      href="/terms"
+                      target="_blank"
+                      className="text-primary underline-offset-2 hover:underline"
+                    >
+                      Terms of Use
+                    </Link>{" "}
+                    and{" "}
+                    <Link
+                      href="/privacy"
+                      target="_blank"
+                      className="text-primary underline-offset-2 hover:underline"
+                    >
+                      Privacy Policy
+                    </Link>
+                    .
+                  </span>
+                </label>
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
 
           {formError && (
             <p className="text-sm text-destructive" role="alert">

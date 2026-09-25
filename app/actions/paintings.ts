@@ -14,7 +14,7 @@ interface CreatePaintingInput {
   aspect: "portrait" | "landscape" | "square";
   image: File;
   guestName?: string;
-  over13: boolean;
+  /** Covers both the 13+ age confirmation and the Terms agreement. */
   agreedToTerms: boolean;
 }
 
@@ -72,9 +72,8 @@ export async function createPaintingAction(
     return { error: "Add a description." };
   }
   if (!input.tags.some((t) => t.trim())) return { error: "Pick at least one tag." };
-  if (input.over13 !== true) return { error: "You must be 13 or older to post." };
   if (input.agreedToTerms !== true) {
-    return { error: "Please agree to the Terms of Use." };
+    return { error: "Confirm you're 13 or older and agree to the Terms of Use." };
   }
   if (!input.image || input.image.size === 0) return { error: "Add an image." };
   if (input.image.size > 10 * 1024 * 1024) {

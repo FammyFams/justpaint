@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
+  <defs>
+    <linearGradient id="bg-midnight-bloom" gradientTransform="rotate(270)">
+      <stop offset="0%" stop-color="#FFF4E6" />
+      <stop offset="100%" stop-color="#A7D2CB" />
+    </linearGradient>
+    <filter id="grain-midnight-bloom">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" result="noise" />
+      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.035 0" />
+    </filter>
+  </defs>
+  <rect width="1000" height="1000" fill="url(#bg-midnight-bloom)" />
+  <path d="M 821.5 494.5 Q 695.7 591.3 649.0 614.6 Q 583.7 653.3 528.8 770.9 Q 447.1 733.4 323.2 700.1 Q 246.6 576.1 241.6 494.5 Q 330.6 407.8 342.0 307.6 Q 392.2 344.3 528.8 297.9 Q 567.6 309.4 679.2 344.1 Q 758.0 456.2 821.5 494.5 Z" fill="#F6C6D0" opacity="0.62" /><path d="M 416.0 898.9 Q 364.7 1001.2 395.9 1220.7 Q 213.1 1275.7 74.1 1196.7 Q -42.4 1157.1 -185.2 1158.2 Q -240.4 1003.8 -330.4 898.9 Q -229.4 742.7 -129.2 695.6 Q 3.9 669.6 74.1 516.9 Q 285.3 604.4 376.9 596.1 Q 363.1 682.4 416.0 898.9 Z" fill="#A7D2CB" opacity="0.59" /><path d="M 1222.2 25.7 Q 1163.8 138.7 1134.6 176.8 Q 1092.9 204.7 983.4 270.5 Q 937.1 224.6 822.5 186.5 Q 817.4 71.5 794.6 25.7 Q 852.4 -77.1 856.4 -101.4 Q 925.2 -76.3 983.4 -115.0 Q 1066.2 -77.3 1083.6 -74.5 Q 1126.7 -13.9 1222.2 25.7 Z" fill="#A7D2CB" opacity="0.68" /><path d="M 366.8 549.8 Q 281.3 603.7 283.5 715.0 Q 153.0 780.8 118.3 880.8 Q 44.3 836.9 -117.6 785.7 Q -159.9 683.3 -223.6 549.8 Q -140.5 435.5 -54.6 376.9 Q 68.4 346.4 118.3 275.2 Q 201.6 372.6 273.4 394.7 Q 294.8 502.5 366.8 549.8 Z" fill="#E8A0BF" opacity="0.48" /><path d="M 465.9 510.1 Q 444.0 590.6 422.1 618.3 Q 336.4 619.2 313.9 654.1 Q 279.1 665.7 219.7 604.3 Q 213.4 529.6 163.1 510.1 Q 138.8 395.8 156.2 352.4 Q 265.9 345.8 313.9 299.4 Q 364.2 293.7 481.7 342.2 Q 461.3 442.3 465.9 510.1 Z" fill="#A7D2CB" opacity="0.69" />
+  <path d="M 863.8 363.8 Q 948.5 540.9 861.6 453.8" stroke="#C9B6E4" stroke-width="14.8" stroke-linecap="round" fill="none" opacity="0.65" /><path d="M 933.4 391.4 Q 893.8 564.7 645.4 739.6" stroke="#F6C6D0" stroke-width="30.6" stroke-linecap="round" fill="none" opacity="0.40" /><path d="M 516.1 228.6 Q 400.7 109.4 319.0 284.0" stroke="#C9B6E4" stroke-width="28.4" stroke-linecap="round" fill="none" opacity="0.66" /><path d="M 121.8 992.6 Q 13.1 811.5 -90.3 614.7" stroke="#C9B6E4" stroke-width="25.6" stroke-linecap="round" fill="none" opacity="0.56" /><path d="M 614.1 536.0 Q 597.6 673.3 332.6 642.0" stroke="#E8A0BF" stroke-width="26.3" stroke-linecap="round" fill="none" opacity="0.43" /><path d="M 404.8 534.4 Q 587.7 610.7 483.1 796.1" stroke="#F6C6D0" stroke-width="23.2" stroke-linecap="round" fill="none" opacity="0.27" />
+  <rect width="1000" height="1000" filter="url(#grain-midnight-bloom)" />
+</svg>

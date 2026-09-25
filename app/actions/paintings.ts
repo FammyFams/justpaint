@@ -61,7 +61,9 @@ export async function createPaintingAction(
   });
   if (slotError) {
     if (slotError.message.includes("rate_limited_ip")) {
-      return { error: "You've posted a lot recently — try again in a bit." };
+      return {
+        error: "You can post 3 paintings a day — come back tomorrow for more.",
+      };
     }
     if (slotError.message.includes("rate_limited_site")) {
       return { error: "Lots of uploads right now — try again in a little while." };

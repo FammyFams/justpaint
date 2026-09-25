@@ -13,9 +13,6 @@ export function Footer() {
         </p>
         <div className="flex items-center gap-4">
           <span>&copy; {new Date().getFullYear()} justpaint</span>
-          <Link href="/links" className="transition-colors hover:text-foreground">
-            Links
-          </Link>
           <Link href="/privacy" className="transition-colors hover:text-foreground">
             Privacy
           </Link>

@@ -34,7 +34,7 @@ const rowClass =
 
 export default function LinksPage() {
   return (
-    <main className="mx-auto flex max-w-md flex-col items-center px-4 py-12 sm:py-16">
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-4 py-12">
       <span className="relative size-24 overflow-hidden rounded-full border border-border bg-card shadow-sm">
         <Image src="/logo.jpg" alt="" fill className="object-cover" sizes="96px" priority />
       </span>

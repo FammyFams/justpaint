@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { SiteChrome } from "@/components/site-chrome";
 import "./globals.css";
 
 // Stand-in for Alteix Sans, whose free version is personal-use only.
@@ -24,9 +25,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${jakarta.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Navbar />
-        <div className="flex-1">{children}</div>
-        <Footer />
+        <SiteChrome header={<Navbar />} footer={<Footer />}>
+          {children}
+        </SiteChrome>
         <Toaster position="bottom-right" />
       </body>
     </html>

@@ -44,6 +44,11 @@ export default function PrivacyPage() {
               We don&rsquo;t collect an email address or anything else
               identifying for guest posts.
             </li>
+            <li>
+              Photos often carry hidden details like the location they were
+              taken and the phone that took them. We strip all of that from
+              every image before it&rsquo;s stored or shown.
+            </li>
           </ul>
           <p className="mb-2 font-medium text-foreground">
             Automatically, for anyone using the site:

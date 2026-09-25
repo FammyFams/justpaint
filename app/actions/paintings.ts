@@ -3,6 +3,7 @@
 import { createHmac } from "node:crypto";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import sharp from "sharp";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ALLOWED_IMAGE_TYPES } from "@/lib/validations/painting";
 
@@ -36,6 +37,28 @@ async function hashedClientIp(): Promise<string> {
     .digest("hex");
 }
 
+// Re-encodes the image server-side so no metadata survives -- phone photos
+// often carry GPS coordinates in EXIF, and the browser-side compressor passes
+// some files through untouched. sharp drops all metadata on output by default;
+// .rotate() first bakes the EXIF orientation into the pixels so the photo
+// doesn't come out sideways. Decoding also rejects files that aren't really
+// images, whatever MIME type the browser claimed.
+async function stripMetadata(file: File): Promise<Buffer> {
+  const input = Buffer.from(await file.arrayBuffer());
+  if (file.type === "image/gif") {
+    return sharp(input, { animated: true }).gif().toBuffer();
+  }
+  const image = sharp(input).rotate();
+  switch (file.type) {
+    case "image/png":
+      return image.png().toBuffer();
+    case "image/webp":
+      return image.webp({ quality: 90 }).toBuffer();
+    default:
+      return image.jpeg({ quality: 90, mozjpeg: true }).toBuffer();
+  }
+}
+
 // Uploads go through the service-role client: browser-side roles have no
 // storage-upload or create_painting permission (see migration
 // 20260925000007), so this action -- and its rate limit -- is the only way in.
@@ -64,6 +87,14 @@ export async function createPaintingAction(
   const guestName = input.guestName?.trim() ?? "";
   if (guestName.length === 0) return { error: "Add your name." };
 
+  // Before claiming a rate-limit slot, so an unreadable file doesn't use one up.
+  let cleanImage: Buffer;
+  try {
+    cleanImage = await stripMetadata(input.image);
+  } catch {
+    return { error: "Couldn't read that image — try a different file." };
+  }
+
   const admin = createAdminClient();
 
   const { error: slotError } = await admin.rpc("claim_upload_slot", {
@@ -86,7 +117,7 @@ export async function createPaintingAction(
 
   const { error: uploadError } = await admin.storage
     .from("paintings")
-    .upload(path, input.image, { contentType: input.image.type, upsert: false });
+    .upload(path, cleanImage, { contentType: input.image.type, upsert: false });
   if (uploadError) {
     return { error: `Upload failed: ${uploadError.message}` };
   }

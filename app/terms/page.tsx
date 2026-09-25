@@ -75,9 +75,53 @@ export default function TermsPage() {
             >
               matthewzhenghi@gmail.com
             </a>
-            . If you believe something on justpaint uses your work without
-            permission, email the same address with a link to the post and
-            we&rsquo;ll look into it.
+            . If something on justpaint uses your work without permission,
+            see Copyright below.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-2 font-heading text-xl">Copyright (DMCA)</h2>
+          <p className="mb-2">
+            We respond to notices of copyright infringement under the Digital
+            Millennium Copyright Act. To report a post that uses your work,
+            email our designated agent at{" "}
+            <a
+              href="mailto:matthewzhenghi@gmail.com"
+              className="text-primary hover:underline"
+            >
+              matthewzhenghi@gmail.com
+            </a>{" "}
+            with:
+          </p>
+          <ul className="mb-4 list-disc space-y-1 pl-5">
+            <li>The link to the post on justpaint.</li>
+            <li>A description of your original work, or a link to it.</li>
+            <li>Your name, mailing address, phone number, and email.</li>
+            <li>
+              A statement that you believe in good faith the use isn&rsquo;t
+              authorized by you, your agent, or the law.
+            </li>
+            <li>
+              A statement, under penalty of perjury, that your notice is
+              accurate and that you own the work or are authorized to act for
+              the owner.
+            </li>
+            <li>Your physical or electronic signature (typing your full name works).</li>
+          </ul>
+          <p className="mb-2">
+            When we get a complete notice, we&rsquo;ll remove the post. If your
+            post was removed and you believe that was a mistake, you can send a
+            counter-notice to the same address with the removed post&rsquo;s
+            link, a statement under penalty of perjury that it was removed by
+            mistake or misidentification, your name and contact details, your
+            consent to the jurisdiction of your local federal district court,
+            and your signature.
+          </p>
+          <p>
+            We remove repeat infringers: if we learn someone has repeatedly
+            posted other people&rsquo;s work, we&rsquo;ll take down their posts
+            and, where we can, stop them from posting again.
           </p>
         </section>
 

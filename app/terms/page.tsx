@@ -82,6 +82,12 @@ export default function TermsPage() {
 
         <section>
           <h2 className="mb-2 font-heading text-xl">Copyright (DMCA)</h2>
+          <p className="mb-2 rounded-sm border border-border bg-card px-3 py-2 text-muted-foreground">
+            Our designated agent registration with the U.S. Copyright Office
+            (DMCA-1081094) is in progress. Full agent contact details will be
+            listed here once it&rsquo;s finalized &mdash; until then, send
+            notices to the email below.
+          </p>
           <p className="mb-2">
             We respond to notices of copyright infringement under the Digital
             Millennium Copyright Act. To report a post that uses your work,

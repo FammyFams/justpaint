@@ -48,39 +48,43 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Palette: coolors.co/fbf5f3-e28413-000022-de3c4b-c42847
+   Crimson #c42847 carries light text (5:1); orange #e28413 only ever carries
+   navy text, since light text on it fails contrast. Borders, muted surfaces
+   and muted text are tints of the navy/off-white. */
 :root {
-  --background: #f5efe2;
-  --foreground: #201a13;
-  --card: #fffcf5;
-  --card-foreground: #201a13;
-  --popover: #fffcf5;
-  --popover-foreground: #201a13;
-  --primary: #b1451f;
-  --primary-foreground: #fbf1e4;
-  --secondary: #eadfc7;
-  --secondary-foreground: #382c1d;
-  --muted: #ece2cc;
-  --muted-foreground: #6c5f4c;
-  --accent: #253a34;
-  --accent-foreground: #f5efe2;
-  --destructive: #a3342b;
-  --border: #e0d3b3;
-  --input: #e0d3b3;
-  --ring: #b1451f;
-  --chart-1: #b1451f;
-  --chart-2: #253a34;
-  --chart-3: #8a6a3f;
-  --chart-4: #6c5f4c;
-  --chart-5: #382c1d;
+  --background: #fbf5f3;
+  --foreground: #000022;
+  --card: #fffdfc;
+  --card-foreground: #000022;
+  --popover: #fffdfc;
+  --popover-foreground: #000022;
+  --primary: #c42847;
+  --primary-foreground: #fbf5f3;
+  --secondary: #f2e6e2;
+  --secondary-foreground: #000022;
+  --muted: #f2e6e2;
+  --muted-foreground: #5a586c;
+  --accent: #e28413;
+  --accent-foreground: #000022;
+  --destructive: #c42847;
+  --border: #eaddd8;
+  --input: #d9cac5;
+  --ring: #de3c4b;
+  --chart-1: #c42847;
+  --chart-2: #e28413;
+  --chart-3: #000022;
+  --chart-4: #de3c4b;
+  --chart-5: #5a586c;
   --radius: 0.25rem;
-  --sidebar: #fffcf5;
-  --sidebar-foreground: #201a13;
-  --sidebar-primary: #b1451f;
-  --sidebar-primary-foreground: #fbf1e4;
-  --sidebar-accent: #ece2cc;
-  --sidebar-accent-foreground: #201a13;
-  --sidebar-border: #e0d3b3;
-  --sidebar-ring: #b1451f;
+  --sidebar: #fffdfc;
+  --sidebar-foreground: #000022;
+  --sidebar-primary: #c42847;
+  --sidebar-primary-foreground: #fbf5f3;
+  --sidebar-accent: #e28413;
+  --sidebar-accent-foreground: #000022;
+  --sidebar-border: #eaddd8;
+  --sidebar-ring: #de3c4b;
 }
 
 @keyframes rise {

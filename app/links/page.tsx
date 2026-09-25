@@ -30,7 +30,7 @@ const LINKS = [
 ] as const;
 
 const rowClass =
-  "group flex items-center gap-4 rounded-sm border border-border/70 bg-card px-4 py-3.5 shadow-[0_1px_2px_rgba(32,26,19,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_10px_24px_-12px_rgba(32,26,19,0.25)]";
+  "group flex items-center gap-4 rounded-sm border border-border/70 bg-card px-4 py-3.5 shadow-[0_1px_2px_rgba(0,0,34,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_10px_24px_-12px_rgba(0,0,34,0.25)]";
 
 export default function LinksPage() {
   return (

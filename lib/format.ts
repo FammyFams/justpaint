@@ -6,14 +6,9 @@ export function getInitials(name: string): string {
 }
 
 const AVATAR_PALETTE = [
-  "bg-rose-200 text-rose-900",
-  "bg-amber-200 text-amber-900",
-  "bg-lime-200 text-lime-900",
-  "bg-teal-200 text-teal-900",
-  "bg-sky-200 text-sky-900",
-  "bg-violet-200 text-violet-900",
-  "bg-fuchsia-200 text-fuchsia-900",
-  "bg-orange-200 text-orange-900",
+  "bg-secondary text-secondary-foreground",
+  "bg-accent text-accent-foreground",
+  "bg-primary text-primary-foreground",
 ];
 
 export function getAvatarClasses(name: string): string {

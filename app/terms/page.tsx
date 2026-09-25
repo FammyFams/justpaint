@@ -88,7 +88,7 @@ export default function TermsPage() {
             without permission, contact our designated agent.
           </p>
 
-          <dl className="mb-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-sm border border-border bg-card px-4 py-4 shadow-[0_1px_2px_rgba(32,26,19,0.06)]">
+          <dl className="mb-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-sm border border-border bg-card px-4 py-4 shadow-[0_1px_2px_rgba(0,0,34,0.06)]">
             <dt className="text-muted-foreground">Designated agent</dt>
             <dd className="font-medium text-foreground">Matthew Zheng</dd>
             <dt className="text-muted-foreground">Email</dt>

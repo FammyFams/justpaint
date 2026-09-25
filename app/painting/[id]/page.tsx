@@ -48,7 +48,7 @@ export default async function PaintingPage({
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.3fr_1fr]">
-        <div className="rounded-sm border border-border/70 bg-card p-3 shadow-[0_1px_2px_rgba(32,26,19,0.06)] sm:p-4">
+        <div className="rounded-sm border border-border/70 bg-card p-3 shadow-[0_1px_2px_rgba(0,0,34,0.06)] sm:p-4">
           <div className="relative w-full overflow-hidden rounded-[2px] bg-muted">
             <Image
               src={painting.imageUrl}

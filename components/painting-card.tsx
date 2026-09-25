@@ -26,7 +26,7 @@ export function PaintingCard({
       className="group mb-5 block break-inside-avoid animate-rise opacity-0"
       style={{ animationDelay: `${Math.min(index, 10) * 70}ms` }}
     >
-      <div className="overflow-hidden rounded-sm border border-border/70 bg-card p-2.5 shadow-[0_1px_2px_rgba(32,26,19,0.06)] transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_16px_32px_-12px_rgba(32,26,19,0.25)]">
+      <div className="overflow-hidden rounded-sm border border-border/70 bg-card p-2.5 shadow-[0_1px_2px_rgba(0,0,34,0.06)] transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_16px_32px_-12px_rgba(0,0,34,0.25)]">
         <div
           className={`relative w-full overflow-hidden rounded-[2px] bg-muted ${aspectRatio[painting.aspect]}`}
         >

@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { getAllTags, getFeed } from "@/lib/paintings";
 import { PaintingGrid } from "@/components/painting-grid";
-import { TagFilter } from "@/components/tag-filter";
 
 export const metadata: Metadata = {
-  title: "justpaint — a place to hang your paintings",
+  title: "justpaint",
 };
 
 export default async function Home({
@@ -25,9 +24,8 @@ export default async function Home({
         <p className="mt-3 text-muted-foreground">what did you paint today?</p>
       </div>
 
-      <div className="mb-8">
-        <TagFilter tags={tags} activeTag={tag} />
-      </div>
+      {/* Tag filter row hidden for now; restore with
+          <TagFilter tags={tags} activeTag={tag} /> from components/tag-filter. */}
 
       {activeTag && (
         <p className="mb-5 text-sm text-muted-foreground">

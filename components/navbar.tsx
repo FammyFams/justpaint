@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut, Plus, Shield } from "lucide-react";
+import { LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isAdmin } from "@/lib/admin";
 import { adminLogoutAction } from "@/app/actions/admin";
@@ -50,12 +50,13 @@ export async function Navbar() {
             </>
           )}
           <Button
-            size="icon"
-            variant="secondary"
+            size="lg"
             nativeButton={false}
+            className="rounded-full px-4"
             render={
-              <Link href="/upload" aria-label="Upload a painting">
-                <Plus />
+              <Link href="/upload" aria-label="Post a painting">
+                <span className="sm:hidden">post</span>
+                <span className="hidden sm:inline">post a painting</span>
               </Link>
             }
           />

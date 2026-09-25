@@ -61,9 +61,12 @@ export default function PrivacyPage() {
               track you.
             </li>
             <li>
-              When you upload, a scrambled (one-way hashed) version of your IP
-              address, kept for two days to limit how many uploads can come
-              from one place. We never store your actual IP.
+              A scrambled (one-way hashed) version of your IP address. When
+              you upload, it&rsquo;s kept for two days to limit how many
+              uploads can come from one place. When you heart a painting,
+              it&rsquo;s kept for as long as the heart is, so each painting
+              gets one heart per visitor. We never store your actual IP, and
+              it&rsquo;s never shown publicly.
             </li>
           </ul>
         </section>
@@ -76,8 +79,41 @@ export default function PrivacyPage() {
               We don&rsquo;t use analytics tools that build a profile of you
               across other sites.
             </li>
-            <li>We don&rsquo;t sell your data to anyone.</li>
+            <li>We don&rsquo;t sell or share your data with anyone.</li>
           </ul>
+        </section>
+
+        <section>
+          <h2 className="mb-2 font-heading text-xl">
+            Cookies and browser storage
+          </h2>
+          <p className="mb-2">
+            We only use what the site needs to work &mdash; nothing for
+            tracking or advertising:
+          </p>
+          <ul className="list-disc space-y-1 pl-5">
+            <li>
+              <span className="font-medium text-foreground">Hearts:</span> your
+              browser remembers which paintings you&rsquo;ve hearted (a list of
+              painting IDs in local storage). It stays on your device and
+              isn&rsquo;t sent to us.
+            </li>
+            <li>
+              <span className="font-medium text-foreground">Sign-in:</span>{" "}
+              small cookies that keep a session signed in, for site admins
+              and, when accounts are available, account holders.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="mb-2 font-heading text-xl">Do Not Track</h2>
+          <p>
+            Some browsers can send a &ldquo;Do Not Track&rdquo; signal.
+            justpaint doesn&rsquo;t track you across other sites and doesn&rsquo;t
+            let third parties do so, so we treat every visit the same way
+            whether or not that signal is on.
+          </p>
         </section>
 
         <section>

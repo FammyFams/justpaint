@@ -1,10 +1,9 @@
 "use server";
 
-import { createHmac } from "node:crypto";
-import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import sharp from "sharp";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { hashedClientIp } from "@/lib/client-ip";
 import { ALLOWED_IMAGE_TYPES } from "@/lib/validations/painting";
 
 interface CreatePaintingInput {
@@ -24,18 +23,6 @@ const EXT_BY_MIME: Record<string, string> = {
   "image/webp": "webp",
   "image/gif": "gif",
 };
-
-async function hashedClientIp(): Promise<string> {
-  const h = await headers();
-  const ip =
-    h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    h.get("x-real-ip") ||
-    "unknown";
-  // Salted so the stored value can't be reversed to an IP by brute force.
-  return createHmac("sha256", process.env.SUPABASE_SECRET_KEY!)
-    .update(ip)
-    .digest("hex");
-}
 
 // Re-encodes the image server-side so no metadata survives -- phone photos
 // often carry GPS coordinates in EXIF, and the browser-side compressor passes

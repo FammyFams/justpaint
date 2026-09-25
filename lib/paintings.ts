@@ -4,7 +4,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import type { Artist, Comment, Painting, Tag } from "@/lib/types";
 
 const PAINTING_SELECT = `
-  id, title, description, image_path, aspect, owner_id, guest_name, created_at,
+  id, title, description, image_path, aspect, owner_id, guest_name, created_at, heart_count,
   profiles!paintings_owner_id_fkey ( display_name ),
   paintings_tags ( tags ( id, name, slug ) ),
   likes ( count )
@@ -19,6 +19,7 @@ interface PaintingRow {
   owner_id: string | null;
   guest_name: string | null;
   created_at: string;
+  heart_count: number;
   profiles: { display_name: string } | null;
   paintings_tags: { tags: { id: string; name: string; slug: string } | null }[];
   likes: { count: number }[];
@@ -46,7 +47,8 @@ function toPainting(
     tags: row.paintings_tags
       .map((pt) => pt.tags)
       .filter((t): t is Tag => Boolean(t)),
-    likeCount: row.likes[0]?.count ?? 0,
+    // Account likes (paused for now) plus account-free hearts.
+    likeCount: (row.likes[0]?.count ?? 0) + row.heart_count,
     createdAt: row.created_at,
   };
 }

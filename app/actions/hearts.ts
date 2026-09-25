@@ -1,0 +1,49 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { hashedClientIp } from "@/lib/client-ip";
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Account-free heart. Each (hashed) IP gets at most one heart per painting,
+ * so repeated calls can't inflate the count -- hearting twice is a no-op, as
+ * is un-hearting something you never hearted. Returns the updated total.
+ */
+export async function setHeartAction(
+  paintingId: string,
+  hearted: boolean
+): Promise<{ error: string } | { count: number }> {
+  if (!UUID.test(paintingId)) return { error: "Unknown painting." };
+
+  const admin = createAdminClient();
+  const ipHash = await hashedClientIp();
+
+  const { error } = hearted
+    ? await admin
+        .from("painting_hearts")
+        .upsert(
+          { painting_id: paintingId, ip_hash: ipHash },
+          { onConflict: "painting_id,ip_hash", ignoreDuplicates: true }
+        )
+    : await admin
+        .from("painting_hearts")
+        .delete()
+        .eq("painting_id", paintingId)
+        .eq("ip_hash", ipHash);
+  if (error) return { error: "Couldn't save that — try again." };
+
+  const { data } = await admin
+    .from("paintings")
+    .select("heart_count, likes ( count )")
+    .eq("id", paintingId)
+    .maybeSingle();
+  if (!data) return { error: "That painting no longer exists." };
+
+  revalidatePath("/");
+  revalidatePath(`/painting/${paintingId}`);
+
+  const likes = (data.likes as unknown as { count: number }[])[0]?.count ?? 0;
+  return { count: data.heart_count + likes };
+}

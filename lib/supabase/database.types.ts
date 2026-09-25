@@ -111,12 +111,39 @@ export type Database = {
           },
         ]
       }
+      painting_hearts: {
+        Row: {
+          created_at: string
+          ip_hash: string
+          painting_id: string
+        }
+        Insert: {
+          created_at?: string
+          ip_hash: string
+          painting_id: string
+        }
+        Update: {
+          created_at?: string
+          ip_hash?: string
+          painting_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "painting_hearts_painting_id_fkey"
+            columns: ["painting_id"]
+            isOneToOne: false
+            referencedRelation: "paintings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       paintings: {
         Row: {
           aspect: string
           created_at: string
           description: string
           guest_name: string | null
+          heart_count: number
           id: string
           image_path: string
           owner_id: string | null
@@ -128,6 +155,7 @@ export type Database = {
           created_at?: string
           description?: string
           guest_name?: string | null
+          heart_count?: number
           id?: string
           image_path: string
           owner_id?: string | null
@@ -139,6 +167,7 @@ export type Database = {
           created_at?: string
           description?: string
           guest_name?: string | null
+          heart_count?: number
           id?: string
           image_path?: string
           owner_id?: string | null

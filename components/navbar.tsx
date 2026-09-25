@@ -23,18 +23,6 @@ export function Navbar() {
           justpaint
         </Link>
 
-        <nav className="hidden items-center gap-6 font-medium text-sm text-muted-foreground sm:flex">
-          <Link href="/" className="transition-colors hover:text-foreground">
-            Gallery
-          </Link>
-          <Link
-            href="/upload"
-            className="transition-colors hover:text-foreground"
-          >
-            Upload
-          </Link>
-        </nav>
-
         <Button
           size="icon"
           variant="secondary"

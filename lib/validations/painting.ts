@@ -1,5 +1,12 @@
 import * as z from "zod";
 
+export const ALLOWED_IMAGE_TYPES = [
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/gif",
+] as const;
+
 export const paintingSchema = z.object({
   name: z.string().trim().max(60).optional(),
   title: z.string().trim().min(2, "Give it a title").max(80),
@@ -17,8 +24,8 @@ export const paintingSchema = z.object({
       "Image must be 10MB or smaller"
     )
     .refine(
-      (file) => file.type.startsWith("image/"),
-      "File must be an image"
+      (file) => (ALLOWED_IMAGE_TYPES as readonly string[]).includes(file.type),
+      "File must be a PNG, JPEG, WEBP, or GIF image"
     ),
 });
 

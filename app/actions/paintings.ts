@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { ALLOWED_IMAGE_TYPES } from "@/lib/validations/painting";
 
 interface CreatePaintingInput {
   title: string;
@@ -21,8 +22,8 @@ export async function createPaintingAction(
   if (input.image.size > 10 * 1024 * 1024) {
     return { error: "Image must be 10MB or smaller." };
   }
-  if (!input.image.type.startsWith("image/")) {
-    return { error: "File must be an image." };
+  if (!(ALLOWED_IMAGE_TYPES as readonly string[]).includes(input.image.type)) {
+    return { error: "File must be a PNG, JPEG, WEBP, or GIF image." };
   }
 
   const supabase = await createClient();
@@ -34,10 +35,14 @@ export async function createPaintingAction(
     return { error: "Add your name." };
   }
 
+  const EXT_BY_MIME: Record<string, string> = {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/webp": "webp",
+    "image/gif": "gif",
+  };
   const paintingId = crypto.randomUUID();
-  const ext =
-    input.image.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") ||
-    "jpg";
+  const ext = EXT_BY_MIME[input.image.type];
   const path = `${userId ?? "guest"}/${paintingId}.${ext}`;
 
   const { error: uploadError } = await supabase.storage

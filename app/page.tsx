@@ -22,6 +22,9 @@ export default async function Home({
           JUST PAINT
         </h1>
         <p className="mt-3 text-muted-foreground">what did you paint today?</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          a community for beginners.
+        </p>
       </div>
 
       {/* Tag filter row hidden for now; restore with

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight, Music2, Palette, Play, Store } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Links — justpaint",
+  title: "Links | justpaint",
   description: "Find itsthew on Etsy, TikTok, YouTube, and justpaint.",
 };
 

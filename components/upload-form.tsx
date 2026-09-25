@@ -89,7 +89,7 @@ export function UploadForm({
       });
     } catch {
       setFormError(
-        "Something went wrong sending that — check your connection and try again."
+        "Something went wrong sending that. Check your connection and try again."
       );
       return;
     }

@@ -29,7 +29,7 @@ export default async function Home({
 
       {activeTag && (
         <p className="mb-5 text-sm text-muted-foreground">
-          Showing <span className="text-foreground">{activeTag.name}</span> —{" "}
+          Showing <span className="text-foreground">{activeTag.name}</span>:{" "}
           {paintings.length} {paintings.length === 1 ? "piece" : "pieces"}
         </p>
       )}

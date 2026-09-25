@@ -3,7 +3,7 @@ import { UploadForm } from "@/components/upload-form";
 import { getAllTags } from "@/lib/paintings";
 
 export const metadata: Metadata = {
-  title: "Upload a painting — justpaint",
+  title: "Upload a painting | justpaint",
 };
 
 // Accounts are temporarily disabled -- everyone posts as a guest for now.

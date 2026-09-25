@@ -12,7 +12,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const artist = await getArtistById(id);
-  return { title: artist ? `${artist.displayName} — justpaint` : "justpaint" };
+  return { title: artist ? `${artist.displayName} | justpaint` : "justpaint" };
 }
 
 export default async function ArtistPage({

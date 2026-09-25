@@ -46,7 +46,7 @@ export function AdminDeleteButton({
       if (redirectTo) router.push(redirectTo);
       else router.refresh();
     } catch {
-      toast.error("Couldn't delete that — check your connection and try again.");
+      toast.error("Couldn't delete that. Check your connection and try again.");
       setDeleting(false);
     }
   }

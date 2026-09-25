@@ -10,7 +10,7 @@ import { AdminDeleteButton } from "@/components/admin-delete-button";
 import { adminLogoutAction } from "@/app/actions/admin";
 
 export const metadata: Metadata = {
-  title: "Admin — justpaint",
+  title: "Admin | justpaint",
   robots: { index: false, follow: false },
 };
 

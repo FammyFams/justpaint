@@ -32,7 +32,7 @@ export async function setHeartAction(
         .delete()
         .eq("painting_id", paintingId)
         .eq("ip_hash", ipHash);
-  if (error) return { error: "Couldn't save that — try again." };
+  if (error) return { error: "Couldn't save that. Try again." };
 
   const { data } = await admin
     .from("paintings")

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Terms — justpaint",
+  title: "Terms | justpaint",
 };
 
 export default function TermsPage() {
@@ -39,7 +39,7 @@ export default function TermsPage() {
               people&rsquo;s work, even with credit.
             </li>
             <li>
-              justpaint is for what you painted today &mdash; please
+              justpaint is for what you painted today. Please
               don&rsquo;t upload older, previously finished paintings.
             </li>
             <li>
@@ -66,7 +66,7 @@ export default function TermsPage() {
         <section>
           <h2 className="mb-2 font-heading text-xl">Removing posts</h2>
           <p>
-            We can remove any post, at any time, for any reason &mdash;
+            We can remove any post, at any time, for any reason,
             including anything that breaks these terms. To have one of your
             own posts taken down, email{" "}
             <a
@@ -137,8 +137,8 @@ export default function TermsPage() {
               the owner.
             </li>
             <li>
-              Your physical or electronic signature &mdash; typing your full
-              name works.
+              Your physical or electronic signature (typing your full
+              name works).
             </li>
           </ol>
 
@@ -178,7 +178,7 @@ export default function TermsPage() {
           <p>
             justpaint is provided as is. We try to keep it running and your
             posts safe, but we can&rsquo;t promise the site will always be
-            available or that nothing will ever be lost &mdash; keep your own
+            available or that nothing will ever be lost, so keep your own
             copies of anything you care about. To the extent the law allows,
             justpaint isn&rsquo;t liable for losses that come from using the
             site or from content other people post.

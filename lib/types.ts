@@ -20,7 +20,7 @@ export interface Painting {
   imagePath: string;
   imageUrl: string;
   aspect: "portrait" | "landscape" | "square";
-  /** Null for guest uploads — posting doesn't require an account. */
+  /** Null for guest uploads, since posting doesn't require an account. */
   artistId: string | null;
   /** Display name to credit: the artist's profile name, or the guest's typed name. */
   authorName: string;

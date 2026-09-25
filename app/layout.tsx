@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Toaster } from "@/components/ui/sonner";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -30,6 +31,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </SiteChrome>
         <Toaster position="bottom-right" />
       </body>
+      {/* Production only, so local dev visits don't count as traffic.
+          Disclosed on the privacy page. */}
+      {process.env.NODE_ENV === "production" && (
+        <GoogleAnalytics gaId="G-K5E7GDQSHM" />
+      )}
     </html>
   );
 }

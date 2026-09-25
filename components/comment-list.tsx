@@ -48,7 +48,7 @@ export function CommentList({
       {comments.length === 0 ? (
         isLoggedIn && (
           <p className="text-sm text-muted-foreground">
-            No comments yet — be the first to say something.
+            No comments yet. Be the first to say something.
           </p>
         )
       ) : (

@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
   const requestedNext = searchParams.get("next") ?? "/";
-  // Only allow same-origin relative paths — a full/protocol-relative URL here
+  // Only allow same-origin relative paths: a full/protocol-relative URL here
   // would let a crafted confirmation link redirect the victim off-site.
   const next =
     requestedNext.startsWith("/") && !requestedNext.startsWith("//")

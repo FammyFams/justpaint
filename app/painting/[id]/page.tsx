@@ -24,7 +24,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const painting = await getPaintingById(id);
-  return { title: painting ? `${painting.title} — justpaint` : "justpaint" };
+  return { title: painting ? `${painting.title} | justpaint` : "justpaint" };
 }
 
 export default async function PaintingPage({

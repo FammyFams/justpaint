@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy — justpaint",
+  title: "Privacy | justpaint",
 };
 
 export default function PrivacyPage() {
@@ -28,11 +28,11 @@ export default function PrivacyPage() {
           <ul className="mb-4 list-disc space-y-1 pl-5">
             <li>
               Your email address and password. Passwords are handled
-              entirely by our authentication provider (Supabase) — we never
-              see or store them in plain text.
+              entirely by our authentication provider (Supabase), so we
+              never see or store them in plain text.
             </li>
             <li>The display name and bio you choose to add to your profile.</li>
-            <li>Paintings you upload — the image, title, description, and tags.</li>
+            <li>Paintings you upload: the image, title, description, and tags.</li>
             <li>Likes and comments you make.</li>
           </ul>
           <p className="mb-2 font-medium text-foreground">
@@ -56,9 +56,9 @@ export default function PrivacyPage() {
           <ul className="list-disc space-y-1 pl-5">
             <li>
               Standard server request logs collected by our hosting
-              provider (Vercel) — things like IP address, browser type, and
-              timestamps — used only to operate and secure the site, not to
-              track you.
+              provider (Vercel), like IP address, browser type, and
+              timestamps. These are used only to operate and secure the
+              site.
             </li>
             <li>
               A scrambled (one-way hashed) version of your IP address. When
@@ -68,6 +68,13 @@ export default function PrivacyPage() {
               gets one heart per visitor. We never store your actual IP, and
               it&rsquo;s never shown publicly.
             </li>
+            <li>
+              Visit statistics collected by Google Analytics: which pages
+              you view, roughly where you are (city or country level), your
+              device and browser type, and how you found the site. We use
+              this only to understand how many people visit and what they
+              look at.
+            </li>
           </ul>
         </section>
 
@@ -76,10 +83,10 @@ export default function PrivacyPage() {
           <ul className="list-disc space-y-1 pl-5">
             <li>We don&rsquo;t run ads or use advertising trackers.</li>
             <li>
-              We don&rsquo;t use analytics tools that build a profile of you
-              across other sites.
+              We don&rsquo;t use Google Analytics data for advertising or
+              ad personalization.
             </li>
-            <li>We don&rsquo;t sell or share your data with anyone.</li>
+            <li>We don&rsquo;t sell your data to anyone.</li>
           </ul>
         </section>
 
@@ -88,8 +95,8 @@ export default function PrivacyPage() {
             Cookies and browser storage
           </h2>
           <p className="mb-2">
-            We only use what the site needs to work &mdash; nothing for
-            tracking or advertising:
+            Here&rsquo;s what justpaint stores in your browser. None of it is
+            used for advertising.
           </p>
           <ul className="list-disc space-y-1 pl-5">
             <li>
@@ -103,6 +110,23 @@ export default function PrivacyPage() {
               small cookies that keep a session signed in, for site admins
               and, when accounts are available, account holders.
             </li>
+            <li>
+              <span className="font-medium text-foreground">
+                Google Analytics:
+              </span>{" "}
+              cookies (named <code>_ga</code>) that let Google Analytics
+              recognize return visits so we can count visitors. You can
+              block them in your browser&rsquo;s cookie settings or with{" "}
+              <a
+                href="https://tools.google.com/dlpage/gaoptout"
+                className="text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Google&rsquo;s opt-out add-on
+              </a>
+              .
+            </li>
           </ul>
         </section>
 
@@ -110,41 +134,51 @@ export default function PrivacyPage() {
           <h2 className="mb-2 font-heading text-xl">Do Not Track</h2>
           <p>
             Some browsers can send a &ldquo;Do Not Track&rdquo; signal.
-            justpaint doesn&rsquo;t track you across other sites and doesn&rsquo;t
-            let third parties do so, so we treat every visit the same way
-            whether or not that signal is on.
+            justpaint doesn&rsquo;t respond to it: Google Analytics runs the
+            same way whether or not the signal is on. To keep Google
+            Analytics from counting your visits, use the opt-out add-on or
+            block cookies as described above.
           </p>
         </section>
 
         <section>
           <h2 className="mb-2 font-heading text-xl">Who we share data with</h2>
           <p className="mb-2">
-            We use two service providers to run justpaint, and your data
+            We use three service providers to run justpaint, and your data
             passes through them as part of normal operation:
           </p>
           <ul className="list-disc space-y-1 pl-5">
             <li>
-              <span className="font-medium text-foreground">Supabase</span> —
+              <span className="font-medium text-foreground">Supabase</span>{" "}
               hosts our database, handles authentication, and stores
               uploaded images.
             </li>
             <li>
-              <span className="font-medium text-foreground">Vercel</span> —
+              <span className="font-medium text-foreground">Vercel</span>{" "}
               hosts the website itself.
             </li>
+            <li>
+              <span className="font-medium text-foreground">Google</span>{" "}
+              provides Google Analytics. Google handles that data under{" "}
+              <a
+                href="https://policies.google.com/privacy"
+                className="text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                its own privacy policy
+              </a>
+              .
+            </li>
           </ul>
-          <p className="mt-2">
-            Neither uses your data for anything beyond providing these
-            services to us.
-          </p>
         </section>
 
         <section>
           <h2 className="mb-2 font-heading text-xl">Public content</h2>
           <p>
             Paintings, titles, descriptions, tags, comments, and profile
-            display names and bios are public by design &mdash; that&rsquo;s
-            the point of the site. Please don&rsquo;t upload or post
+            display names and bios are public by design. That&rsquo;s the
+            point of the site. Please don&rsquo;t upload or post
             anything you don&rsquo;t want visible to anyone who visits
             justpaint.
           </p>

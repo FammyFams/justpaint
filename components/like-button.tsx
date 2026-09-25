@@ -65,7 +65,7 @@ function GuestHeartButton({
         setHearted(!next);
         setCount((prev) => Math.max(0, prev + (next ? -1 : 1)));
         writeHearted(paintingId, !next);
-        toast.error("Couldn't save your heart — try again.");
+        toast.error("Couldn't save your heart. Try again.");
       }
     });
   }
@@ -140,7 +140,7 @@ function AccountLikeButton({
         // Roll back on failure.
         setLiked(!nextLiked);
         setCount((prev) => (nextLiked ? prev - 1 : prev + 1));
-        toast.error("Couldn't update your like — try again.");
+        toast.error("Couldn't update your like. Try again.");
       }
     });
   }

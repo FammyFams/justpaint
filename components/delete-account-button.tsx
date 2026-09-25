@@ -28,7 +28,7 @@ export function DeleteAccountButton() {
       }
       // On success the action redirects, so this component unmounts.
     } catch {
-      toast.error("Couldn't delete your account — check your connection and try again.");
+      toast.error("Couldn't delete your account. Check your connection and try again.");
       setDeleting(false);
     }
   }

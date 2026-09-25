@@ -108,18 +108,15 @@ export default function PrivacyPage() {
           <h2 className="mb-2 font-heading text-xl">Your choices</h2>
           <ul className="list-disc space-y-1 pl-5">
             <li>
-              You can edit your profile display name and bio at any time
-              from your profile page.
-            </li>
-            <li>
-              To delete your account or remove content, email{" "}
+              To have a painting you posted taken down, or your account and
+              everything in it deleted, email{" "}
               <a
                 href="mailto:matthewzhenghi@gmail.com"
                 className="text-primary hover:underline"
               >
                 matthewzhenghi@gmail.com
-              </a>{" "}
-              &mdash; this isn&rsquo;t self-serve yet.
+              </a>
+              .
             </li>
           </ul>
         </section>

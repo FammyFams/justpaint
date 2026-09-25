@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -19,17 +18,22 @@ export function LikeButton({
   initialLiked: boolean;
   isLoggedIn: boolean;
 }) {
-  const router = useRouter();
   const [liked, setLiked] = useState(initialLiked);
   const [count, setCount] = useState(initialCount);
   const [isPending, startTransition] = useTransition();
 
-  function handleClick() {
-    if (!isLoggedIn) {
-      router.push("/login");
-      return;
-    }
+  // Accounts are temporarily disabled, so liking isn't available -- show a
+  // plain read-only count instead of a dead-end login redirect.
+  if (!isLoggedIn) {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground">
+        <Heart className="size-4" />
+        {count}
+      </span>
+    );
+  }
 
+  function handleClick() {
     const nextLiked = !liked;
     setLiked(nextLiked);
     setCount((prev) => (nextLiked ? prev + 1 : prev - 1));

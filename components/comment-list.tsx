@@ -23,11 +23,6 @@ export function CommentList({
   const [submitting, setSubmitting] = useState(false);
 
   async function handleAdd(body: string) {
-    if (!isLoggedIn) {
-      router.push("/login");
-      return;
-    }
-
     setSubmitting(true);
     const result = await addCommentAction(paintingId, body);
     setSubmitting(false);
@@ -42,12 +37,20 @@ export function CommentList({
 
   return (
     <div className="flex flex-col gap-5">
-      <CommentForm onSubmit={handleAdd} submitting={submitting} />
+      {isLoggedIn ? (
+        <CommentForm onSubmit={handleAdd} submitting={submitting} />
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          Commenting isn&rsquo;t available right now.
+        </p>
+      )}
 
       {comments.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          No comments yet — be the first to say something.
-        </p>
+        isLoggedIn && (
+          <p className="text-sm text-muted-foreground">
+            No comments yet — be the first to say something.
+          </p>
+        )
       ) : (
         <ul className="flex flex-col gap-4">
           {comments.map((comment) => (

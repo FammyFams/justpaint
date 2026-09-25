@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getArtistById } from "@/lib/paintings";
 import { getCurrentUser } from "@/lib/current-user";
 import { ProfileEditForm } from "@/components/profile-edit-form";
+import { DeleteAccountButton } from "@/components/delete-account-button";
 
 export default async function EditProfilePage({
   params,
@@ -28,6 +29,14 @@ export default async function EditProfilePage({
       </p>
 
       <ProfileEditForm artist={artist} />
+
+      <div className="mt-12 border-t border-border pt-6">
+        <h2 className="font-heading text-lg italic">Danger zone</h2>
+        <p className="mt-1 mb-4 text-sm text-muted-foreground">
+          Permanently delete your account and everything you&rsquo;ve posted.
+        </p>
+        <DeleteAccountButton />
+      </div>
     </main>
   );
 }

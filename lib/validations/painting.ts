@@ -13,9 +13,13 @@ export const paintingSchema = z.object({
   description: z
     .string()
     .trim()
-    .max(600, "Keep it under 600 characters")
-    .optional(),
-  tags: z.array(z.string()).optional(),
+    .min(1, "Add a description")
+    .max(600, "Keep it under 600 characters"),
+  tags: z.array(z.string()).min(1, "Pick at least one tag"),
+  over13: z.boolean().refine((v) => v, "You must be 13 or older to post"),
+  agreedToTerms: z
+    .boolean()
+    .refine((v) => v, "Please agree to the Terms of Use"),
   image: z
     .instanceof(File, { message: "Add an image of your painting" })
     .refine((file) => file.size > 0, "Add an image of your painting")

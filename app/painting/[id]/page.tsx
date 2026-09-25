@@ -8,6 +8,8 @@ import {
   hasUserLiked,
 } from "@/lib/paintings";
 import { getCurrentUser } from "@/lib/current-user";
+import { isAdmin } from "@/lib/admin";
+import { AdminDeleteButton } from "@/components/admin-delete-button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { LikeButton } from "@/components/like-button";
@@ -34,9 +36,10 @@ export default async function PaintingPage({
   const painting = await getPaintingById(id);
   if (!painting) notFound();
 
-  const [comments, currentUser] = await Promise.all([
+  const [comments, currentUser, admin] = await Promise.all([
     getCommentsForPainting(painting.id),
     getCurrentUser(),
+    isAdmin(),
   ]);
   const liked = currentUser
     ? await hasUserLiked(painting.id, currentUser.id)
@@ -125,13 +128,20 @@ export default async function PaintingPage({
             ))}
           </div>
 
-          <div className="mt-6">
+          <div className="mt-6 flex items-center justify-between gap-4">
             <LikeButton
               paintingId={painting.id}
               initialCount={painting.likeCount}
               initialLiked={liked}
               isLoggedIn={Boolean(currentUser)}
             />
+            {admin && (
+              <AdminDeleteButton
+                paintingId={painting.id}
+                title={painting.title}
+                redirectTo="/"
+              />
+            )}
           </div>
 
           <div className="mt-10 border-t border-border pt-6">

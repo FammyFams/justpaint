@@ -13,6 +13,8 @@ interface CreatePaintingInput {
   aspect: "portrait" | "landscape" | "square";
   image: File;
   guestName?: string;
+  over13: boolean;
+  agreedToTerms: boolean;
 }
 
 const EXT_BY_MIME: Record<string, string> = {
@@ -43,6 +45,14 @@ export async function createPaintingAction(
 ): Promise<{ error: string } | { success: true; paintingId: string }> {
   const title = input.title.trim();
   if (title.length < 2) return { error: "Give it a title." };
+  if (input.description.trim().length === 0) {
+    return { error: "Add a description." };
+  }
+  if (!input.tags.some((t) => t.trim())) return { error: "Pick at least one tag." };
+  if (input.over13 !== true) return { error: "You must be 13 or older to post." };
+  if (input.agreedToTerms !== true) {
+    return { error: "Please agree to the Terms of Use." };
+  }
   if (!input.image || input.image.size === 0) return { error: "Add an image." };
   if (input.image.size > 10 * 1024 * 1024) {
     return { error: "Image must be 10MB or smaller." };

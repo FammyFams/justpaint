@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImagePlus } from "lucide-react";
@@ -22,6 +23,7 @@ import {
 } from "@/lib/validations/painting";
 import { createPaintingAction } from "@/app/actions/paintings";
 import { TagSelect } from "@/components/tag-select";
+import { compressImage } from "@/lib/compress-image";
 import type { Tag } from "@/lib/types";
 
 function detectAspect(file: File): Promise<"portrait" | "landscape" | "square"> {
@@ -53,10 +55,18 @@ export function UploadForm({
   const router = useRouter();
   const [preview, setPreview] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [preparing, setPreparing] = useState(false);
 
   const form = useForm<PaintingFormValues>({
     resolver: zodResolver(paintingSchema),
-    defaultValues: { name: "", title: "", description: "", tags: [] },
+    defaultValues: {
+      name: "",
+      title: "",
+      description: "",
+      tags: [],
+      over13: false,
+      agreedToTerms: false,
+    },
   });
 
   async function onSubmit(values: PaintingFormValues) {
@@ -77,6 +87,8 @@ export function UploadForm({
         aspect,
         image: values.image,
         guestName: currentUser ? undefined : values.name,
+        over13: values.over13,
+        agreedToTerms: values.agreedToTerms,
       });
     } catch {
       setFormError(
@@ -90,7 +102,7 @@ export function UploadForm({
       return;
     }
 
-    form.reset({ name: "", title: "", description: "", tags: [] });
+    form.reset();
     setPreview(null);
     router.push(`/painting/${result.paintingId}`);
   }
@@ -128,14 +140,18 @@ export function UploadForm({
                   type="file"
                   accept="image/*"
                   className="sr-only"
-                  onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    field.onChange(file);
-                    if (file) {
-                      setPreview(URL.createObjectURL(file));
-                    } else {
+                  onChange={async (event) => {
+                    const picked = event.target.files?.[0];
+                    if (!picked) {
+                      field.onChange(undefined);
                       setPreview(null);
+                      return;
                     }
+                    setPreparing(true);
+                    const file = await compressImage(picked);
+                    setPreparing(false);
+                    field.onChange(file);
+                    setPreview(URL.createObjectURL(file));
                   }}
                 />
               </label>
@@ -215,11 +231,72 @@ export function UploadForm({
                   value={field.value ?? []}
                   onChange={field.onChange}
                 />
-                <FieldDescription>Pick as many as fit.</FieldDescription>
+                <FieldDescription>Pick at least one.</FieldDescription>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
             )}
           />
+
+          <div className="flex flex-col gap-3">
+            <Controller
+              name="over13"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <label className="flex items-start gap-2.5 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={field.value}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                      onBlur={field.onBlur}
+                      aria-invalid={fieldState.invalid}
+                      className="mt-0.5 size-4 shrink-0 accent-primary"
+                    />
+                    I&rsquo;m 13 or older.
+                  </label>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="agreedToTerms"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <label className="flex items-start gap-2.5 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={field.value}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                      onBlur={field.onBlur}
+                      aria-invalid={fieldState.invalid}
+                      className="mt-0.5 size-4 shrink-0 accent-primary"
+                    />
+                    <span>
+                      I agree to the{" "}
+                      <Link
+                        href="/terms"
+                        target="_blank"
+                        className="text-primary underline-offset-2 hover:underline"
+                      >
+                        Terms of Use
+                      </Link>{" "}
+                      and{" "}
+                      <Link
+                        href="/privacy"
+                        target="_blank"
+                        className="text-primary underline-offset-2 hover:underline"
+                      >
+                        Privacy Policy
+                      </Link>
+                      .
+                    </span>
+                  </label>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+          </div>
 
           {formError && (
             <p className="text-sm text-destructive" role="alert">
@@ -228,8 +305,15 @@ export function UploadForm({
           )}
 
           <div className="flex justify-end">
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Posting…" : "Post painting"}
+            <Button
+              type="submit"
+              disabled={preparing || form.formState.isSubmitting}
+            >
+              {preparing
+                ? "Preparing image…"
+                : form.formState.isSubmitting
+                  ? "Posting…"
+                  : "Post painting"}
             </Button>
           </div>
         </FieldGroup>

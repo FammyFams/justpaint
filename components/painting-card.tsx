@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Heart } from "lucide-react";
 import type { Painting } from "@/lib/types";
-import { getArtistById, getTagsForPainting } from "@/lib/mock-data";
+import { getPaintingAuthorName, getTagsForPainting } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
 
 const aspectRatio: Record<Painting["aspect"], string> = {
@@ -18,7 +18,7 @@ export function PaintingCard({
   painting: Painting;
   index?: number;
 }) {
-  const artist = getArtistById(painting.artistId);
+  const authorName = getPaintingAuthorName(painting);
   const tags = getTagsForPainting(painting);
 
   return (
@@ -46,7 +46,12 @@ export function PaintingCard({
             {painting.title}
           </h3>
           <p className="mt-0.5 text-xs tracking-wide text-muted-foreground uppercase">
-            {artist?.displayName ?? "Unknown artist"}
+            {authorName}
+            {!painting.artistId && (
+              <span className="ml-1.5 normal-case text-muted-foreground/70">
+                · guest
+              </span>
+            )}
           </p>
 
           <div className="mt-2.5 flex items-center justify-between">

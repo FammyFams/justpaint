@@ -12,7 +12,8 @@ export default function UploadPage() {
         Hang something new.
       </h1>
       <p className="mt-3 max-w-xl text-muted-foreground">
-        A photo, a title, and a few words about it. That&rsquo;s the whole form.
+        A photo, a title, and a few words about it. No account required —
+        just tell us who to credit.
       </p>
 
       <div className="mt-10">

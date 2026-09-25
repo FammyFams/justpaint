@@ -26,16 +26,16 @@ export function UploadForm() {
 
   const form = useForm<PaintingFormValues>({
     resolver: zodResolver(paintingSchema),
-    defaultValues: { title: "", description: "", tags: "" },
+    defaultValues: { name: "", title: "", description: "", tags: "" },
   });
 
   function onSubmit(values: PaintingFormValues) {
-    toast.success("Painting captured — not posted yet.", {
+    toast.success(`Painting captured for ${values.name} — not posted yet.`, {
       description:
         "Uploads aren't wired to a backend in this preview. Nothing was saved.",
     });
     console.log("painting upload (not persisted)", values);
-    form.reset({ title: "", description: "", tags: "" });
+    form.reset({ name: "", title: "", description: "", tags: "" });
     setPreview(null);
   }
 
@@ -89,6 +89,26 @@ export function UploadForm() {
         />
 
         <FieldGroup>
+          <Controller
+            name="name"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="name">Your name</FieldLabel>
+                <Input
+                  id="name"
+                  placeholder="What should we call you?"
+                  {...field}
+                  aria-invalid={fieldState.invalid}
+                />
+                <FieldDescription>
+                  Shown next to your painting. No account needed to post.
+                </FieldDescription>
+                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              </Field>
+            )}
+          />
+
           <Controller
             name="title"
             control={form.control}

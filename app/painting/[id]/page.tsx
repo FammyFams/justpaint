@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import {
   getArtistById,
   getCommentsForPainting,
+  getPaintingAuthorName,
   getPaintingById,
   getTagsForPainting,
 } from "@/lib/mock-data";
@@ -34,6 +35,7 @@ export default async function PaintingPage({
   if (!painting) notFound();
 
   const artist = getArtistById(painting.artistId);
+  const authorName = getPaintingAuthorName(painting);
   const tags = getTagsForPainting(painting);
   const comments = getCommentsForPainting(painting.id);
 
@@ -65,7 +67,7 @@ export default async function PaintingPage({
             {painting.title}
           </h1>
 
-          {artist && (
+          {artist ? (
             <Link
               href={`/artist/${artist.id}`}
               className="mt-4 flex items-center gap-2.5"
@@ -84,6 +86,25 @@ export default async function PaintingPage({
                 </p>
               </div>
             </Link>
+          ) : (
+            <div className="mt-4 flex items-center gap-2.5">
+              <Avatar className="size-9">
+                <AvatarFallback className={getAvatarClasses(authorName)}>
+                  {getInitials(authorName)}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-sm font-medium leading-tight">
+                  {authorName}{" "}
+                  <span className="font-normal text-muted-foreground">
+                    · posted as a guest
+                  </span>
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {formatDate(painting.createdAt)}
+                </p>
+              </div>
+            </div>
           )}
 
           <p className="mt-5 text-sm leading-relaxed text-foreground/90">

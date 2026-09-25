@@ -126,10 +126,12 @@ export const paintings: Painting[] = [
   {
     id: "paper-moon",
     title: "Paper Moon",
-    description: "Gouache and collage. A small, deliberately unserious piece after a month of serious ones.",
+    description:
+      "First painting I've finished in years. No account, just wanted to put it somewhere people might see it.",
     imagePath: "/paintings/paper-moon.svg",
     aspect: "landscape",
-    artistId: "priya-nandakumar",
+    artistId: null,
+    guestName: "R. Alvarez",
     tagIds: ["mixed-media", "contemporary"],
     likeCount: 17,
     createdAt: "2026-06-15T13:30:00Z",
@@ -232,8 +234,16 @@ export const comments: Comment[] = [
   },
 ];
 
-export function getArtistById(id: string): Artist | undefined {
+export function getArtistById(id: string | null | undefined): Artist | undefined {
+  if (!id) return undefined;
   return artists.find((artist) => artist.id === id);
+}
+
+export function getPaintingAuthorName(painting: Painting): string {
+  if (painting.artistId) {
+    return getArtistById(painting.artistId)?.displayName ?? "Unknown artist";
+  }
+  return painting.guestName?.trim() || "Guest";
 }
 
 export function getPaintingById(id: string): Painting | undefined {

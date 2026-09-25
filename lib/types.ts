@@ -25,7 +25,10 @@ export interface Painting {
   description: string;
   imagePath: string;
   aspect: "portrait" | "landscape" | "square";
-  artistId: string;
+  /** Null for guest uploads — posting doesn't require an account. */
+  artistId: string | null;
+  /** Attribution name for guest uploads (artistId is null). Ignored otherwise. */
+  guestName?: string;
   tagIds: string[];
   likeCount: number;
   createdAt: string;

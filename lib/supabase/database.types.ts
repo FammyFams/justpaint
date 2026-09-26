@@ -39,6 +39,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_login_log: {
+        Row: {
+          created_at: string
+          id: number
+          ip_hash: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          ip_hash: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          ip_hash?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           body: string
@@ -77,6 +95,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      content_reports: {
+        Row: {
+          contact_email: string
+          created_at: string
+          details: string
+          id: number
+          painting_id: string | null
+          painting_title: string | null
+          reason: string
+          removed_count: number
+          reporter_hash: string
+          resolved_at: string | null
+          signature: string
+          status: string
+        }
+        Insert: {
+          contact_email: string
+          created_at?: string
+          details?: string
+          id?: never
+          painting_id?: string | null
+          painting_title?: string | null
+          reason: string
+          removed_count?: number
+          reporter_hash: string
+          resolved_at?: string | null
+          signature: string
+          status?: string
+        }
+        Update: {
+          contact_email?: string
+          created_at?: string
+          details?: string
+          id?: never
+          painting_id?: string | null
+          painting_title?: string | null
+          reason?: string
+          removed_count?: number
+          reporter_hash?: string
+          resolved_at?: string | null
+          signature?: string
+          status?: string
+        }
+        Relationships: []
       }
       likes: {
         Row: {
@@ -146,6 +209,7 @@ export type Database = {
           heart_count: number
           id: string
           image_path: string
+          image_sha256: string | null
           owner_id: string | null
           title: string
           updated_at: string
@@ -158,6 +222,7 @@ export type Database = {
           heart_count?: number
           id?: string
           image_path: string
+          image_sha256?: string | null
           owner_id?: string | null
           title: string
           updated_at?: string
@@ -170,6 +235,7 @@ export type Database = {
           heart_count?: number
           id?: string
           image_path?: string
+          image_sha256?: string | null
           owner_id?: string | null
           title?: string
           updated_at?: string
@@ -285,6 +351,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_comment: {
+        Args: { p_body: string; p_painting_id: string; p_user_id: string }
+        Returns: string
+      }
+      claim_admin_login_attempt: {
+        Args: { p_ip_hash: string }
+        Returns: undefined
+      }
       claim_upload_slot: { Args: { p_ip_hash: string }; Returns: undefined }
       create_painting: {
         Args: {
@@ -293,10 +367,15 @@ export type Database = {
           p_guest_name?: string
           p_id: string
           p_image_path: string
+          p_owner_id?: string
           p_tag_names?: string[]
           p_title: string
         }
         Returns: string
+      }
+      display_name_taken: {
+        Args: { p_exclude?: string; p_name: string }
+        Returns: boolean
       }
     }
     Enums: {

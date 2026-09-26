@@ -24,3 +24,10 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     displayName: profile?.display_name || claims.email?.split("@")[0] || "You",
   };
 }
+
+/** Just the signed-in user's id, without the profile lookup. */
+export async function getSessionUserId(): Promise<string | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  return data?.claims?.sub ?? null;
+}

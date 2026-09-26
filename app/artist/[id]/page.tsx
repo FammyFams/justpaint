@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getArtistById, getPaintingsByArtist } from "@/lib/paintings";
 import { getCurrentUser } from "@/lib/current-user";
+import { getHeartedIds } from "@/lib/hearts";
 import { ProfileHeader } from "@/components/profile-header";
 import { PaintingGrid } from "@/components/painting-grid";
 
@@ -29,6 +30,10 @@ export default async function ArtistPage({
     getCurrentUser(),
   ]);
 
+  const heartedIds = currentUser
+    ? await getHeartedIds(currentUser.id, paintings.map((p) => p.id))
+    : undefined;
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <ProfileHeader
@@ -36,7 +41,7 @@ export default async function ArtistPage({
         paintingCount={paintings.length}
         isOwnProfile={currentUser?.id === artist.id}
       />
-      <PaintingGrid paintings={paintings} />
+      <PaintingGrid paintings={paintings} heartedIds={heartedIds} />
     </main>
   );
 }

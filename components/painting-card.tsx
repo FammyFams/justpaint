@@ -13,9 +13,12 @@ const aspectRatio: Record<Painting["aspect"], string> = {
 export function PaintingCard({
   painting,
   index = 0,
+  hearted,
 }: {
   painting: Painting;
   index?: number;
+  /** Signed-in user's heart state; undefined for guests. */
+  hearted?: boolean;
 }) {
   const { authorName, tags } = painting;
 
@@ -71,8 +74,7 @@ export function PaintingCard({
           <LikeButton
             paintingId={painting.id}
             initialCount={painting.likeCount}
-            initialLiked={false}
-            isLoggedIn={false}
+            initialHearted={hearted}
             compact
           />
         </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { COMMENT_MAX_LENGTH } from "@/lib/validations/comment";
 
 export function CommentForm({
   onSubmit,
@@ -28,7 +29,7 @@ export function CommentForm({
         onChange={(event) => setValue(event.target.value)}
         placeholder="Say something about this piece..."
         rows={2}
-        maxLength={2000}
+        maxLength={COMMENT_MAX_LENGTH}
         className="resize-none bg-card"
       />
       <div className="flex justify-end">

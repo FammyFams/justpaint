@@ -11,13 +11,16 @@ export function Footer() {
           </span>
           justpaint
         </p>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
           <span>&copy; {new Date().getFullYear()} justpaint</span>
           <Link href="/privacy" className="transition-colors hover:text-foreground">
             Privacy
           </Link>
           <Link href="/terms" className="transition-colors hover:text-foreground">
             Terms
+          </Link>
+          <Link href="/report" className="transition-colors hover:text-foreground">
+            Report a post
           </Link>
         </div>
       </div>

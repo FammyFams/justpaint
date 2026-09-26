@@ -11,7 +11,7 @@ export default function PrivacyPage() {
         Privacy policy
       </h1>
       <p className="mt-3 text-sm text-muted-foreground">
-        Last updated September 25, 2026
+        Last updated September 26, 2026
       </p>
 
       <div className="prose-content mt-10 flex flex-col gap-8 text-sm leading-relaxed text-foreground/90">
@@ -51,6 +51,18 @@ export default function PrivacyPage() {
             </li>
           </ul>
           <p className="mb-2 font-medium text-foreground">
+            If you report a post:
+          </p>
+          <ul className="mb-4 list-disc space-y-1 pl-5">
+            <li>
+              The link to the post, what you told us about it, your email
+              address, and the name you signed with. We use these only to
+              review the report and follow up with you, and keep them for two
+              years as a record of the request and what we did about it. They
+              aren&rsquo;t shown publicly or to the person who posted.
+            </li>
+          </ul>
+          <p className="mb-2 font-medium text-foreground">
             Automatically, for anyone using the site:
           </p>
           <ul className="list-disc space-y-1 pl-5">
@@ -66,7 +78,9 @@ export default function PrivacyPage() {
               uploads can come from one place. When you heart a painting,
               it&rsquo;s kept for as long as the heart is, so each painting
               gets one heart per visitor. We never store your actual IP, and
-              it&rsquo;s never shown publicly.
+              it&rsquo;s never shown publicly. If you&rsquo;re logged in, we
+              use a scrambled version of your account ID for this instead of
+              your IP.
             </li>
             <li>
               Visit statistics collected by Google Analytics: which pages
@@ -107,8 +121,8 @@ export default function PrivacyPage() {
             </li>
             <li>
               <span className="font-medium text-foreground">Sign-in:</span>{" "}
-              small cookies that keep a session signed in, for site admins
-              and, when accounts are available, account holders.
+              small cookies that keep you signed in, if you have an account
+              (and for site admins).
             </li>
             <li>
               <span className="font-medium text-foreground">
@@ -144,7 +158,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="mb-2 font-heading text-xl">Who we share data with</h2>
           <p className="mb-2">
-            We use three service providers to run justpaint, and your data
+            We use four service providers to run justpaint, and your data
             passes through them as part of normal operation:
           </p>
           <ul className="list-disc space-y-1 pl-5">
@@ -156,6 +170,11 @@ export default function PrivacyPage() {
             <li>
               <span className="font-medium text-foreground">Vercel</span>{" "}
               hosts the website itself.
+            </li>
+            <li>
+              <span className="font-medium text-foreground">Resend</span>{" "}
+              sends account emails, like the link to confirm your email
+              address. It receives your email address to do that.
             </li>
             <li>
               <span className="font-medium text-foreground">Google</span>{" "}

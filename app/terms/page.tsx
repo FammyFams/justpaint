@@ -12,7 +12,7 @@ export default function TermsPage() {
         Terms of use
       </h1>
       <p className="mt-3 text-sm text-muted-foreground">
-        Last updated September 25, 2026
+        Last updated September 26, 2026
       </p>
 
       <div className="prose-content mt-10 flex flex-col gap-8 text-sm leading-relaxed text-foreground/90">
@@ -47,6 +47,13 @@ export default function TermsPage() {
               illegal, and nothing that shares someone else&rsquo;s private
               information.
             </li>
+            <li>
+              Never an intimate or sexual image of a real person without
+              their consent, including AI-generated or edited fakes. Never
+              anything sexualizing a minor: we remove it, report it to the
+              National Center for Missing &amp; Exploited Children, and delete
+              the account behind it.
+            </li>
             <li>No spam, ads, or links meant to sell something.</li>
           </ul>
         </section>
@@ -64,19 +71,37 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mb-2 font-heading text-xl">Removing posts</h2>
-          <p>
-            We can remove any post, at any time, for any reason,
-            including anything that breaks these terms. To have one of your
-            own posts taken down, email{" "}
+          <h2 className="mb-2 font-heading text-xl">Reporting and removing posts</h2>
+          <p className="mb-2">
+            Anyone can report a post, with or without an account, using the{" "}
+            <Link href="/report" className="text-primary hover:underline">
+              report form
+            </Link>{" "}
+            (also linked at the bottom of every page and on every post) or
+            by email to{" "}
             <a
               href="mailto:matthewzhenghi@gmail.com"
               className="text-primary hover:underline"
             >
               matthewzhenghi@gmail.com
             </a>
-            . If something on justpaint uses your work without permission,
-            see Copyright below.
+            . Include the post&rsquo;s link, what&rsquo;s wrong with it, how
+            to reach you, and your full name as a signature.
+          </p>
+          <p className="mb-2">
+            If you report an intimate image of you (or someone you&rsquo;re
+            authorized to act for) shared without consent, including an AI
+            fake, we remove the post and any identical copies on justpaint
+            within 48 hours of receiving a valid request. Every report gets a
+            reference number, and we keep a record of each request and what we
+            did about it.
+          </p>
+          <p>
+            We can also remove any post, at any time, for any reason,
+            including anything that breaks these terms. If you have an
+            account, you can delete your own posts yourself; guest posts can
+            be taken down by emailing us. If something on justpaint uses your
+            work without permission, see Copyright below.
           </p>
         </section>
 

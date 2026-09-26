@@ -15,18 +15,22 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { adminDeletePaintingAction } from "@/app/actions/admin";
+import { deleteOwnPaintingAction } from "@/app/actions/paintings";
 
 export function AdminDeleteButton({
   paintingId,
   title,
   redirectTo,
   size = "sm",
+  mode = "admin",
 }: {
   paintingId: string;
   title: string;
   /** Where to go after deleting; stays on the page (and refreshes) if omitted. */
   redirectTo?: string;
   size?: "sm" | "default";
+  /** "owner" deletes via the owner-only action; the server checks ownership. */
+  mode?: "admin" | "owner";
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -35,7 +39,10 @@ export function AdminDeleteButton({
   async function handleDelete() {
     setDeleting(true);
     try {
-      const result = await adminDeletePaintingAction(paintingId);
+      const result =
+        mode === "owner"
+          ? await deleteOwnPaintingAction(paintingId)
+          : await adminDeletePaintingAction(paintingId);
       if ("error" in result) {
         toast.error(result.error);
         setDeleting(false);
@@ -65,7 +72,7 @@ export function AdminDeleteButton({
         <DialogHeader>
           <DialogTitle>Delete “{title}”?</DialogTitle>
           <DialogDescription>
-            This removes the painting, its image, and all its likes and
+            This removes the painting, its image, and all its hearts and
             comments. This can&rsquo;t be undone.
           </DialogDescription>
         </DialogHeader>

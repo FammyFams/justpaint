@@ -1,17 +1,14 @@
 import type { Metadata } from "next";
 import { UploadForm } from "@/components/upload-form";
 import { getAllTags } from "@/lib/paintings";
+import { getCurrentUser } from "@/lib/current-user";
 
 export const metadata: Metadata = {
   title: "Upload a painting | justpaint",
 };
 
-// Accounts are temporarily disabled -- everyone posts as a guest for now.
-// Swap this back to `await getCurrentUser()` to bring accounts back.
-const currentUser = null;
-
 export default async function UploadPage() {
-  const tags = await getAllTags();
+  const [tags, currentUser] = await Promise.all([getAllTags(), getCurrentUser()]);
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">

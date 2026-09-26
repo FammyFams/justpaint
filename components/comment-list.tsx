@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -41,28 +42,43 @@ export function CommentList({
         <CommentForm onSubmit={handleAdd} submitting={submitting} />
       ) : (
         <p className="text-sm text-muted-foreground">
-          Commenting isn&rsquo;t available right now.
+          <Link
+            href={`/login?next=/painting/${paintingId}`}
+            className="text-primary hover:underline"
+          >
+            Log in
+          </Link>{" "}
+          or{" "}
+          <Link href="/signup" className="text-primary hover:underline">
+            sign up
+          </Link>{" "}
+          to comment.
         </p>
       )}
 
       {comments.length === 0 ? (
-        isLoggedIn && (
-          <p className="text-sm text-muted-foreground">
-            No comments yet. Be the first to say something.
-          </p>
-        )
+        <p className="text-sm text-muted-foreground">
+          No comments yet. Be the first to say something.
+        </p>
       ) : (
         <ul className="flex flex-col gap-4">
           {comments.map((comment) => (
             <li key={comment.id} className="flex gap-3">
-              <Avatar className="size-8 shrink-0">
-                <AvatarFallback className={getAvatarClasses(comment.authorName)}>
-                  {getInitials(comment.authorName)}
-                </AvatarFallback>
-              </Avatar>
+              <Link href={`/artist/${comment.authorId}`} className="shrink-0">
+                <Avatar className="size-8">
+                  <AvatarFallback className={getAvatarClasses(comment.authorName)}>
+                    {getInitials(comment.authorName)}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
               <div className="min-w-0">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-sm font-medium">{comment.authorName}</span>
+                  <Link
+                    href={`/artist/${comment.authorId}`}
+                    className="text-sm font-medium hover:underline"
+                  >
+                    {comment.authorName}
+                  </Link>
                   <span className="text-xs text-muted-foreground">
                     {formatRelativeTime(comment.createdAt)}
                   </span>

@@ -4,6 +4,8 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { hashedClientIp } from "@/lib/client-ip";
+import { deletePaintingRecord } from "@/lib/delete-painting";
 import { ADMIN_COOKIE, adminToken, isAdmin, safeEqual } from "@/lib/admin";
 
 export async function adminLoginAction(
@@ -16,6 +18,19 @@ export async function adminLoginAction(
     return { error: "ADMIN_PASSWORD isn't set on the server." };
   }
 
+  // At most 5 attempts per IP per 15 minutes, so the password can't be
+  // guessed by brute force. Every attempt counts, right or wrong.
+  const { error: limitError } = await createAdminClient().rpc("claim_admin_login_attempt", {
+    p_ip_hash: await hashedClientIp(),
+  });
+  if (limitError) {
+    if (limitError.message.includes("rate_limited_admin")) {
+      return { error: "Too many tries. Wait 15 minutes and try again." };
+    }
+    console.error("claim_admin_login_attempt failed", limitError);
+    return { error: "Couldn't check that right now. Try again." };
+  }
+
   const attempt = String(formData.get("password") ?? "");
   if (!safeEqual(attempt, password)) {
     return { error: "Wrong password." };
@@ -26,7 +41,7 @@ export async function adminLoginAction(
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: 60 * 60 * 24 * 7,
   });
   redirect("/admin");
 }
@@ -41,30 +56,9 @@ export async function adminDeletePaintingAction(
 ): Promise<{ error: string } | { success: true }> {
   if (!(await isAdmin())) return { error: "Not authorized." };
 
-  const admin = createAdminClient();
-  const { data: painting, error: fetchError } = await admin
-    .from("paintings")
-    .select("image_path, owner_id")
-    .eq("id", paintingId)
-    .maybeSingle();
+  const result = await deletePaintingRecord(paintingId, null);
+  if ("error" in result) return result;
 
-  if (fetchError) return { error: fetchError.message };
-  if (!painting) return { error: "That painting no longer exists." };
-
-  // Likes, comments and tag links cascade with the row.
-  const { error: deleteError } = await admin
-    .from("paintings")
-    .delete()
-    .eq("id", paintingId);
-  if (deleteError) return { error: deleteError.message };
-
-  // The post is already gone at this point; a leftover file is harmless.
-  await admin.storage.from("paintings").remove([painting.image_path]);
-
-  revalidatePath("/");
   revalidatePath("/admin");
-  revalidatePath(`/painting/${paintingId}`);
-  if (painting.owner_id) revalidatePath(`/artist/${painting.owner_id}`);
-
   return { success: true };
 }

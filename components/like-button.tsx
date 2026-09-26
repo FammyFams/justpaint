@@ -5,7 +5,6 @@ import { Heart } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { toggleLikeAction } from "@/app/actions/likes";
 import { setHeartAction } from "@/app/actions/hearts";
 
 const HEARTED_KEY = "jp_hearted";
@@ -31,32 +30,40 @@ function writeHearted(paintingId: string, hearted: boolean) {
   }
 }
 
-// Account-free heart: the server allows one per painting per IP, and this
-// browser remembers what it hearted in localStorage.
-function GuestHeartButton({
+// One heart per painting per visitor. For guests the server counts per IP and
+// this browser remembers what it hearted in localStorage. For signed-in users
+// the server counts per account and the page passes initialHearted, so their
+// hearts show the same on every device.
+function HeartButton({
   paintingId,
   initialCount,
+  initialHearted,
   compact,
 }: {
   paintingId: string;
   initialCount: number;
+  /** Set for signed-in users (from the server); guests leave it undefined. */
+  initialHearted?: boolean;
+  /** Small ghost-style heart for feed cards. */
   compact?: boolean;
 }) {
-  const [hearted, setHearted] = useState(false);
+  const isGuest = initialHearted === undefined;
+  const [hearted, setHearted] = useState(initialHearted ?? false);
   const [count, setCount] = useState(initialCount);
   const [isPending, startTransition] = useTransition();
 
   // localStorage only exists in the browser, so read it after hydration.
   useEffect(() => {
+    if (!isGuest) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setHearted(readHearted().includes(paintingId));
-  }, [paintingId]);
+  }, [paintingId, isGuest]);
 
   function handleClick() {
     const next = !hearted;
     setHearted(next);
     setCount((prev) => Math.max(0, prev + (next ? 1 : -1)));
-    writeHearted(paintingId, next);
+    if (isGuest) writeHearted(paintingId, next);
 
     startTransition(async () => {
       try {
@@ -66,7 +73,7 @@ function GuestHeartButton({
       } catch {
         setHearted(!next);
         setCount((prev) => Math.max(0, prev + (next ? -1 : 1)));
-        writeHearted(paintingId, !next);
+        if (isGuest) writeHearted(paintingId, !next);
         toast.error("Couldn't save your heart. Try again.");
       }
     });
@@ -95,82 +102,4 @@ function GuestHeartButton({
   );
 }
 
-export function LikeButton({
-  paintingId,
-  initialCount,
-  initialLiked,
-  isLoggedIn,
-  compact,
-}: {
-  paintingId: string;
-  initialCount: number;
-  initialLiked: boolean;
-  isLoggedIn: boolean;
-  /** Small ghost-style heart for feed cards. */
-  compact?: boolean;
-}) {
-  if (!isLoggedIn) {
-    return (
-      <GuestHeartButton
-        paintingId={paintingId}
-        initialCount={initialCount}
-        compact={compact}
-      />
-    );
-  }
-  return (
-    <AccountLikeButton
-      paintingId={paintingId}
-      initialCount={initialCount}
-      initialLiked={initialLiked}
-    />
-  );
-}
-
-// Account-based like (accounts are paused; kept for when they return).
-function AccountLikeButton({
-  paintingId,
-  initialCount,
-  initialLiked,
-}: {
-  paintingId: string;
-  initialCount: number;
-  initialLiked: boolean;
-}) {
-  const [liked, setLiked] = useState(initialLiked);
-  const [count, setCount] = useState(initialCount);
-  const [isPending, startTransition] = useTransition();
-
-  function handleClick() {
-    const nextLiked = !liked;
-    setLiked(nextLiked);
-    setCount((prev) => (nextLiked ? prev + 1 : prev - 1));
-
-    startTransition(async () => {
-      const result = await toggleLikeAction(paintingId);
-      if ("error" in result) {
-        // Roll back on failure.
-        setLiked(!nextLiked);
-        setCount((prev) => (nextLiked ? prev - 1 : prev + 1));
-        toast.error("Couldn't update your like. Try again.");
-      }
-    });
-  }
-
-  return (
-    <Button
-      variant={liked ? "default" : "outline"}
-      onClick={handleClick}
-      disabled={isPending}
-      className="gap-1.5"
-    >
-      <Heart
-        className={cn("size-4 transition-transform", liked && "scale-110 fill-current")}
-      />
-      {liked ? "Liked" : "Like"}
-      <span className={cn(liked ? "text-primary-foreground/80" : "text-muted-foreground")}>
-        {count}
-      </span>
-    </Button>
-  );
-}
+export const LikeButton = HeartButton;

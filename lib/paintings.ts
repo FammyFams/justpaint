@@ -6,8 +6,7 @@ import type { Artist, Comment, Painting, Tag } from "@/lib/types";
 const PAINTING_SELECT = `
   id, title, description, image_path, aspect, owner_id, guest_name, created_at, heart_count,
   profiles!paintings_owner_id_fkey ( display_name ),
-  paintings_tags ( tags ( id, name, slug ) ),
-  likes ( count )
+  paintings_tags ( tags ( id, name, slug ) )
 `;
 
 interface PaintingRow {
@@ -22,7 +21,6 @@ interface PaintingRow {
   heart_count: number;
   profiles: { display_name: string } | null;
   paintings_tags: { tags: { id: string; name: string; slug: string } | null }[];
-  likes: { count: number }[];
 }
 
 function toPainting(
@@ -47,8 +45,9 @@ function toPainting(
     tags: row.paintings_tags
       .map((pt) => pt.tags)
       .filter((t): t is Tag => Boolean(t)),
-    // Account likes (paused for now) plus account-free hearts.
-    likeCount: (row.likes[0]?.count ?? 0) + row.heart_count,
+    // Hearts only; the old account "likes" table is retired (writes revoked
+    // in migration 20260926000002).
+    likeCount: row.heart_count,
     createdAt: row.created_at,
   };
 }
@@ -158,15 +157,4 @@ export async function getArtistById(id: string): Promise<Artist | null> {
     bio: data.bio || "",
     joinedAt: data.created_at,
   };
-}
-
-export async function hasUserLiked(paintingId: string, userId: string): Promise<boolean> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("likes")
-    .select("painting_id")
-    .eq("painting_id", paintingId)
-    .eq("user_id", userId)
-    .maybeSingle();
-  return Boolean(data);
 }

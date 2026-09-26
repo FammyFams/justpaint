@@ -17,6 +17,8 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import {
+  MAX_IMAGE_BYTES,
+  MAX_IMAGE_LABEL,
   paintingSchema,
   type PaintingFormValues,
 } from "@/lib/validations/painting";
@@ -147,6 +149,18 @@ export function UploadForm({
                     setPreparing(true);
                     const file = await compressImage(picked);
                     setPreparing(false);
+                    // Check right away, after shrinking, rather than on Post:
+                    // anything over the cap would be rejected by the server.
+                    if (file.size > MAX_IMAGE_BYTES) {
+                      event.target.value = "";
+                      field.onChange(undefined);
+                      setPreview(null);
+                      form.setError("image", {
+                        message: `That photo is still over ${MAX_IMAGE_LABEL} after shrinking. Try a smaller photo or a screenshot of it.`,
+                      });
+                      return;
+                    }
+                    form.clearErrors("image");
                     field.onChange(file);
                     setPreview(URL.createObjectURL(file));
                   }}
@@ -168,6 +182,23 @@ export function UploadForm({
         />
 
         <FieldGroup>
+          {currentUser ? (
+            <p className="text-sm text-muted-foreground">
+              Posting as{" "}
+              <span className="font-medium text-foreground">
+                {currentUser.displayName}
+              </span>
+              . It&rsquo;ll show up on your profile.
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Posting as a guest.{" "}
+              <Link href="/login?next=/upload" className="text-primary hover:underline">
+                Log in
+              </Link>{" "}
+              to keep your paintings on a profile.
+            </p>
+          )}
           {!currentUser && (
             <Controller
               name="name"

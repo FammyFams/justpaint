@@ -66,7 +66,7 @@ function AuthShell({
   );
 }
 
-export function LoginForm() {
+export function LoginForm({ next }: { next?: string }) {
   const [formError, setFormError] = useState<string | null>(null);
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -75,7 +75,7 @@ export function LoginForm() {
 
   async function onSubmit(values: LoginFormValues) {
     setFormError(null);
-    const result = await signInAction(values);
+    const result = await signInAction(values, next);
     if (result?.error) {
       setFormError(result.error);
     }
@@ -131,7 +131,7 @@ export function SignupForm() {
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { displayName: "", email: "", password: "" },
+    defaultValues: { displayName: "", email: "", password: "", agreedToTerms: false },
   });
 
   async function onSubmit(values: SignupFormValues) {
@@ -211,6 +211,44 @@ export function SignupForm() {
                 {...field}
                 aria-invalid={fieldState.invalid}
               />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+        <Controller
+          name="agreedToTerms"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <label className="flex items-start gap-2.5 text-sm">
+                <input
+                  type="checkbox"
+                  checked={field.value}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                  onBlur={field.onBlur}
+                  aria-invalid={fieldState.invalid}
+                  className="mt-0.5 size-4 shrink-0 accent-primary"
+                />
+                <span>
+                  I&rsquo;m 13 or older and agree to the{" "}
+                  <Link
+                    href="/terms"
+                    target="_blank"
+                    className="text-primary underline-offset-2 hover:underline"
+                  >
+                    Terms of Use
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    href="/privacy"
+                    target="_blank"
+                    className="text-primary underline-offset-2 hover:underline"
+                  >
+                    Privacy Policy
+                  </Link>
+                  .
+                </span>
+              </label>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}

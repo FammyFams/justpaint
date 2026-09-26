@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { getAllTags, getFeed } from "@/lib/paintings";
+import { getSessionUserId } from "@/lib/current-user";
+import { getHeartedIds } from "@/lib/hearts";
 import { PaintingGrid } from "@/components/painting-grid";
 
 export const metadata: Metadata = {
@@ -12,7 +14,14 @@ export default async function Home({
   searchParams: Promise<{ tag?: string }>;
 }) {
   const { tag } = await searchParams;
-  const [paintings, tags] = await Promise.all([getFeed(tag), getAllTags()]);
+  const [paintings, tags, userId] = await Promise.all([
+    getFeed(tag),
+    getAllTags(),
+    getSessionUserId(),
+  ]);
+  const heartedIds = userId
+    ? await getHeartedIds(userId, paintings.map((p) => p.id))
+    : undefined;
   const activeTag = tag ? tags.find((t) => t.slug === tag) : undefined;
 
   return (
@@ -37,7 +46,7 @@ export default async function Home({
         </p>
       )}
 
-      <PaintingGrid paintings={paintings} />
+      <PaintingGrid paintings={paintings} heartedIds={heartedIds} />
     </main>
   );
 }

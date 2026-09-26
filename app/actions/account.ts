@@ -15,19 +15,25 @@ export async function deleteAccountAction(): Promise<{ error: string } | undefin
 
   const admin = createAdminClient();
 
-  // Painting/like/comment/profile rows cascade-delete via their foreign keys
-  // once the auth user is gone, but the actual uploaded image files in
-  // Storage don't -- clean those up first.
-  const { data: files } = await admin.storage.from("paintings").list(userId);
-  if (files && files.length > 0) {
-    await admin.storage
-      .from("paintings")
-      .remove(files.map((file) => `${userId}/${file.name}`));
+  // Painting/comment/profile rows cascade-delete via their foreign keys once
+  // the auth user is gone, but the uploaded image files in Storage don't.
+  // Remove them by the paths recorded on the user's posts (a folder listing
+  // would stop at 100 files).
+  const { data: paintings } = await admin
+    .from("paintings")
+    .select("image_path")
+    .eq("owner_id", userId);
+  const paths = (paintings ?? [])
+    .map((p) => p.image_path)
+    .filter((path) => path.startsWith(`${userId}/`));
+  for (let i = 0; i < paths.length; i += 100) {
+    await admin.storage.from("paintings").remove(paths.slice(i, i + 100));
   }
 
   const { error } = await admin.auth.admin.deleteUser(userId);
   if (error) {
-    return { error: error.message };
+    console.error("account delete failed", error);
+    return { error: "Couldn't delete your account. Try again." };
   }
 
   await supabase.auth.signOut();

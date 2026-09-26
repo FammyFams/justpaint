@@ -38,7 +38,7 @@ export async function submitReportAction(
     .gt("created_at", since);
   if ((count ?? 0) >= REPORTS_PER_HOUR) {
     return {
-      error: `You've sent ${REPORTS_PER_HOUR} reports in the last hour. Try again later, or email matthewzhenghi@gmail.com.`,
+      error: `You've sent ${REPORTS_PER_HOUR} reports in the last hour. Try again later, or email thewcookie@gmail.com.`,
     };
   }
 
@@ -66,7 +66,7 @@ export async function submitReportAction(
     .single();
   if (error || !row) {
     console.error("report insert failed", error);
-    return { error: "Couldn't send your report. Try again, or email matthewzhenghi@gmail.com." };
+    return { error: "Couldn't send your report. Try again, or email thewcookie@gmail.com." };
   }
 
   const deadline = new Date(new Date(row.created_at).getTime() + 48 * 60 * 60 * 1000);

@@ -44,8 +44,8 @@ export default async function ReportPage({
         <p>
           Prefer email? Send the same information (the post link, what&rsquo;s wrong, how to reach
           you, and your full name as a signature) to{" "}
-          <a href="mailto:matthewzhenghi@gmail.com" className="text-primary hover:underline">
-            matthewzhenghi@gmail.com
+          <a href="mailto:thewcookie@gmail.com" className="text-primary hover:underline">
+            thewcookie@gmail.com
           </a>
           . For copyright problems, use the{" "}
           <Link href="/terms" className="text-primary hover:underline">

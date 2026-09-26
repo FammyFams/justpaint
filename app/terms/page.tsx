@@ -80,10 +80,10 @@ export default function TermsPage() {
             (also linked at the bottom of every page and on every post) or
             by email to{" "}
             <a
-              href="mailto:matthewzhenghi@gmail.com"
+              href="mailto:thewcookie@gmail.com"
               className="text-primary hover:underline"
             >
-              matthewzhenghi@gmail.com
+              thewcookie@gmail.com
             </a>
             . Include the post&rsquo;s link, what&rsquo;s wrong with it, how
             to reach you, and your full name as a signature.
@@ -119,10 +119,10 @@ export default function TermsPage() {
             <dt className="text-muted-foreground">Email</dt>
             <dd>
               <a
-                href="mailto:matthewzhenghi@gmail.com?subject=DMCA%20notice"
+                href="mailto:thewcookie@gmail.com?subject=DMCA%20notice"
                 className="text-primary hover:underline"
               >
-                matthewzhenghi@gmail.com
+                thewcookie@gmail.com
               </a>
             </dd>
             <dt className="text-muted-foreground">Registration</dt>
@@ -224,10 +224,10 @@ export default function TermsPage() {
           <p>
             Questions about these terms? Email{" "}
             <a
-              href="mailto:matthewzhenghi@gmail.com"
+              href="mailto:thewcookie@gmail.com"
               className="text-primary hover:underline"
             >
-              matthewzhenghi@gmail.com
+              thewcookie@gmail.com
             </a>
             .
           </p>

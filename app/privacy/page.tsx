@@ -210,10 +210,10 @@ export default function PrivacyPage() {
               To have a painting you posted taken down, or your account and
               everything in it deleted, email{" "}
               <a
-                href="mailto:matthewzhenghi@gmail.com"
+                href="mailto:thewcookie@gmail.com"
                 className="text-primary hover:underline"
               >
-                matthewzhenghi@gmail.com
+                thewcookie@gmail.com
               </a>
               .
             </li>
@@ -241,10 +241,10 @@ export default function PrivacyPage() {
           <p>
             Questions about this policy? Email{" "}
             <a
-              href="mailto:matthewzhenghi@gmail.com"
+              href="mailto:thewcookie@gmail.com"
               className="text-primary hover:underline"
             >
-              matthewzhenghi@gmail.com
+              thewcookie@gmail.com
             </a>
             .
           </p>

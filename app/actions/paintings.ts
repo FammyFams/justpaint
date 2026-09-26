@@ -89,7 +89,7 @@ export async function createPaintingAction(
   if (slotError) {
     if (slotError.message.includes("rate_limited_ip")) {
       return {
-        error: "You can post 3 paintings a day. Come back tomorrow for more.",
+        error: "You can post 5 paintings every 16 hours. Come back a little later for more.",
       };
     }
     if (slotError.message.includes("rate_limited_site")) {

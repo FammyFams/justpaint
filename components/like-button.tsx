@@ -36,9 +36,11 @@ function writeHearted(paintingId: string, hearted: boolean) {
 function GuestHeartButton({
   paintingId,
   initialCount,
+  compact,
 }: {
   paintingId: string;
   initialCount: number;
+  compact?: boolean;
 }) {
   const [hearted, setHearted] = useState(false);
   const [count, setCount] = useState(initialCount);
@@ -72,16 +74,17 @@ function GuestHeartButton({
 
   return (
     <Button
-      variant="outline"
+      variant={compact ? "ghost" : "outline"}
+      size={compact ? "sm" : "default"}
       onClick={handleClick}
       disabled={isPending}
       aria-pressed={hearted}
       aria-label={hearted ? "Remove heart" : "Heart this painting"}
-      className="gap-1.5"
+      className={compact ? "-mr-1.5 gap-1 px-1.5 text-xs" : "gap-1.5"}
     >
       <Heart
         className={cn(
-          "size-4 transition-transform",
+          compact ? "size-3.5 transition-transform" : "size-4 transition-transform",
           hearted && "scale-110 fill-primary text-primary"
         )}
       />
@@ -97,14 +100,23 @@ export function LikeButton({
   initialCount,
   initialLiked,
   isLoggedIn,
+  compact,
 }: {
   paintingId: string;
   initialCount: number;
   initialLiked: boolean;
   isLoggedIn: boolean;
+  /** Small ghost-style heart for feed cards. */
+  compact?: boolean;
 }) {
   if (!isLoggedIn) {
-    return <GuestHeartButton paintingId={paintingId} initialCount={initialCount} />;
+    return (
+      <GuestHeartButton
+        paintingId={paintingId}
+        initialCount={initialCount}
+        compact={compact}
+      />
+    );
   }
   return (
     <AccountLikeButton

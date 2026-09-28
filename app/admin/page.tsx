@@ -7,6 +7,7 @@ import { formatDateTime } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { AdminLoginForm } from "@/components/admin-login-form";
 import { AdminDeleteButton } from "@/components/admin-delete-button";
+import { AdminChallengeCheckbox } from "@/components/admin-challenge-checkbox";
 import { ReportActions } from "@/components/report-actions";
 import { REPORT_REASONS } from "@/lib/validations/report";
 import { adminLogoutAction } from "@/app/actions/admin";
@@ -30,7 +31,7 @@ export default async function AdminPage() {
   const { data: paintings, error } = await admin
     .from("paintings")
     .select(
-      "id, title, image_path, guest_name, created_at, profiles!paintings_owner_id_fkey ( display_name )"
+      "id, title, image_path, guest_name, created_at, october_challenge, profiles!paintings_owner_id_fkey ( display_name )"
     )
     .order("created_at", { ascending: false });
 
@@ -169,6 +170,10 @@ export default async function AdminPage() {
                   {author} · {formatDateTime(p.created_at)}
                 </p>
               </div>
+              <AdminChallengeCheckbox
+                paintingId={p.id}
+                initialChecked={p.october_challenge}
+              />
               <AdminDeleteButton paintingId={p.id} title={p.title} />
             </li>
           );

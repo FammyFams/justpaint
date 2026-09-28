@@ -62,3 +62,23 @@ export async function adminDeletePaintingAction(
   revalidatePath("/admin");
   return { success: true };
 }
+
+export async function adminSetOctoberChallengeAction(
+  paintingId: string,
+  octoberChallenge: boolean
+): Promise<{ error: string } | { success: true }> {
+  if (!(await isAdmin())) return { error: "Not authorized." };
+
+  const { error } = await createAdminClient()
+    .from("paintings")
+    .update({ october_challenge: octoberChallenge })
+    .eq("id", paintingId);
+  if (error) {
+    console.error("adminSetOctoberChallengeAction failed", paintingId, error);
+    return { error: "Couldn't save that. Try again." };
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/");
+  return { success: true };
+}

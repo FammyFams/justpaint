@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Share2 } from "lucide-react";
+import { Download, Share2 } from "lucide-react";
+import { sendGAEvent } from "@next/third-parties/google";
 
 const IMAGE = "/october-challenge/calendar.png";
 const TEXT = "October Painting Challenge: one prompt a day. Paint along on justpaint!";
@@ -27,6 +28,9 @@ export function ShareCalendarButton({ className }: { className?: string }) {
   }, []);
 
   async function share() {
+    // Counted in Google Analytics: every tap, then each finished share by how
+    // it went out (picture, link, or copied link).
+    sendGAEvent("event", "calendar_share_tap");
     const url = `${window.location.origin}/october-challenge`;
     setBusy(true);
     try {
@@ -34,12 +38,15 @@ export function ShareCalendarButton({ className }: { className?: string }) {
         const picture = file.current;
         if (picture && navigator.canShare?.({ files: [picture] })) {
           await navigator.share({ files: [picture], text: `${TEXT} ${url}` });
+          sendGAEvent("event", "calendar_share", { method: "picture" });
         } else {
           await navigator.share({ title: "October Painting Challenge", text: TEXT, url });
+          sendGAEvent("event", "calendar_share", { method: "link" });
         }
         return;
       }
       await navigator.clipboard.writeText(url);
+      sendGAEvent("event", "calendar_share", { method: "copy" });
       toast.success("Link copied. Paste it anywhere to share the challenge.");
     } catch (error) {
       // Closing the share sheet isn't an error worth showing.
@@ -54,5 +61,18 @@ export function ShareCalendarButton({ className }: { className?: string }) {
     <button type="button" onClick={share} disabled={busy} className={className}>
       <Share2 /> Share this calendar
     </button>
+  );
+}
+
+export function DownloadCalendarButton({ className }: { className?: string }) {
+  return (
+    <a
+      href={IMAGE}
+      download="justpaint-october-challenge.png"
+      onClick={() => sendGAEvent("event", "calendar_download")}
+      className={className}
+    >
+      <Download /> Download
+    </a>
   );
 }

@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 import { cn } from "@/lib/utils";
-import { ShareCalendarButton } from "@/components/share-calendar-button";
+import { DownloadCalendarButton, ShareCalendarButton } from "@/components/share-calendar-button";
 import { buttonVariants } from "@/components/ui/button";
-import { Download } from "lucide-react";
 import { getSiteUrl } from "@/lib/site-url";
 import { FIRST_WEEKDAY, PROMPTS, RULES, WEEKDAYS, octoberDay } from "@/lib/october-challenge";
 
@@ -205,13 +204,7 @@ export default async function OctoberChallengePage() {
 
         <div className="mt-4 flex flex-wrap gap-2">
           <ShareCalendarButton className={cn(buttonVariants(), "cursor-pointer")} />
-          <a
-            href="/october-challenge/calendar.png"
-            download="justpaint-october-challenge.png"
-            className={buttonVariants({ variant: "outline" })}
-          >
-            <Download /> Download
-          </a>
+          <DownloadCalendarButton className={buttonVariants({ variant: "outline" })} />
         </div>
       </section>
 

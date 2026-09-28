@@ -45,6 +45,6 @@ export async function deletePaintingRecord(
 
   revalidatePath("/");
   revalidatePath(`/painting/${paintingId}`);
-  if (painting.owner_id) revalidatePath(`/artist/${painting.owner_id}`);
+  if (painting.owner_id) revalidatePath("/artist/[id]", "page");
   return { success: true, ownerId: painting.owner_id };
 }

@@ -197,7 +197,7 @@ export async function createPaintingAction(
   }
 
   revalidatePath("/");
-  if (ownerId) revalidatePath(`/artist/${ownerId}`);
+  if (ownerId) revalidatePath("/artist/[id]", "page");
   return { success: true, paintingId: rpcData as string };
 }
 

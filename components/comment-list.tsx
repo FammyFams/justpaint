@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { artistHref } from "@/lib/artist-url";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -64,7 +65,7 @@ export function CommentList({
         <ul className="flex flex-col gap-4">
           {comments.map((comment) => (
             <li key={comment.id} className="flex gap-3">
-              <Link href={`/artist/${comment.authorId}`} className="shrink-0">
+              <Link href={artistHref({ id: comment.authorId, displayName: comment.authorName })} className="shrink-0">
                 <Avatar className="size-8">
                   <AvatarFallback className={getAvatarClasses(comment.authorName)}>
                     {getInitials(comment.authorName)}
@@ -74,7 +75,7 @@ export function CommentList({
               <div className="min-w-0">
                 <div className="flex items-baseline gap-2">
                   <Link
-                    href={`/artist/${comment.authorId}`}
+                    href={artistHref({ id: comment.authorId, displayName: comment.authorName })}
                     className="text-sm font-medium hover:underline"
                   >
                     {comment.authorName}

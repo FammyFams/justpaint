@@ -2,6 +2,7 @@ import { createClient as createPublicClient, type SupabaseClient } from "@supaba
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import type { Artist, Comment, Painting, Tag } from "@/lib/types";
+import { artistSlug, isUuid } from "@/lib/artist-url";
 
 const PAINTING_SELECT = `
   id, title, description, image_path, aspect, owner_id, guest_name, created_at, heart_count,
@@ -225,4 +226,41 @@ export async function getSitemapPaintings(): Promise<{ id: string; createdAt: st
     if (!data || data.length < CHUNK) break;
   }
   return rows.map((row) => ({ id: row.id, createdAt: row.created_at }));
+}
+
+/**
+ * Finds a profile by its address name (see lib/artist-url.ts). A dash in
+ * the address can stand for a space or a dash in the name, so this matches
+ * either and then checks the exact address.
+ */
+export async function getArtistBySlug(slug: string): Promise<Artist | null> {
+  if (!/^[a-z0-9._-]{1,60}$/.test(slug)) return null;
+  const supabase = await createClient();
+  // In ilike, "_" matches any one character; escape real underscores first.
+  const pattern = slug.replace(/_/g, "\_").replace(/-/g, "_");
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, display_name, bio, created_at")
+    .ilike("display_name", pattern)
+    .order("created_at", { ascending: true })
+    .limit(10);
+
+  if (error) throwBusy("getArtistBySlug", error);
+  const matches = (data ?? []).filter((row) => artistSlug(row.display_name ?? "") === slug);
+  // "Ash W" and "ash-w" would share an address; the name that's spelled
+  // exactly like the address wins, then the older account.
+  const row =
+    matches.find((r) => r.display_name?.trim().toLowerCase() === slug) ?? matches[0];
+  if (!row) return null;
+  return {
+    id: row.id,
+    displayName: row.display_name || "Unnamed artist",
+    bio: row.bio || "",
+    joinedAt: row.created_at,
+  };
+}
+
+/** A profile from its address: the name (see lib/artist-url.ts) or an old id link. */
+export async function findArtist(handle: string): Promise<Artist | null> {
+  return isUuid(handle) ? getArtistById(handle) : getArtistBySlug(handle.toLowerCase());
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { artistHref } from "@/lib/artist-url";
 import { PaintingImage } from "@/components/painting-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -88,7 +89,7 @@ export default async function PaintingPage({
 
           {painting.artistId ? (
             <Link
-              href={`/artist/${painting.artistId}`}
+              href={artistHref({ id: painting.artistId, displayName: painting.authorName })}
               className="mt-4 flex items-center gap-2.5"
             >
               <Avatar className="size-9">

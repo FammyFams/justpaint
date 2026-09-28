@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
-import { getArtistById } from "@/lib/paintings";
+import { findArtist } from "@/lib/paintings";
+import { artistHref } from "@/lib/artist-url";
 import { getCurrentUser } from "@/lib/current-user";
 import { ProfileEditForm } from "@/components/profile-edit-form";
 import { DeleteAccountButton } from "@/components/delete-account-button";
@@ -11,13 +12,15 @@ export default async function EditProfilePage({
 }) {
   const { id } = await params;
   const [artist, currentUser] = await Promise.all([
-    getArtistById(id),
+    findArtist(id),
     getCurrentUser(),
   ]);
   if (!artist) notFound();
+  const href = artistHref(artist);
+  if (`/artist/${id}` !== href) redirect(`${href}/edit`);
 
   if (!currentUser) redirect("/login");
-  if (currentUser.id !== artist.id) redirect(`/artist/${artist.id}`);
+  if (currentUser.id !== artist.id) redirect(artistHref(artist));
 
   return (
     <main className="mx-auto max-w-lg px-4 py-10 sm:px-6 sm:py-14">

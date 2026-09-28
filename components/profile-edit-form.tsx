@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/field";
 import { updateProfileAction } from "@/app/actions/profile";
 import type { Artist } from "@/lib/types";
+import { artistHref } from "@/lib/artist-url";
 
 export function ProfileEditForm({ artist }: { artist: Artist }) {
   const router = useRouter();
@@ -43,7 +44,8 @@ export function ProfileEditForm({ artist }: { artist: Artist }) {
       return;
     }
     toast.success("Profile updated.");
-    router.push(`/artist/${artist.id}`);
+    // The address follows the name, so a new name means a new address.
+    router.push(artistHref({ id: artist.id, displayName: values.displayName }));
     router.refresh();
   }
 

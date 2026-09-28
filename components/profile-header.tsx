@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { artistHref } from "@/lib/artist-url";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { getAvatarClasses, getInitials, formatDate } from "@/lib/format";
@@ -39,7 +40,7 @@ export function ProfileHeader({
         <Button
           variant="outline"
           nativeButton={false}
-          render={<Link href={`/artist/${artist.id}/edit`}>Edit profile</Link>}
+          render={<Link href={`${artistHref(artist)}/edit`}>Edit profile</Link>}
         />
       )}
     </div>

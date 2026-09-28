@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { artistHref } from "@/lib/artist-url";
 import Image from "next/image";
 import { LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -96,9 +97,9 @@ export async function Navbar() {
               <DropdownMenuContent align="end" className="min-w-44">
                 <div className="px-1.5 py-1 text-sm font-medium">{user.displayName}</div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem render={<Link href={`/artist/${user.id}`}>My profile</Link>} />
+                <DropdownMenuItem render={<Link href={artistHref({ id: user.id, displayName: user.displayName })}>My profile</Link>} />
                 <DropdownMenuItem
-                  render={<Link href={`/artist/${user.id}/edit`}>Edit profile</Link>}
+                  render={<Link href={`${artistHref({ id: user.id, displayName: user.displayName })}/edit`}>Edit profile</Link>}
                 />
                 <DropdownMenuSeparator />
                 <LogoutMenuItem />

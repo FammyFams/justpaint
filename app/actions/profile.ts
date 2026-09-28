@@ -46,7 +46,7 @@ export async function updateProfileAction(values: {
     return { error: SERVER_BUSY };
   }
 
-  revalidatePath(`/artist/${userId}`);
-  revalidatePath(`/artist/${userId}/edit`);
+  // Profile addresses follow the name, which may have just changed.
+  revalidatePath("/artist/[id]", "layout");
   return { success: true };
 }

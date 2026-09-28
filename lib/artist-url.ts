@@ -1,7 +1,8 @@
-// Profile addresses use the display name: "Gubigub" → /artist/gubigub,
-// "Ash W" → /artist/ash-w. Names are unique ignoring case and only use
+// Profile addresses use the display name as written: "Gubigub" → /artist/Gubigub,
+// "Ash W" → /artist/Ash-W. Names are unique ignoring case and only use
 // letters, numbers, spaces, dots, dashes and underscores, so this is short
-// and readable. Old /artist/<id> links still work and redirect here.
+// and readable. Any other capitalization, and old /artist/<id> links, still
+// work and redirect here.
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const NAME = /^[A-Za-z0-9._ -]+$/;
@@ -11,7 +12,7 @@ export function isUuid(value: string): boolean {
 }
 
 export function artistSlug(displayName: string): string {
-  return displayName.trim().toLowerCase().replace(/ +/g, "-");
+  return displayName.trim().replace(/ +/g, "-");
 }
 
 /** Link to a profile. Falls back to the id when there's no usable name. */

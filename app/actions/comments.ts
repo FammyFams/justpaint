@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { SERVER_BUSY } from "@/lib/busy";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { COMMENT_MAX_LENGTH } from "@/lib/validations/comment";
@@ -40,7 +41,7 @@ export async function addCommentAction(
     }
     if (error.code === "23503") return { error: "That painting no longer exists." };
     console.error("add_comment failed", error);
-    return { error: "Couldn't post that. Try again." };
+    return { error: SERVER_BUSY };
   }
 
   revalidatePath(`/painting/${paintingId}`);

@@ -91,7 +91,7 @@ export function UploadForm({
       });
     } catch {
       setFormError(
-        "Something went wrong sending that. Check your connection and try again."
+        "Couldn't reach the server. It may be busy, or your connection dropped. Try again in a few minutes."
       );
       return;
     }

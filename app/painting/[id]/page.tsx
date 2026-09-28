@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { PaintingImage } from "@/components/painting-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCommentsForPainting, getPaintingById } from "@/lib/paintings";
@@ -46,7 +46,7 @@ export default async function PaintingPage({
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.3fr_1fr]">
         <div className="rounded-sm border border-border/70 bg-card p-3 shadow-[0_1px_2px_rgba(0,0,34,0.06)] sm:p-4">
           <div className="relative w-full overflow-hidden rounded-[2px] bg-muted">
-            <Image
+            <PaintingImage
               src={painting.imageUrl}
               alt={painting.title}
               width={1000}

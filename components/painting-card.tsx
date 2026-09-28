@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { PaintingImage } from "@/components/painting-image";
 import type { Painting } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { LikeButton } from "@/components/like-button";
@@ -34,7 +34,7 @@ export function PaintingCard({
           <div
             className={`relative w-full overflow-hidden rounded-[2px] bg-muted ${aspectRatio[painting.aspect]}`}
           >
-            <Image
+            <PaintingImage
               src={painting.imageUrl}
               alt={painting.title}
               fill

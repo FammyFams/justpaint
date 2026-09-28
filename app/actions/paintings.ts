@@ -1,6 +1,7 @@
 "use server";
 
 import { createHash } from "node:crypto";
+import { SERVER_BUSY } from "@/lib/busy";
 import { revalidatePath } from "next/cache";
 import sharp from "sharp";
 import * as z from "zod";
@@ -134,10 +135,10 @@ export async function createPaintingAction(
       };
     }
     if (slotError.message.includes("rate_limited_site")) {
-      return { error: "Lots of uploads right now. Try again in a little while." };
+      return { error: "The server is busy with lots of uploads right now. Try again in a little while." };
     }
     console.error("claim_upload_slot failed", slotError);
-    return { error: "Couldn't start the upload. Try again." };
+    return { error: SERVER_BUSY };
   }
 
   let cleanImage: Awaited<ReturnType<typeof reencode>>;
@@ -155,7 +156,7 @@ export async function createPaintingAction(
     .upload(path, cleanImage.data, { contentType: cleanImage.contentType, upsert: false });
   if (uploadError) {
     console.error("storage upload failed", uploadError);
-    return { error: "Upload failed. Try again." };
+    return { error: "The server is busy and couldn't save your photo. Try again in a few minutes." };
   }
 
   const { data: rpcData, error: rpcError } = await admin.rpc("create_painting", {
@@ -172,7 +173,7 @@ export async function createPaintingAction(
   if (rpcError) {
     await admin.storage.from("paintings").remove([path]);
     console.error("create_painting failed", rpcError);
-    return { error: "Couldn't save your painting. Try again." };
+    return { error: SERVER_BUSY };
   }
 
   // Fingerprint of the stored file, so a takedown can also find identical

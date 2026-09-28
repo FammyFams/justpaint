@@ -7,10 +7,19 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeNext } from "@/lib/safe-next";
 import { loginSchema, signupSchema } from "@/lib/validations/auth";
+import { SERVER_BUSY } from "@/lib/busy";
 
 // Supabase's own messages are written for developers; show people these.
-function friendlyAuthError(message: string): string {
+function friendlyAuthError({ message, code }: { message: string; code?: string }): string {
   const m = message.toLowerCase();
+  // Supabase sends at most 30 auth emails an hour (Auth > Rate Limits).
+  if (code === "over_email_send_rate_limit") {
+    return "Lots of people are signing up, so the server is busy and can't send your confirmation email yet. Try again in an hour.";
+  }
+  // The email service (Resend, 100 a day on the free plan) refused to send.
+  if (m.includes("error sending")) {
+    return "The server is busy and couldn't send your confirmation email. Try again later.";
+  }
   if (m.includes("signups not allowed")) return "Sign-ups are closed right now.";
   if (m.includes("already registered")) {
     return "There's already an account with that email. Log in instead.";
@@ -22,8 +31,8 @@ function friendlyAuthError(message: string): string {
   if (m.includes("rate limit")) return "Too many tries. Wait a bit and try again.";
   // Password rules (too short, too weak) are worth showing as-is.
   if (m.includes("password")) return message;
-  console.error("auth error", message);
-  return "Something went wrong. Try again.";
+  console.error("auth error", code, message);
+  return SERVER_BUSY;
 }
 
 export async function signUpAction(values: {
@@ -53,7 +62,7 @@ export async function signUpAction(values: {
   });
 
   if (error) {
-    return { error: friendlyAuthError(error.message) };
+    return { error: friendlyAuthError(error) };
   }
 
   if (data.session) {
@@ -77,7 +86,7 @@ export async function signInAction(
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
-    return { error: friendlyAuthError(error.message) };
+    return { error: friendlyAuthError(error) };
   }
 
   revalidatePath("/", "layout");

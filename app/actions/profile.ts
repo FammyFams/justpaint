@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { SERVER_BUSY } from "@/lib/busy";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { profileSchema } from "@/lib/validations/profile";
@@ -42,7 +43,7 @@ export async function updateProfileAction(values: {
   if (error?.code === "23505") return { error: "That display name is taken. Try another." };
   if (error) {
     console.error("profile update failed", error);
-    return { error: "Couldn't save your profile. Try again." };
+    return { error: SERVER_BUSY };
   }
 
   revalidatePath(`/artist/${userId}`);

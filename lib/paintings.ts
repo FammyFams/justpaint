@@ -52,6 +52,17 @@ function toPainting(
   };
 }
 
+// A failed query means Supabase is down or over a limit. Throwing shows
+// app/error.tsx ("The server is busy") instead of an empty wall or a 404.
+function throwBusy(where: string, error: { message: string }): never {
+  throw new Error(`${where} failed: ${error.message}`);
+}
+
+// A malformed id in the URL (not a uuid) is a missing page, not an outage.
+function isBadId(error: { code?: string }) {
+  return error.code === "22P02";
+}
+
 export async function getFeed(tagSlug?: string): Promise<Painting[]> {
   const supabase = await createClient();
 
@@ -79,7 +90,8 @@ export async function getFeed(tagSlug?: string): Promise<Painting[]> {
   }
 
   const { data, error } = await query;
-  if (error || !data) return [];
+  if (error) throwBusy("getFeed", error);
+  if (!data) return [];
 
   return (data as unknown as PaintingRow[]).map((row) => toPainting(supabase, row));
 }
@@ -92,6 +104,7 @@ export async function getPaintingById(id: string): Promise<Painting | null> {
     .eq("id", id)
     .maybeSingle();
 
+  if (error && !isBadId(error)) throwBusy("getPaintingById", error);
   if (error || !data) return null;
   return toPainting(supabase, data as unknown as PaintingRow);
 }
@@ -104,6 +117,7 @@ export async function getPaintingsByArtist(artistId: string): Promise<Painting[]
     .eq("owner_id", artistId)
     .order("created_at", { ascending: false });
 
+  if (error && !isBadId(error)) throwBusy("getPaintingsByArtist", error);
   if (error || !data) return [];
   return (data as unknown as PaintingRow[]).map((row) => toPainting(supabase, row));
 }
@@ -150,6 +164,7 @@ export async function getArtistById(id: string): Promise<Artist | null> {
     .eq("id", id)
     .maybeSingle();
 
+  if (error && !isBadId(error)) throwBusy("getArtistById", error);
   if (error || !data) return null;
   return {
     id: data.id,

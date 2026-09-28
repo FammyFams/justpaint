@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { unstable_rethrow } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MailCheck } from "lucide-react";
@@ -15,6 +16,11 @@ import {
   type SignupFormValues,
 } from "@/lib/validations/auth";
 import { signInAction, signUpAction } from "@/app/actions/auth";
+
+// The request itself failed: Vercel or Supabase is down or over a limit, or
+// the visitor's connection dropped.
+const UNREACHABLE =
+  "Couldn't reach the server. It may be busy, or your connection dropped. Try again in a few minutes.";
 
 function AuthShell({
   mode,
@@ -75,7 +81,15 @@ export function LoginForm({ next }: { next?: string }) {
 
   async function onSubmit(values: LoginFormValues) {
     setFormError(null);
-    const result = await signInAction(values, next);
+    let result;
+    try {
+      result = await signInAction(values, next);
+    } catch (error) {
+      // A successful login redirects by throwing; let that through.
+      unstable_rethrow(error);
+      setFormError(UNREACHABLE);
+      return;
+    }
     if (result?.error) {
       setFormError(result.error);
     }
@@ -136,7 +150,14 @@ export function SignupForm() {
 
   async function onSubmit(values: SignupFormValues) {
     setFormError(null);
-    const result = await signUpAction(values);
+    let result;
+    try {
+      result = await signUpAction(values);
+    } catch (error) {
+      unstable_rethrow(error);
+      setFormError(UNREACHABLE);
+      return;
+    }
     if (result && "error" in result) {
       setFormError(result.error);
       return;

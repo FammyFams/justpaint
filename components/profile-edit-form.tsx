@@ -29,7 +29,15 @@ export function ProfileEditForm({ artist }: { artist: Artist }) {
 
   async function onSubmit(values: ProfileFormValues) {
     setFormError(null);
-    const result = await updateProfileAction(values);
+    let result;
+    try {
+      result = await updateProfileAction(values);
+    } catch {
+      setFormError(
+        "Couldn't reach the server. It may be busy, or your connection dropped. Try again in a few minutes."
+      );
+      return;
+    }
     if ("error" in result) {
       setFormError(result.error);
       return;

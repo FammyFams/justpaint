@@ -66,7 +66,7 @@ export async function submitReportAction(
     .single();
   if (error || !row) {
     console.error("report insert failed", error);
-    return { error: "Couldn't send your report. Try again, or email thewcookie@gmail.com." };
+    return { error: "The server is busy and couldn't send your report. Try again in a few minutes, or email thewcookie@gmail.com." };
   }
 
   const deadline = new Date(new Date(row.created_at).getTime() + 48 * 60 * 60 * 1000);

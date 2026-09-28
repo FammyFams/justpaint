@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { SERVER_BUSY } from "@/lib/busy";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { visitorKey } from "@/lib/client-ip";
@@ -35,7 +36,7 @@ export async function setHeartAction(
         .delete()
         .eq("painting_id", paintingId)
         .eq("ip_hash", ipHash);
-  if (error) return { error: "Couldn't save that. Try again." };
+  if (error) return { error: SERVER_BUSY };
 
   const { data } = await admin
     .from("paintings")

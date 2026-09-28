@@ -74,7 +74,7 @@ function HeartButton({
         setHearted(!next);
         setCount((prev) => Math.max(0, prev + (next ? -1 : 1)));
         if (isGuest) writeHearted(paintingId, !next);
-        toast.error("Couldn't save your heart. Try again.");
+        toast.error("The server is busy and couldn't save your heart. Try again later.");
       }
     });
   }

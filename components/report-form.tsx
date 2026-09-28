@@ -40,7 +40,7 @@ export function ReportForm({ paintingLink }: { paintingLink?: string }) {
       }
       setReference(result.reference);
     } catch {
-      setFormError("Couldn't send your report. Try again, or email thewcookie@gmail.com.");
+      setFormError("Couldn't reach the server. It may be busy. Try again in a few minutes, or email thewcookie@gmail.com.");
     }
   }
 

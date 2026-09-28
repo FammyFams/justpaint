@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { SERVER_BUSY } from "@/lib/busy";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -33,7 +34,7 @@ export async function deleteAccountAction(): Promise<{ error: string } | undefin
   const { error } = await admin.auth.admin.deleteUser(userId);
   if (error) {
     console.error("account delete failed", error);
-    return { error: "Couldn't delete your account. Try again." };
+    return { error: SERVER_BUSY };
   }
 
   await supabase.auth.signOut();

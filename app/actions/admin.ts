@@ -7,6 +7,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { hashedClientIp } from "@/lib/client-ip";
 import { deletePaintingRecord } from "@/lib/delete-painting";
 import { ADMIN_COOKIE, adminToken, isAdmin, safeEqual } from "@/lib/admin";
+import { getLatestComments, type AdminComment } from "@/lib/admin-comments";
+import { SERVER_BUSY } from "@/lib/busy";
 
 export async function adminLoginAction(
   _prev: { error: string } | null,
@@ -81,4 +83,16 @@ export async function adminSetOctoberChallengeAction(
   revalidatePath("/admin");
   revalidatePath("/");
   return { success: true };
+}
+
+export async function adminLatestCommentsAction(): Promise<
+  { error: string } | { comments: AdminComment[] }
+> {
+  if (!(await isAdmin())) return { error: "Not authorized." };
+  try {
+    return { comments: await getLatestComments() };
+  } catch (error) {
+    console.error("adminLatestCommentsAction failed", error);
+    return { error: SERVER_BUSY };
+  }
 }

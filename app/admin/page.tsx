@@ -9,6 +9,8 @@ import { AdminLoginForm } from "@/components/admin-login-form";
 import { AdminDeleteButton } from "@/components/admin-delete-button";
 import { AdminChallengeCheckbox } from "@/components/admin-challenge-checkbox";
 import { ReportActions } from "@/components/report-actions";
+import { AdminCommentFeed } from "@/components/admin-comment-feed";
+import { getLatestComments } from "@/lib/admin-comments";
 import { REPORT_REASONS } from "@/lib/validations/report";
 import { adminLogoutAction } from "@/app/actions/admin";
 
@@ -40,7 +42,11 @@ export default async function AdminPage() {
     .select("*")
     .order("created_at", { ascending: false })
     .limit(50);
-  const openReports = reports?.filter((r) => r.status === "open") ?? [];
+  const comments = await getLatestComments().catch((err) => {
+    console.error(err);
+    return null;
+  });
+  const openReports =reports?.filter((r) => r.status === "open") ?? [];
   const closedReports = reports?.filter((r) => r.status !== "open").slice(0, 10) ?? [];
   // eslint-disable-next-line react-hooks/purity -- server render, runs once per request
   const now = Date.now();
@@ -122,6 +128,17 @@ export default async function AdminPage() {
               ))}
             </ul>
           </details>
+        )}
+      </section>
+
+      <section className="mt-12">
+        <h2 className="font-heading text-2xl italic">Latest comments</h2>
+        {comments ? (
+          <AdminCommentFeed initialComments={comments} />
+        ) : (
+          <p className="mt-4 text-sm text-destructive" role="alert">
+            Couldn&rsquo;t load comments.
+          </p>
         )}
       </section>
 

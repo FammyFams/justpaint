@@ -3,9 +3,8 @@ import { getAllTags, getFeed } from "@/lib/paintings";
 import { getSessionUserId } from "@/lib/current-user";
 import { getHeartedIds } from "@/lib/hearts";
 import Link from "next/link";
-import { PaintingGrid } from "@/components/painting-grid";
-import { LoadMoreLink } from "@/components/load-more-link";
-import { FEED_MAX, FEED_PAGE_SIZE, feedShown } from "@/lib/feed";
+import { HomeFeed } from "@/components/home-feed";
+import { feedShown } from "@/lib/feed";
 import { FeedFilter } from "@/components/feed-filter";
 import { getSiteUrl } from "@/lib/site-url";
 import { SITE_DESCRIPTION } from "@/lib/seo";
@@ -33,14 +32,9 @@ export default async function Home({
 }) {
   const { tag, challenge, shown: shownParam } = await searchParams;
   const inChallenge = challenge === "october";
-  // Load more links to the same feed with one more batch (?shown=12, 18...),
-  // so every post is reachable by following links.
+  // ?shown=N is what the Load more link points search engines at; visitors
+  // load more in place and keep the plain address.
   const shown = feedShown(shownParam);
-  const moreParams = new URLSearchParams();
-  if (tag) moreParams.set("tag", tag);
-  if (inChallenge) moreParams.set("challenge", "october");
-  moreParams.set("shown", String(shown + FEED_PAGE_SIZE));
-  const moreHref = `/?${moreParams}`;
 
   const [{ paintings, hasMore, total }, tags, userId] = await Promise.all([
     getFeed({ tag, octoberChallenge: inChallenge, limit: shown, withCount: Boolean(tag) }),
@@ -85,21 +79,20 @@ export default async function Home({
         </p>
       )}
 
-      <PaintingGrid
-        paintings={paintings}
-        heartedIds={heartedIds}
+      <HomeFeed
+        // Start over when the filter changes.
+        key={`${tag ?? ""}|${inChallenge}`}
+        initialPaintings={paintings}
+        initialHeartedIds={heartedIds}
+        initialHasMore={hasMore}
+        tag={tag}
+        octoberChallenge={inChallenge}
         emptyHint={
           inChallenge
             ? "No October Painting Challenge entries yet. Post one and be the first."
             : undefined
         }
       />
-
-      {hasMore && shown < FEED_MAX && (
-        <div className="mt-10 flex justify-center">
-          <LoadMoreLink href={moreHref} />
-        </div>
-      )}
     </main>
   );
 }

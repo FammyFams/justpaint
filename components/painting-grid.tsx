@@ -4,10 +4,13 @@ import { PaintingCard } from "@/components/painting-card";
 export function PaintingGrid({
   paintings,
   heartedIds,
+  emptyHint = "Try a different tag, or check back soon.",
 }: {
   paintings: Painting[];
   /** Signed-in user's hearted painting ids; undefined for guests. */
   heartedIds?: string[];
+  /** Second line of the empty state. */
+  emptyHint?: string;
 }) {
   if (paintings.length === 0) {
     return (
@@ -16,7 +19,7 @@ export function PaintingGrid({
           Nothing here yet
         </p>
         <p className="text-sm text-muted-foreground">
-          Try a different tag, or check back soon.
+          {emptyHint}
         </p>
       </div>
     );

@@ -63,7 +63,10 @@ function isBadId(error: { code?: string }) {
   return error.code === "22P02";
 }
 
-export async function getFeed(tagSlug?: string): Promise<Painting[]> {
+export async function getFeed(
+  tagSlug?: string,
+  octoberChallenge = false
+): Promise<Painting[]> {
   const supabase = await createClient();
 
   let paintingIds: string[] | null = null;
@@ -87,6 +90,9 @@ export async function getFeed(tagSlug?: string): Promise<Painting[]> {
 
   if (paintingIds) {
     query = query.in("id", paintingIds);
+  }
+  if (octoberChallenge) {
+    query = query.eq("october_challenge", true);
   }
 
   const { data, error } = await query;

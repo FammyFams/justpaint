@@ -3,7 +3,10 @@ import { redirect } from "next/navigation";
 import { SignupForm } from "@/components/auth-form";
 import { getCurrentUser } from "@/lib/current-user";
 
-export const metadata: Metadata = { title: "Sign up | justpaint" };
+export const metadata: Metadata = {
+  title: "Sign up | justpaint",
+  robots: { index: false, follow: true },
+};
 
 export default async function SignupPage() {
   if (await getCurrentUser()) redirect("/");

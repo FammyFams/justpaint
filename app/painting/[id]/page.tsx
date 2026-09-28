@@ -20,7 +20,24 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const painting = await getPaintingById(id);
-  return { title: painting ? `${painting.title} | justpaint` : "justpaint" };
+  if (!painting) return { title: "justpaint" };
+
+  const medium = painting.tags[0]?.name.toLowerCase();
+  const title = `${painting.title} by ${painting.authorName}`;
+  const summary = painting.description.replace(/\s+/g, " ").trim();
+  const description = `${title}, a beginner ${medium ? `${medium} ` : ""}painting shared on justpaint. ${
+    summary.length > 110 ? `${summary.slice(0, 107)}...` : summary
+  }`;
+  // The painting itself is the share preview and the image search result.
+  const images = [{ url: painting.imageUrl, alt: painting.title }];
+
+  return {
+    title: `${title} | justpaint`,
+    description,
+    alternates: { canonical: `/painting/${painting.id}` },
+    openGraph: { siteName: "justpaint", type: "article", title, description, images },
+    twitter: { card: "summary_large_image", title, description, images },
+  };
 }
 
 export default async function PaintingPage({

@@ -21,6 +21,8 @@ interface CreatePaintingInput {
   guestName?: string;
   /** Covers both the 13+ age confirmation and the Terms agreement. */
   agreedToTerms: boolean;
+  /** Entered in the October painting challenge. */
+  octoberChallenge?: boolean;
 }
 
 // Server Actions are public endpoints that accept any arguments, so the input
@@ -42,6 +44,7 @@ const inputSchema = z.object({
   agreedToTerms: z.literal(true, {
     error: "Confirm you're 13 or older and agree to the Terms of Use.",
   }),
+  octoberChallenge: z.boolean().optional(),
   image: z
     .instanceof(File, { message: "Add an image." })
     .refine((f) => f.size > 0, "Add an image.")
@@ -177,11 +180,21 @@ export async function createPaintingAction(
   }
 
   // Fingerprint of the stored file, so a takedown can also find identical
-  // copies (see resolveReportAction in app/actions/reports.ts).
-  await admin
-    .from("paintings")
-    .update({ image_sha256: createHash("sha256").update(cleanImage.data).digest("hex") })
-    .eq("id", paintingId);
+  // copies (see resolveReportAction in app/actions/reports.ts). The October
+  // challenge flag is set here too, so create_painting stays unchanged.
+  // The painting is already posted, so a failure here doesn't undo it; it's
+  // retried once and logged so a missing challenge flag can be fixed by hand.
+  const extras = {
+    image_sha256: createHash("sha256").update(cleanImage.data).digest("hex"),
+    october_challenge: parsed.data.octoberChallenge ?? false,
+  };
+  let { error: extrasError } = await admin.from("paintings").update(extras).eq("id", paintingId);
+  if (extrasError) {
+    ({ error: extrasError } = await admin.from("paintings").update(extras).eq("id", paintingId));
+  }
+  if (extrasError) {
+    console.error("post-create update failed", paintingId, extras.october_challenge, extrasError);
+  }
 
   revalidatePath("/");
   if (ownerId) revalidatePath(`/artist/${ownerId}`);

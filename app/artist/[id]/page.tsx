@@ -13,7 +13,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const artist = await getArtistById(id);
-  return { title: artist ? `${artist.displayName} | justpaint` : "justpaint" };
+  if (!artist) return { title: "justpaint" };
+  return {
+    title: `${artist.displayName} | justpaint`,
+    description: `Paintings by ${artist.displayName}, a painter in the justpaint beginner painting community.`,
+    alternates: { canonical: `/artist/${artist.id}` },
+    openGraph: { siteName: "justpaint", title: `Paintings by ${artist.displayName}` },
+  };
 }
 
 export default async function ArtistPage({

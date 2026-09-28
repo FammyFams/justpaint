@@ -4,7 +4,10 @@ import { LoginForm } from "@/components/auth-form";
 import { getCurrentUser } from "@/lib/current-user";
 import { safeNext } from "@/lib/safe-next";
 
-export const metadata: Metadata = { title: "Log in | justpaint" };
+export const metadata: Metadata = {
+  title: "Log in | justpaint",
+  robots: { index: false, follow: true },
+};
 
 export default async function LoginPage({
   searchParams,

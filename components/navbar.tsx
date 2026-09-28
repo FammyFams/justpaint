@@ -29,6 +29,7 @@ export async function Navbar() {
           <span className="relative size-9 shrink-0 overflow-hidden rounded-full border border-border bg-card transition-transform duration-300 group-hover:-rotate-6">
             <Image
               src="/logo.jpg"
+              unoptimized
               alt=""
               fill
               className="object-cover"

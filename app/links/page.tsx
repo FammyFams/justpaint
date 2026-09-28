@@ -36,7 +36,7 @@ export default function LinksPage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-4 py-12">
       <span className="relative size-24 overflow-hidden rounded-full border border-border bg-card shadow-sm">
-        <Image src="/logo.jpg" alt="" fill className="object-cover" sizes="96px" priority />
+        <Image src="/logo.jpg" alt="" fill unoptimized className="object-cover" sizes="96px" priority />
       </span>
       <h1 className="mt-4 font-heading text-3xl italic">itsthew</h1>
       <p className="mt-1 text-sm text-muted-foreground">Everywhere I post.</p>

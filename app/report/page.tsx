@@ -7,6 +7,7 @@ import { getSiteUrl } from "@/lib/site-url";
 export const metadata: Metadata = {
   title: "Report a post | justpaint",
   description: "Ask us to remove a post, including intimate images shared without consent.",
+  robots: { index: false, follow: true },
 };
 
 // The notice-and-removal process the TAKE IT DOWN Act requires: plain

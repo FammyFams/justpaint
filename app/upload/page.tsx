@@ -5,6 +5,14 @@ import { getCurrentUser } from "@/lib/current-user";
 
 export const metadata: Metadata = {
   title: "Upload a painting | justpaint",
+  description:
+    "Share a painting you made today with the justpaint beginner painting community. Free, and no account needed.",
+  alternates: { canonical: "/upload" },
+  openGraph: {
+    siteName: "justpaint",
+    title: "Upload a painting | justpaint",
+    description: "Share a painting you made today with the justpaint beginner painting community.",
+  },
 };
 
 export default async function UploadPage() {

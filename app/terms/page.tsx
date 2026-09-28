@@ -3,6 +3,8 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Terms | justpaint",
+  description: "The rules for posting on justpaint: 13 and older, only your own new paintings, and how removals and copyright requests work.",
+  alternates: { canonical: "/terms" },
 };
 
 export default function TermsPage() {

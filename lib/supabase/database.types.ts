@@ -210,6 +210,7 @@ export type Database = {
           id: string
           image_path: string
           image_sha256: string | null
+          october_challenge: boolean
           owner_id: string | null
           title: string
           updated_at: string
@@ -223,6 +224,7 @@ export type Database = {
           id?: string
           image_path: string
           image_sha256?: string | null
+          october_challenge?: boolean
           owner_id?: string | null
           title: string
           updated_at?: string
@@ -236,6 +238,7 @@ export type Database = {
           id?: string
           image_path?: string
           image_sha256?: string | null
+          october_challenge?: boolean
           owner_id?: string | null
           title?: string
           updated_at?: string

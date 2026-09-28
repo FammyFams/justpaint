@@ -31,6 +31,7 @@ export const paintingSchema = z.object({
       (v) => v,
       "Confirm you're 13 or older and agree to the Terms of Use"
     ),
+  octoberChallenge: z.boolean(),
   image: z
     .instanceof(File, { message: "Add an image of your painting" })
     .refine((file) => file.size > 0, "Add an image of your painting")

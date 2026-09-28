@@ -66,6 +66,7 @@ export function UploadForm({
       description: "",
       tags: [],
       agreedToTerms: false,
+      octoberChallenge: false,
     },
   });
 
@@ -88,6 +89,7 @@ export function UploadForm({
         image: values.image,
         guestName: currentUser ? undefined : values.name,
         agreedToTerms: values.agreedToTerms,
+        octoberChallenge: values.octoberChallenge,
       });
     } catch {
       setFormError(
@@ -317,6 +319,33 @@ export function UploadForm({
                 </label>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
               </Field>
+            )}
+          />
+
+          <Controller
+            name="octoberChallenge"
+            control={form.control}
+            render={({ field }) => (
+              <label className="flex items-start gap-2.5 text-sm">
+                <input
+                  type="checkbox"
+                  checked={field.value}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                  onBlur={field.onBlur}
+                  className="mt-0.5 size-4 shrink-0 accent-primary"
+                />
+                <span>
+                  This is part of the{" "}
+                  <Link
+                    href="/october-challenge"
+                    target="_blank"
+                    className="text-primary underline-offset-2 hover:underline"
+                  >
+                    October Painting Challenge
+                  </Link>
+                  .
+                </span>
+              </label>
             )}
           />
 

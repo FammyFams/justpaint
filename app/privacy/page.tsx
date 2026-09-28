@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Privacy | justpaint",
+  description: "How justpaint handles your data: what we collect when you post or sign up, how long we keep it, and your choices.",
+  alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {

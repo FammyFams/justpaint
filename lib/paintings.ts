@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient as createPublicClient, type SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import type { Artist, Comment, Painting, Tag } from "@/lib/types";
@@ -63,10 +63,25 @@ function isBadId(error: { code?: string }) {
   return error.code === "22P02";
 }
 
-export async function getFeed(
-  tagSlug?: string,
-  octoberChallenge = false
-): Promise<Painting[]> {
+export interface FeedPage {
+  paintings: Painting[];
+  /** More posts exist past this page. */
+  hasMore: boolean;
+  /** Every matching post, not just this page. Only set when asked for. */
+  total?: number;
+}
+
+export async function getFeed({
+  tag: tagSlug,
+  octoberChallenge = false,
+  limit,
+  withCount = false,
+}: {
+  tag?: string;
+  octoberChallenge?: boolean;
+  limit: number;
+  withCount?: boolean;
+}): Promise<FeedPage> {
   const supabase = await createClient();
 
   let paintingIds: string[] | null = null;
@@ -80,13 +95,15 @@ export async function getFeed(
       .select("painting_id, tags!inner(slug)")
       .eq("tags.slug", tagSlug);
     paintingIds = (tagRows ?? []).map((r) => r.painting_id);
-    if (paintingIds.length === 0) return [];
+    if (paintingIds.length === 0) return { paintings: [], hasMore: false, total: 0 };
   }
 
+  // One extra row tells us whether there are more posts past this page.
   let query = supabase
     .from("paintings")
-    .select(PAINTING_SELECT)
-    .order("created_at", { ascending: false });
+    .select(PAINTING_SELECT, withCount ? { count: "exact" } : undefined)
+    .order("created_at", { ascending: false })
+    .limit(limit + 1);
 
   if (paintingIds) {
     query = query.in("id", paintingIds);
@@ -95,11 +112,15 @@ export async function getFeed(
     query = query.eq("october_challenge", true);
   }
 
-  const { data, error } = await query;
+  const { data, error, count } = await query;
   if (error) throwBusy("getFeed", error);
-  if (!data) return [];
+  const rows = (data ?? []) as unknown as PaintingRow[];
 
-  return (data as unknown as PaintingRow[]).map((row) => toPainting(supabase, row));
+  return {
+    paintings: rows.slice(0, limit).map((row) => toPainting(supabase, row)),
+    hasMore: rows.length > limit,
+    total: withCount ? (count ?? 0) : undefined,
+  };
 }
 
 export async function getPaintingById(id: string): Promise<Painting | null> {
@@ -178,4 +199,30 @@ export async function getArtistById(id: string): Promise<Artist | null> {
     bio: data.bio || "",
     joinedAt: data.created_at,
   };
+}
+
+/**
+ * Every painting's id and post date, for the sitemap. Uses a cookie-free
+ * client so the sitemap can be cached instead of built per request.
+ */
+export async function getSitemapPaintings(): Promise<{ id: string; createdAt: string }[]> {
+  const supabase = createPublicClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false } }
+  );
+  // Supabase returns at most 1000 rows per request, so read in chunks.
+  const CHUNK = 1000;
+  const rows: { id: string; created_at: string }[] = [];
+  for (let from = 0; from < 50000; from += CHUNK) {
+    const { data, error } = await supabase
+      .from("paintings")
+      .select("id, created_at")
+      .order("created_at", { ascending: false })
+      .range(from, from + CHUNK - 1);
+    if (error) throwBusy("getSitemapPaintings", error);
+    rows.push(...(data ?? []));
+    if (!data || data.length < CHUNK) break;
+  }
+  return rows.map((row) => ({ id: row.id, createdAt: row.created_at }));
 }

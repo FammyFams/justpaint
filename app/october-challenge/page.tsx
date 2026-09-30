@@ -5,11 +5,18 @@ import { cn } from "@/lib/utils";
 import { DownloadCalendarButton, ShareCalendarButton } from "@/components/share-calendar-button";
 import { buttonVariants } from "@/components/ui/button";
 import { getSiteUrl } from "@/lib/site-url";
-import { FIRST_WEEKDAY, PROMPTS, RULES, WEEKDAYS, octoberDay } from "@/lib/october-challenge";
+import {
+  CHALLENGE_NAME,
+  FIRST_WEEKDAY,
+  PROMPTS,
+  RULES,
+  WEEKDAYS,
+  octoberDay,
+} from "@/lib/october-challenge";
 
-const TITLE = "October Painting Challenge 2026 | justpaint";
+const TITLE = `${CHALLENGE_NAME} | justpaint`;
 const DESCRIPTION =
-  "A free October Painting Challenge for beginners: 31 daily prompts, from a cow and a pumpkin to candy corn and Halloween. Paint one a day and share it on justpaint.";
+  "The October Painting Challenge 2026, free for beginners: 31 daily prompts, from a cow and a pumpkin to candy corn and Halloween. Paint one a day and share it on justpaint.";
 
 // The share image comes from ./opengraph-image.tsx, which Next adds to
 // openGraph and twitter automatically.
@@ -26,7 +33,7 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "/october-challenge" },
   openGraph: {
-    title: "October Painting Challenge 2026",
+    title: CHALLENGE_NAME,
     description: DESCRIPTION,
     url: "/october-challenge",
     siteName: "justpaint",
@@ -35,7 +42,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "October Painting Challenge 2026",
+    title: CHALLENGE_NAME,
     description: DESCRIPTION,
   },
 };
@@ -52,7 +59,7 @@ export default async function OctoberChallengePage() {
   const eventJsonLd = {
     "@context": "https://schema.org",
     "@type": "Event",
-    name: "October Painting Challenge 2026",
+    name: CHALLENGE_NAME,
     description: DESCRIPTION,
     startDate: "2026-10-01T00:00:00-07:00",
     endDate: "2026-10-31T23:59:00-07:00",
@@ -82,7 +89,7 @@ export default async function OctoberChallengePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd).replace(/</g, "\\u003c") }}
       />
       <h1 className="font-heading text-4xl italic leading-tight sm:text-5xl">
-        October Painting Challenge
+        {CHALLENGE_NAME}
       </h1>
       <p className="mt-3 text-muted-foreground">
         One prompt a day, all month long. Paint along with everyone.
@@ -138,7 +145,7 @@ export default async function OctoberChallengePage() {
           {/* eslint-disable-next-line @next/next/no-img-element -- already a sized PNG */}
           <img
             src="/october-challenge/calendar.png"
-            alt={`October Painting Challenge calendar: ${PROMPTS.map((p, i) => `day ${i + 1}, ${p}`).join("; ")}`}
+            alt={`${CHALLENGE_NAME} calendar: ${PROMPTS.map((p, i) => `day ${i + 1}, ${p}`).join("; ")}`}
             width={1080}
             height={1350}
             loading="lazy"
@@ -215,13 +222,13 @@ export default async function OctoberChallengePage() {
           <Link href="/upload" className={LINK}>
             post a painting
           </Link>
-          , tick &ldquo;This is part of the October Painting Challenge.&rdquo; You can see
-          every entry by picking{" "}
+          , tick &ldquo;This is part of the {CHALLENGE_NAME}&rdquo; and pick the
+          day&rsquo;s prompt. You can see every entry, grouped by day, by picking{" "}
           <Link
             href="/?challenge=october"
             className={LINK}
           >
-            October Challenge
+            October Challenge 2026
           </Link>{" "}
           on the home page.
         </p>

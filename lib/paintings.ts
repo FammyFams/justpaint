@@ -6,7 +6,7 @@ import { artistSlug, isUuid } from "@/lib/artist-url";
 
 const PAINTING_SELECT = `
   id, title, description, image_path, aspect, owner_id, guest_name, created_at, heart_count,
-  october_day,
+  october_challenge, october_day,
   profiles!paintings_owner_id_fkey ( display_name ),
   paintings_tags ( tags ( id, name, slug ) )
 `;
@@ -21,6 +21,7 @@ interface PaintingRow {
   guest_name: string | null;
   created_at: string;
   heart_count: number;
+  october_challenge: boolean;
   october_day: number | null;
   profiles: { display_name: string } | null;
   paintings_tags: { tags: { id: string; name: string; slug: string } | null }[];
@@ -52,6 +53,7 @@ function toPainting(
     // in migration 20260926000002).
     likeCount: row.heart_count,
     createdAt: row.created_at,
+    octoberChallenge: row.october_challenge,
     octoberDay: row.october_day,
   };
 }

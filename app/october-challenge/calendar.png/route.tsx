@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { jakartaFonts } from "@/lib/og-fonts";
-import { FIRST_WEEKDAY, PROMPTS, RULES, WEEKDAYS } from "@/lib/october-challenge";
+import { CHALLENGE_NAME, FIRST_WEEKDAY, PROMPTS, RULES, WEEKDAYS } from "@/lib/october-challenge";
 
 // The challenge as a picture: rules plus the prompt calendar. Shown in place
 // of the calendar on phones (where 7 columns of text don't fit) and made to
@@ -65,14 +65,14 @@ export async function GET() {
           <div
             style={{
               display: "flex",
-              fontSize: 64,
+              fontSize: 56,
               fontWeight: 800,
               letterSpacing: -2,
               marginTop: 18,
               lineHeight: 1.05,
             }}
           >
-            October Painting Challenge
+            {CHALLENGE_NAME}
           </div>
           <div style={{ display: "flex", flexDirection: "column", marginTop: 14 }}>
             {RULES.map((rule, i) => (

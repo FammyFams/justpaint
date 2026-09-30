@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { LikeButton } from "@/components/like-button";
 import { CommentList } from "@/components/comment-list";
 import { getAvatarClasses, getInitials, formatDate } from "@/lib/format";
+import { CHALLENGE_NAME, PROMPTS } from "@/lib/october-challenge";
 
 export async function generateMetadata({
   params,
@@ -83,6 +84,16 @@ export default async function PaintingPage({
         </div>
 
         <div>
+          {painting.octoberChallenge && (
+            <Link
+              href="/october-challenge"
+              className="mb-2 inline-block text-xs font-medium tracking-wide text-primary uppercase hover:underline"
+            >
+              {CHALLENGE_NAME}
+              {painting.octoberDay &&
+                ` · Day ${painting.octoberDay}: ${PROMPTS[painting.octoberDay - 1]}`}
+            </Link>
+          )}
           <h1 className="font-heading text-3xl italic leading-tight sm:text-4xl">
             {painting.title}
           </h1>

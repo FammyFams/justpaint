@@ -8,6 +8,7 @@ import { feedShown } from "@/lib/feed";
 import { FeedFilter } from "@/components/feed-filter";
 import { getSiteUrl } from "@/lib/site-url";
 import { SITE_DESCRIPTION } from "@/lib/seo";
+import { CHALLENGE_NAME } from "@/lib/october-challenge";
 
 export const metadata: Metadata = {
   title: "justpaint | A Painting Community for Beginners",
@@ -64,7 +65,7 @@ export default async function Home({
           href="/october-challenge"
           className="mt-3 inline-block text-sm font-medium text-primary underline underline-offset-2 hover:decoration-2"
         >
-          October Painting Challenge: rules and prompts &rarr;
+          {CHALLENGE_NAME}: rules and prompts &rarr;
         </Link>
       </div>
 
@@ -89,7 +90,7 @@ export default async function Home({
         octoberChallenge={inChallenge}
         emptyHint={
           inChallenge
-            ? "No October Painting Challenge entries yet. Post one and be the first."
+            ? `No ${CHALLENGE_NAME} entries yet. Post one and be the first.`
             : undefined
         }
       />

@@ -65,16 +65,26 @@ export async function adminDeletePaintingAction(
   return { success: true };
 }
 
+/**
+ * Puts a post in or out of the October challenge, and sets which day's
+ * prompt it's for (null = no day). Taking a post out also clears the day.
+ */
 export async function adminSetOctoberChallengeAction(
   paintingId: string,
-  octoberChallenge: boolean
+  octoberChallenge: boolean,
+  octoberDay: number | null = null
 ): Promise<{ error: string } | { success: true }> {
   if (!(await isAdmin())) return { error: "Not authorized." };
+  if (octoberDay !== null && !(Number.isInteger(octoberDay) && octoberDay >= 1 && octoberDay <= 31)) {
+    return { error: "Pick a day from 1 to 31." };
+  }
 
   const { error } = await createAdminClient()
     .from("paintings")
-    // Taking a post out of the challenge also clears which day it was for.
-    .update(octoberChallenge ? { october_challenge: true } : { october_challenge: false, october_day: null })
+    .update({
+      october_challenge: octoberChallenge,
+      october_day: octoberChallenge ? octoberDay : null,
+    })
     .eq("id", paintingId);
   if (error) {
     console.error("adminSetOctoberChallengeAction failed", paintingId, error);
@@ -83,6 +93,7 @@ export async function adminSetOctoberChallengeAction(
 
   revalidatePath("/admin");
   revalidatePath("/");
+  revalidatePath(`/painting/${paintingId}`);
   return { success: true };
 }
 

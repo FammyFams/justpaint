@@ -27,6 +27,8 @@ export interface Painting {
   tags: Tag[];
   likeCount: number;
   createdAt: string;
+  /** Entered in the October painting challenge. */
+  octoberChallenge: boolean;
   /** Day of the October challenge prompt it's for (1 = October 1), if any. */
   octoberDay: number | null;
 }

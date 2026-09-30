@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Download, Share2 } from "lucide-react";
 import { sendGAEvent } from "@next/third-parties/google";
+import { CHALLENGE_NAME } from "@/lib/october-challenge";
 
 const IMAGE = "/october-challenge/calendar.png";
-const TEXT = "October Painting Challenge: one prompt a day. Paint along on justpaint!";
+const TEXT = `${CHALLENGE_NAME}: one prompt a day. Paint along on justpaint!`;
 
 // Opens the phone's share sheet with the calendar picture and the page link.
 // Browsers that can't share files share just the link, and browsers with no
@@ -40,7 +41,7 @@ export function ShareCalendarButton({ className }: { className?: string }) {
           await navigator.share({ files: [picture], text: `${TEXT} ${url}` });
           sendGAEvent("event", "calendar_share", { method: "picture" });
         } else {
-          await navigator.share({ title: "October Painting Challenge", text: TEXT, url });
+          await navigator.share({ title: CHALLENGE_NAME, text: TEXT, url });
           sendGAEvent("event", "calendar_share", { method: "link" });
         }
         return;

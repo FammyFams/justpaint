@@ -1,5 +1,8 @@
 // Shared by the challenge page and anything else that shows the prompts.
 
+/** The challenge's name wherever the site shows it. */
+export const CHALLENGE_NAME = "October Painting Challenge 2026";
+
 // One prompt per day of October; index 0 is October 1.
 export const PROMPTS = [
   "Cow",

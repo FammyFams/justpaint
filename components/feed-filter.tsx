@@ -23,7 +23,7 @@ export function FeedFilter({ challenge, tag }: { challenge: boolean; tag?: strin
         All
       </Link>
       <Link href={href(true)} className={cn(pill, challenge ? active : inactive)}>
-        October Challenge
+        October Challenge 2026
       </Link>
     </div>
   );

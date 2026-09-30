@@ -25,7 +25,7 @@ import {
 import { createPaintingAction } from "@/app/actions/paintings";
 import { TagSelect } from "@/components/tag-select";
 import { compressImage } from "@/lib/compress-image";
-import { PROMPTS, octoberDay } from "@/lib/october-challenge";
+import { CHALLENGE_NAME, PROMPTS, octoberDay } from "@/lib/october-challenge";
 import type { Tag } from "@/lib/types";
 
 function detectAspect(file: File): Promise<"portrait" | "landscape" | "square"> {
@@ -356,7 +356,7 @@ export function UploadForm({
                     target="_blank"
                     className="text-primary underline-offset-2 hover:underline"
                   >
-                    October Painting Challenge
+                    {CHALLENGE_NAME}
                   </Link>
                   .
                 </span>

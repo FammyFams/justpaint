@@ -73,7 +73,8 @@ export async function adminSetOctoberChallengeAction(
 
   const { error } = await createAdminClient()
     .from("paintings")
-    .update({ october_challenge: octoberChallenge })
+    // Taking a post out of the challenge also clears which day it was for.
+    .update(octoberChallenge ? { october_challenge: true } : { october_challenge: false, october_day: null })
     .eq("id", paintingId);
   if (error) {
     console.error("adminSetOctoberChallengeAction failed", paintingId, error);

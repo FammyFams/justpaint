@@ -23,6 +23,8 @@ interface CreatePaintingInput {
   agreedToTerms: boolean;
   /** Entered in the October painting challenge. */
   octoberChallenge?: boolean;
+  /** Which day's prompt it's for (1 = October 1). */
+  octoberDay?: number;
 }
 
 // Server Actions are public endpoints that accept any arguments, so the input
@@ -45,6 +47,7 @@ const inputSchema = z.object({
     error: "Confirm you're 13 or older and agree to the Terms of Use.",
   }),
   octoberChallenge: z.boolean().optional(),
+  octoberDay: z.number().int().min(1).max(31).optional(),
   image: z
     .instanceof(File, { message: "Add an image." })
     .refine((f) => f.size > 0, "Add an image.")
@@ -181,12 +184,15 @@ export async function createPaintingAction(
 
   // Fingerprint of the stored file, so a takedown can also find identical
   // copies (see resolveReportAction in app/actions/reports.ts). The October
-  // challenge flag is set here too, so create_painting stays unchanged.
-  // The painting is already posted, so a failure here doesn't undo it; it's
-  // retried once and logged so a missing challenge flag can be fixed by hand.
+  // challenge flag and day are set here too, so create_painting stays
+  // unchanged. The painting is already posted, so a failure here doesn't
+  // undo it; it's retried once and logged so a missing challenge flag can be
+  // fixed by hand.
+  const octoberChallenge = parsed.data.octoberChallenge ?? false;
   const extras = {
     image_sha256: createHash("sha256").update(cleanImage.data).digest("hex"),
-    october_challenge: parsed.data.octoberChallenge ?? false,
+    october_challenge: octoberChallenge,
+    october_day: octoberChallenge ? (parsed.data.octoberDay ?? null) : null,
   };
   let { error: extrasError } = await admin.from("paintings").update(extras).eq("id", paintingId);
   if (extrasError) {

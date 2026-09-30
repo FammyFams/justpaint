@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ImagePlus, Upload } from "lucide-react";
+import { ChevronDown, ImagePlus, Upload } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,6 +25,7 @@ import {
 import { createPaintingAction } from "@/app/actions/paintings";
 import { TagSelect } from "@/components/tag-select";
 import { compressImage } from "@/lib/compress-image";
+import { PROMPTS, octoberDay } from "@/lib/october-challenge";
 import type { Tag } from "@/lib/types";
 
 function detectAspect(file: File): Promise<"portrait" | "landscape" | "square"> {
@@ -69,12 +70,18 @@ export function UploadForm({
       octoberChallenge: false,
     },
   });
+  // The day picker only shows once the challenge box is ticked.
+  const inChallenge = useWatch({ control: form.control, name: "octoberChallenge" });
 
   async function onSubmit(values: PaintingFormValues) {
     setFormError(null);
 
     if (!currentUser && !values.name?.trim()) {
       form.setError("name", { message: "Add your name" });
+      return;
+    }
+    if (values.octoberChallenge && !values.octoberDay) {
+      form.setError("octoberDay", { message: "Pick which day it's for" });
       return;
     }
 
@@ -90,6 +97,7 @@ export function UploadForm({
         guestName: currentUser ? undefined : values.name,
         agreedToTerms: values.agreedToTerms,
         octoberChallenge: values.octoberChallenge,
+        octoberDay: values.octoberChallenge ? values.octoberDay : undefined,
       });
     } catch {
       setFormError(
@@ -330,7 +338,14 @@ export function UploadForm({
                 <input
                   type="checkbox"
                   checked={field.value}
-                  onChange={(e) => field.onChange(e.target.checked)}
+                  onChange={(e) => {
+                    field.onChange(e.target.checked);
+                    // During October, start the day on today's prompt.
+                    if (e.target.checked && !form.getValues("octoberDay")) {
+                      const today = octoberDay();
+                      if (today) form.setValue("octoberDay", today);
+                    }
+                  }}
                   onBlur={field.onBlur}
                   className="mt-0.5 size-4 shrink-0 accent-primary"
                 />
@@ -348,6 +363,42 @@ export function UploadForm({
               </label>
             )}
           />
+
+          {inChallenge && (
+            <Controller
+              name="octoberDay"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid} className="pl-6.5">
+                  <FieldLabel htmlFor="octoberDay">Which day?</FieldLabel>
+                  <div className="relative">
+                    <select
+                      id="octoberDay"
+                      value={field.value ?? ""}
+                      onChange={(e) => {
+                        field.onChange(e.target.value ? Number(e.target.value) : undefined);
+                        form.clearErrors("octoberDay");
+                      }}
+                      onBlur={field.onBlur}
+                      aria-invalid={fieldState.invalid}
+                      className="h-9 w-full appearance-none rounded-md border border-input bg-transparent px-3 pr-9 text-sm shadow-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive"
+                    >
+                      <option value="" disabled>
+                        Pick a day
+                      </option>
+                      {PROMPTS.map((prompt, i) => (
+                        <option key={i} value={i + 1}>
+                          Oct {i + 1}: {prompt}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                  </div>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+          )}
 
           {formError && (
             <p className="text-sm text-destructive" role="alert">

@@ -6,6 +6,7 @@ import { artistSlug, isUuid } from "@/lib/artist-url";
 
 const PAINTING_SELECT = `
   id, title, description, image_path, aspect, owner_id, guest_name, created_at, heart_count,
+  october_day,
   profiles!paintings_owner_id_fkey ( display_name ),
   paintings_tags ( tags ( id, name, slug ) )
 `;
@@ -20,6 +21,7 @@ interface PaintingRow {
   guest_name: string | null;
   created_at: string;
   heart_count: number;
+  october_day: number | null;
   profiles: { display_name: string } | null;
   paintings_tags: { tags: { id: string; name: string; slug: string } | null }[];
 }
@@ -50,6 +52,7 @@ function toPainting(
     // in migration 20260926000002).
     likeCount: row.heart_count,
     createdAt: row.created_at,
+    octoberDay: row.october_day,
   };
 }
 
@@ -102,16 +105,18 @@ export async function getFeed({
   // One extra row tells us whether there are more posts past this page.
   let query = supabase
     .from("paintings")
-    .select(PAINTING_SELECT, withCount ? { count: "exact" } : undefined)
-    .order("created_at", { ascending: false })
-    .limit(limit + 1);
+    .select(PAINTING_SELECT, withCount ? { count: "exact" } : undefined);
 
   if (paintingIds) {
     query = query.in("id", paintingIds);
   }
   if (octoberChallenge) {
-    query = query.eq("october_challenge", true);
+    // Grouped by prompt day, newest day first; posts with no day go last.
+    query = query
+      .eq("october_challenge", true)
+      .order("october_day", { ascending: false, nullsFirst: false });
   }
+  query = query.order("created_at", { ascending: false }).limit(limit + 1);
 
   const { data, error, count } = await query;
   if (error) throwBusy("getFeed", error);
@@ -202,11 +207,19 @@ export async function getArtistById(id: string): Promise<Artist | null> {
   };
 }
 
+export interface SitemapPainting {
+  id: string;
+  createdAt: string;
+  /** The account that posted it; null for guest posts. */
+  artist: { id: string; displayName: string } | null;
+}
+
 /**
- * Every painting's id and post date, for the sitemap. Uses a cookie-free
- * client so the sitemap can be cached instead of built per request.
+ * Every painting's id, post date and account, newest first, for the
+ * sitemap. Uses a cookie-free client so the sitemap can be cached instead
+ * of built per request.
  */
-export async function getSitemapPaintings(): Promise<{ id: string; createdAt: string }[]> {
+export async function getSitemapPaintings(): Promise<SitemapPainting[]> {
   const supabase = createPublicClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
@@ -214,18 +227,29 @@ export async function getSitemapPaintings(): Promise<{ id: string; createdAt: st
   );
   // Supabase returns at most 1000 rows per request, so read in chunks.
   const CHUNK = 1000;
-  const rows: { id: string; created_at: string }[] = [];
+  const rows: {
+    id: string;
+    created_at: string;
+    owner_id: string | null;
+    profiles: { display_name: string } | null;
+  }[] = [];
   for (let from = 0; from < 50000; from += CHUNK) {
     const { data, error } = await supabase
       .from("paintings")
-      .select("id, created_at")
+      .select("id, created_at, owner_id, profiles!paintings_owner_id_fkey ( display_name )")
       .order("created_at", { ascending: false })
       .range(from, from + CHUNK - 1);
     if (error) throwBusy("getSitemapPaintings", error);
-    rows.push(...(data ?? []));
+    rows.push(...((data ?? []) as unknown as typeof rows));
     if (!data || data.length < CHUNK) break;
   }
-  return rows.map((row) => ({ id: row.id, createdAt: row.created_at }));
+  return rows.map((row) => ({
+    id: row.id,
+    createdAt: row.created_at,
+    artist: row.owner_id
+      ? { id: row.owner_id, displayName: row.profiles?.display_name ?? "" }
+      : null,
+  }));
 }
 
 /**

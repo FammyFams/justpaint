@@ -23,7 +23,7 @@ export const PROMPTS = [
   "House",
   "Chicken",
   "Apple tree",
-  "Pumpkin",
+  "Pumpkin pie",
   "Bird",
   "Sandwich",
   "Mouse",

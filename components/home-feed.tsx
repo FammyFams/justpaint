@@ -137,7 +137,12 @@ export function HomeFeed({
 
   return (
     <>
-      <PaintingGrid paintings={paintings} heartedIds={heartedIds} emptyHint={emptyHint} />
+      <PaintingGrid
+        paintings={paintings}
+        heartedIds={heartedIds}
+        emptyHint={emptyHint}
+        groupByOctoberDay={octoberChallenge}
+      />
       {hasMore && shown < FEED_MAX && (
         <div className="mt-10 flex flex-col items-center gap-2">
           <a

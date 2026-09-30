@@ -27,6 +27,8 @@ export interface Painting {
   tags: Tag[];
   likeCount: number;
   createdAt: string;
+  /** Day of the October challenge prompt it's for (1 = October 1), if any. */
+  octoberDay: number | null;
 }
 
 export interface Artist {

@@ -49,3 +49,8 @@ export async function hashedClientIp(): Promise<string> {
 export async function visitorKey(userId: string | null): Promise<string> {
   return userId ? hmac(`user:${userId}`) : hashedClientIp();
 }
+
+/** An email as a salted hash, for counting sign-in tries per account. */
+export function hashedEmail(email: string): string {
+  return hmac(`email:${email.trim().toLowerCase()}`);
+}

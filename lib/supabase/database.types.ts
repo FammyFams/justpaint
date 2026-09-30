@@ -361,6 +361,10 @@ export type Database = {
         Args: { p_body: string; p_painting_id: string; p_user_id: string }
         Returns: string
       }
+      claim_auth_attempt: {
+        Args: { p_kind: string; p_ip_hash: string; p_email_hash?: string }
+        Returns: undefined
+      }
       claim_admin_login_attempt: {
         Args: { p_ip_hash: string }
         Returns: undefined

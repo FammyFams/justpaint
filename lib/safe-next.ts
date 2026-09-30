@@ -11,6 +11,9 @@ export function safeNext(requested: string | null | undefined): string {
   try {
     const url = new URL(requested, BASE);
     if (url.origin !== BASE) return "/";
+    // Parsing also resolves dot segments, so "/.//evil.com" comes out as the
+    // path "//evil.com", which a redirect would treat as another site.
+    if (url.pathname.startsWith("//")) return "/";
     return url.pathname + url.search + url.hash;
   } catch {
     return "/";

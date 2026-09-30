@@ -7,6 +7,9 @@ import * as z from "zod";
 // otherwise pass as someone else's name.
 const NAME_PATTERN = /^[A-Za-z0-9._-](?:[A-Za-z0-9._ -]{0,28}[A-Za-z0-9._-])?$/;
 const NAME_HINT = "Use letters, numbers, spaces, dots, dashes or underscores.";
+// A name made only of dots or dashes (like "..") has no usable profile address.
+const HAS_LETTER_OR_NUMBER = /[A-Za-z0-9]/;
+const NEEDS_LETTER_OR_NUMBER = "Include at least one letter or number.";
 
 /** Account display names: 2 to 30 characters. */
 export const displayNameSchema = z
@@ -14,7 +17,8 @@ export const displayNameSchema = z
   .trim()
   .min(2, "At least 2 characters")
   .max(30, "30 characters max")
-  .regex(NAME_PATTERN, NAME_HINT);
+  .regex(NAME_PATTERN, NAME_HINT)
+  .regex(HAS_LETTER_OR_NUMBER, NEEDS_LETTER_OR_NUMBER);
 
 /** Names typed when posting as a guest: 1 to 30 characters. */
 export const guestNameSchema = z
@@ -22,4 +26,5 @@ export const guestNameSchema = z
   .trim()
   .min(1, "Add your name")
   .max(30, "30 characters max")
-  .regex(NAME_PATTERN, NAME_HINT);
+  .regex(NAME_PATTERN, NAME_HINT)
+  .regex(HAS_LETTER_OR_NUMBER, NEEDS_LETTER_OR_NUMBER);

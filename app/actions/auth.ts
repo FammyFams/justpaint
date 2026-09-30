@@ -8,6 +8,30 @@ import { getSiteUrl } from "@/lib/site-url";
 import { safeNext } from "@/lib/safe-next";
 import { loginSchema, signupSchema } from "@/lib/validations/auth";
 import { SERVER_BUSY } from "@/lib/busy";
+import { hashedClientIp, hashedEmail } from "@/lib/client-ip";
+
+const TOO_MANY_TRIES = "Too many tries. Wait a bit and try again.";
+
+// Supabase's own auth limits see the server's IP, not the visitor's, so count
+// tries here: sign-in 10 per 15 minutes per IP and per email, sign-up 5 per
+// hour per IP (claim_auth_attempt). Returns an error message, or null to go on.
+async function claimAuthAttempt(kind: "sign_in" | "sign_up", email?: string): Promise<string | null> {
+  const { error } = await createAdminClient().rpc("claim_auth_attempt", {
+    p_kind: kind,
+    p_ip_hash: await hashedClientIp(),
+    p_email_hash: email ? hashedEmail(email) : undefined,
+  });
+  if (!error) return null;
+  if (error.message.includes("rate_limited_auth")) return TOO_MANY_TRIES;
+  // PGRST202: the function isn't in the database yet (migration
+  // 20260930000001 not applied). Let people in rather than lock everyone out.
+  if (error.code === "PGRST202") {
+    console.error("claim_auth_attempt missing: apply migration 20260930000001");
+    return null;
+  }
+  console.error("claim_auth_attempt failed", error);
+  return SERVER_BUSY;
+}
 
 // Supabase's own messages are written for developers; show people these.
 function friendlyAuthError({ message, code }: { message: string; code?: string }): string {
@@ -28,7 +52,7 @@ function friendlyAuthError({ message, code }: { message: string; code?: string }
   if (m.includes("email not confirmed")) {
     return "Confirm your email first. Check your inbox for the link.";
   }
-  if (m.includes("rate limit")) return "Too many tries. Wait a bit and try again.";
+  if (m.includes("rate limit")) return TOO_MANY_TRIES;
   // Password rules (too short, too weak) are worth showing as-is.
   if (m.includes("password")) return message;
   console.error("auth error", code, message);
@@ -45,6 +69,9 @@ export async function signUpAction(values: {
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
+
+  const limited = await claimAuthAttempt("sign_up");
+  if (limited) return { error: limited };
 
   const supabase = await createClient();
   const { data: taken } = await createAdminClient().rpc("display_name_taken", {
@@ -81,6 +108,9 @@ export async function signInAction(
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
+
+  const limited = await claimAuthAttempt("sign_in", parsed.data.email);
+  if (limited) return { error: limited };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);

@@ -14,7 +14,7 @@ export function PaintingGrid({
   /** Second line of the empty state. */
   emptyHint?: string;
   /**
-   * Splits the posts under a bar per challenge day ("October 22 · Pumpkin
+   * Splits the posts under a heading per challenge day ("October 22 · Pumpkin
    * pie"). Expects them already sorted by day.
    */
   groupByOctoberDay?: boolean;
@@ -59,18 +59,20 @@ export function PaintingGrid({
     <div className="flex flex-col gap-10">
       {groups.map((group) => (
         <section key={group.day ?? "none"} className="flex flex-col gap-5">
-          <h2 className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 rounded-sm bg-primary px-4 py-3 text-primary-foreground">
+          <h2 className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b border-border pb-2">
             {group.day ? (
               <>
-                <span className="text-sm font-medium tracking-wide uppercase opacity-85">
+                <span className="text-xs font-semibold tracking-widest text-primary uppercase">
                   October {group.day}
                 </span>
-                <span className="font-heading text-xl font-semibold">
+                <span className="font-heading text-2xl font-semibold text-foreground">
                   {PROMPTS[group.day - 1]}
                 </span>
               </>
             ) : (
-              <span className="font-heading text-xl font-semibold">Other entries</span>
+              <span className="font-heading text-2xl font-semibold text-foreground">
+                Other entries
+              </span>
             )}
           </h2>
           {renderGrid(group.items, group.offset)}

@@ -3,11 +3,16 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { cn } from "@/lib/utils";
 import { DownloadCalendarButton, ShareCalendarButton } from "@/components/share-calendar-button";
+import { PaintingGrid } from "@/components/painting-grid";
 import { buttonVariants } from "@/components/ui/button";
+import { getSessionUserId } from "@/lib/current-user";
+import { getHeartedIds } from "@/lib/hearts";
+import { getFeed } from "@/lib/paintings";
 import { getSiteUrl } from "@/lib/site-url";
 import {
   CHALLENGE_NAME,
   FIRST_WEEKDAY,
+  HASHTAG,
   PROMPTS,
   RULES,
   WEEKDAYS,
@@ -49,11 +54,46 @@ export const metadata: Metadata = {
 
 const LINK = "font-medium text-primary underline underline-offset-2 hover:decoration-2";
 
+// Newest entries shown at the bottom; the rest are on the home page's tab.
+const LATEST_COUNT = 6;
+
+// Questions people search for, answered in plain words.
+const ABOUT = [
+  {
+    q: "Who is it for?",
+    a: "Anyone who wants to paint more. It's made for beginners, so nothing has to be perfect. A quick ten minute painting counts.",
+  },
+  {
+    q: "What paints can I use?",
+    a: "Anything you have: watercolor, gouache, acrylic, oil, or a mix. Pencils and markers are welcome too.",
+  },
+  {
+    q: "Do I have to do all 31?",
+    a: "No. Skip days, catch up later, or only paint the prompts you like.",
+  },
+  {
+    q: "Do I need an account?",
+    a: "No. You can post with just a name. An account gives you your own page with all your paintings.",
+  },
+  {
+    q: "Where do I share it?",
+    a: `Post it on justpaint, where everyone painting along can see it. On Instagram or TikTok, add ${HASHTAG} so others can find it.`,
+  },
+];
+
 export default async function OctoberChallengePage() {
-  // Rendered per visit so today's prompt stays current.
+  // Rendered per visit so today's prompt and the latest entries stay current.
   await connection();
   const today = octoberDay();
   const pageUrl = `${getSiteUrl()}/october-challenge`;
+
+  const [{ paintings: latest }, userId] = await Promise.all([
+    getFeed({ octoberChallenge: true, limit: LATEST_COUNT }),
+    getSessionUserId(),
+  ]);
+  const heartedIds = userId
+    ? await getHeartedIds(userId, latest.map((p) => p.id))
+    : undefined;
 
   // Tells search engines this is a free, online, month-long event.
   const eventJsonLd = {
@@ -234,6 +274,24 @@ export default async function OctoberChallengePage() {
       </section>
 
       <section className="mt-10 text-sm leading-relaxed text-foreground/90">
+        <h2 className="mb-2 font-heading text-xl">About this challenge</h2>
+        <p>
+          The {CHALLENGE_NAME} is a free, month long painting challenge for
+          beginners. There is one simple prompt for each day of October, from a
+          cow on day 1 to Halloween on day 31. Paint the day&rsquo;s prompt, or
+          any prompt you like, and share it with everyone else painting along.
+        </p>
+        <div className="mt-5 flex flex-col gap-4">
+          {ABOUT.map(({ q, a }) => (
+            <div key={q}>
+              <h3 className="font-semibold text-foreground">{q}</h3>
+              <p className="mt-0.5">{a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-10 text-sm leading-relaxed text-foreground/90">
         <h2 className="mb-2 font-heading text-xl">How to enter</h2>
         <p>
           When you{" "}
@@ -248,9 +306,22 @@ export default async function OctoberChallengePage() {
           >
             October Challenge 2026
           </Link>{" "}
-          on the home page.
+          on the home page. Posting somewhere else too? Add{" "}
+          <span className="font-semibold text-foreground">{HASHTAG}</span>.
         </p>
       </section>
+
+      {latest.length > 0 && (
+        <section className="mt-12">
+          <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h2 className="font-heading text-xl">Latest entries</h2>
+            <Link href="/?challenge=october" className={cn(LINK, "text-sm")}>
+              See every entry &rarr;
+            </Link>
+          </div>
+          <PaintingGrid paintings={latest} heartedIds={heartedIds} narrow />
+        </section>
+      )}
     </main>
   );
 }

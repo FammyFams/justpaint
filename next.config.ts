@@ -22,6 +22,18 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  async redirects() {
+    // www served a second copy of every page; send it to the one address
+    // search engines should index.
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.justpaint.art" }],
+        destination: "https://justpaint.art/:path*",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     // Vercel's free plan includes 5,000 image resizes a month, and a resize is
     // redone whenever its cached copy expires. A painting's image never

@@ -7,6 +7,7 @@ export function PaintingGrid({
   heartedIds,
   emptyHint = "Try a different tag, or check back soon.",
   groupByOctoberDay = false,
+  narrow = false,
 }: {
   paintings: Painting[];
   /** Signed-in user's hearted painting ids; undefined for guests. */
@@ -18,6 +19,8 @@ export function PaintingGrid({
    * pie"). Expects them already sorted by day.
    */
   groupByOctoberDay?: boolean;
+  /** At most three columns, for pages narrower than the home feed. */
+  narrow?: boolean;
 }) {
   if (paintings.length === 0) {
     return (
@@ -33,7 +36,9 @@ export function PaintingGrid({
   }
 
   const renderGrid = (items: Painting[], offset: number) => (
-    <div className="grid grid-cols-1 items-start gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div
+      className={`grid grid-cols-1 items-start gap-5 sm:grid-cols-2 lg:grid-cols-3 ${narrow ? "" : "xl:grid-cols-4"}`}
+    >
       {items.map((painting, i) => (
         <PaintingCard
           key={painting.id}

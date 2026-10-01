@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Download, Share2 } from "lucide-react";
 import { sendGAEvent } from "@next/third-parties/google";
-import { CHALLENGE_NAME } from "@/lib/october-challenge";
+import { CHALLENGE_NAME, HASHTAG } from "@/lib/october-challenge";
 
 const IMAGE = "/october-challenge/calendar.png";
-const TEXT = `${CHALLENGE_NAME}: one prompt a day. Paint along on justpaint!`;
+const TEXT = `${CHALLENGE_NAME}: one prompt a day. Paint along on justpaint! ${HASHTAG}`;
 
 // Opens the phone's share sheet with the calendar picture and the page link.
 // Browsers that can't share files share just the link, and browsers with no

@@ -1,6 +1,13 @@
 import { ImageResponse } from "next/og";
 import { jakartaFonts } from "@/lib/og-fonts";
-import { CHALLENGE_NAME, FIRST_WEEKDAY, PROMPTS, RULES, WEEKDAYS } from "@/lib/october-challenge";
+import {
+  CHALLENGE_NAME,
+  FIRST_WEEKDAY,
+  HASHTAG,
+  PROMPTS,
+  RULES,
+  WEEKDAYS,
+} from "@/lib/october-challenge";
 
 // The challenge as a picture: rules plus the prompt calendar. Shown in place
 // of the calendar on phones (where 7 columns of text don't fit) and made to
@@ -58,8 +65,8 @@ export async function GET() {
             >
               justpaint.art
             </div>
-            <div style={{ display: "flex", fontSize: 26, fontWeight: 700, color: MUTED }}>
-              October 2026
+            <div style={{ display: "flex", fontSize: 28, fontWeight: 800, color: CRIMSON }}>
+              {HASHTAG}
             </div>
           </div>
           <div

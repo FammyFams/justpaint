@@ -96,18 +96,36 @@ export default async function OctoberChallengePage() {
       </p>
 
       {today && (
-        <div className="mt-8 rounded-sm bg-primary px-5 py-5 text-primary-foreground sm:px-6">
-          <p className="text-xs tracking-wide uppercase opacity-80">
-            Today&rsquo;s prompt, day {today}
-          </p>
-          <p className="mt-1 font-heading text-3xl italic leading-tight">
-            {PROMPTS[today - 1]}
-          </p>
+        <div className="mt-8 flex flex-wrap items-end justify-between gap-4 rounded-sm border border-border/70 bg-card px-5 py-5 shadow-[0_1px_2px_rgba(0,0,34,0.06)] sm:px-6">
+          <div>
+            <p className="text-xs font-semibold tracking-widest text-primary uppercase">
+              Today&rsquo;s prompt, day {today}
+            </p>
+            <p className="mt-1 font-heading text-3xl italic leading-tight text-foreground">
+              {PROMPTS[today - 1]}
+            </p>
+          </div>
+          {/* Circled by hand, like circling something on paper. */}
           <Link
             href="/upload"
-            className="mt-4 inline-block rounded-full bg-primary-foreground px-4 py-2 text-sm font-medium text-primary"
+            className="group relative inline-block px-4 py-2 text-base font-semibold text-foreground"
           >
-            Post yours
+            <svg
+              aria-hidden
+              viewBox="0 0 160 50"
+              preserveAspectRatio="none"
+              className="absolute -inset-x-1 -inset-y-1 h-[calc(100%+0.5rem)] w-[calc(100%+0.5rem)] text-primary transition-transform duration-200 group-hover:-rotate-2"
+            >
+              <path
+                d="M30 8 C 70 0, 140 4, 152 20 C 160 36, 110 46, 70 44 C 25 42, 4 34, 8 22 C 12 10, 50 4, 95 6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
+            <span className="relative">post yours</span>
           </Link>
         </div>
       )}

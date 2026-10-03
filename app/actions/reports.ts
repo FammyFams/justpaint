@@ -11,6 +11,10 @@ import { getSiteUrl } from "@/lib/site-url";
 import { REPORT_REASONS, paintingIdFrom, reportSchema } from "@/lib/validations/report";
 
 const REPORTS_PER_HOUR = 5;
+// Sitewide. Report emails share Resend's 100-a-day budget with sign-up and
+// password reset emails, so a flood of reports from many IPs could otherwise
+// use it all up. Reports past this are still saved and show on /admin.
+const REPORT_EMAILS_PER_HOUR = 10;
 
 /**
  * Anyone can report a post, with or without an account. Each report gets a
@@ -69,24 +73,38 @@ export async function submitReportAction(
     return { error: "The server is busy and couldn't send your report. Try again in a few minutes, or email thewcookie@gmail.com." };
   }
 
-  const deadline = new Date(new Date(row.created_at).getTime() + 48 * 60 * 60 * 1000);
-  await notifyOwner(
-    `justpaint report #${row.id}: ${reason === "intimate" || reason === "minor" ? "URGENT, " : ""}${post.title}`,
-    [
-      `Report #${row.id} came in for "${post.title}".`,
-      ``,
-      `Reason: ${REPORT_REASONS[reason]}`,
-      `Details: ${details || "(none)"}`,
-      `Reply to: ${email}`,
-      `Signed: ${signature}`,
-      ``,
-      `Post: ${getSiteUrl()}/painting/${paintingId}`,
-      `Review it at ${getSiteUrl()}/admin`,
-      reason === "intimate" || reason === "minor"
-        ? `\nIf the report is valid, the post must be removed by ${deadline.toUTCString()} (48 hours).`
-        : "",
-    ].join("\n")
-  );
+  // Includes this report. If the count fails, email anyway.
+  const { count: sitewide } = await admin
+    .from("content_reports")
+    .select("id", { count: "exact", head: true })
+    .gt("created_at", since);
+  const reportsThisHour = sitewide ?? 0;
+
+  if (reportsThisHour > REPORT_EMAILS_PER_HOUR) {
+    console.warn(`report #${row.id} not emailed: ${reportsThisHour} reports in the last hour`);
+  } else {
+    const deadline = new Date(new Date(row.created_at).getTime() + 48 * 60 * 60 * 1000);
+    await notifyOwner(
+      `justpaint report #${row.id}: ${reason === "intimate" || reason === "minor" ? "URGENT, " : ""}${post.title}`,
+      [
+        `Report #${row.id} came in for "${post.title}".`,
+        ``,
+        `Reason: ${REPORT_REASONS[reason]}`,
+        `Details: ${details || "(none)"}`,
+        `Reply to: ${email}`,
+        `Signed: ${signature}`,
+        ``,
+        `Post: ${getSiteUrl()}/painting/${paintingId}`,
+        `Review it at ${getSiteUrl()}/admin`,
+        reason === "intimate" || reason === "minor"
+          ? `\nIf the report is valid, the post must be removed by ${deadline.toUTCString()} (48 hours).`
+          : "",
+        reportsThisHour === REPORT_EMAILS_PER_HOUR
+          ? `\nThat's ${REPORT_EMAILS_PER_HOUR} reports in the last hour. Any more this hour won't be emailed. Check ${getSiteUrl()}/admin for them.`
+          : "",
+      ].join("\n")
+    );
+  }
 
   revalidatePath("/admin");
   return { reference: row.id };

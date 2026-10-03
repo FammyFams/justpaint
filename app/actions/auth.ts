@@ -6,7 +6,12 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeNext } from "@/lib/safe-next";
-import { loginSchema, signupSchema } from "@/lib/validations/auth";
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  resetPasswordSchema,
+  signupSchema,
+} from "@/lib/validations/auth";
 import { SERVER_BUSY } from "@/lib/busy";
 import { hashedClientIp, hashedEmail } from "@/lib/client-ip";
 
@@ -14,8 +19,12 @@ const TOO_MANY_TRIES = "Too many tries. Wait a bit and try again.";
 
 // Supabase's own auth limits see the server's IP, not the visitor's, so count
 // tries here: sign-in 10 per 15 minutes per IP and per email, sign-up 5 per
-// hour per IP (claim_auth_attempt). Returns an error message, or null to go on.
-async function claimAuthAttempt(kind: "sign_in" | "sign_up", email?: string): Promise<string | null> {
+// hour per IP, password reset 3 per hour per IP and per email
+// (claim_auth_attempt). Returns an error message, or null to go on.
+async function claimAuthAttempt(
+  kind: "sign_in" | "sign_up" | "password_reset",
+  email?: string
+): Promise<string | null> {
   const { error } = await createAdminClient().rpc("claim_auth_attempt", {
     p_kind: kind,
     p_ip_hash: await hashedClientIp(),
@@ -27,6 +36,12 @@ async function claimAuthAttempt(kind: "sign_in" | "sign_up", email?: string): Pr
   // 20260930000001 not applied). Let people in rather than lock everyone out.
   if (error.code === "PGRST202") {
     console.error("claim_auth_attempt missing: apply migration 20260930000001");
+    return null;
+  }
+  // 23514: the table doesn't allow password_reset yet (migration
+  // 20261003000001 not applied). Supabase's own email limits still apply.
+  if (error.code === "23514") {
+    console.error("password_reset limit missing: apply migration 20261003000001");
     return null;
   }
   console.error("claim_auth_attempt failed", error);
@@ -121,6 +136,67 @@ export async function signInAction(
 
   revalidatePath("/", "layout");
   redirect(safeNext(next));
+}
+
+// Answers the same way whether or not the email has an account (Supabase
+// doesn't say either), so the form can't be used to look up who's signed up.
+export async function requestPasswordResetAction(values: {
+  email: string;
+}): Promise<{ error: string } | { success: true }> {
+  const parsed = forgotPasswordSchema.safeParse(values);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const limited = await claimAuthAttempt("password_reset", parsed.data.email);
+  if (limited) return { error: limited };
+
+  const supabase = await createClient();
+  // The Reset Password email template links to /auth/confirm with a token,
+  // which works from any browser. redirectTo is only used if the template is
+  // Supabase's default, which works only in the browser that asked.
+  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+    redirectTo: `${getSiteUrl()}/auth/confirm?next=/reset-password`,
+  });
+
+  if (error) {
+    // Supabase waits 60 seconds between emails to one address and sends at
+    // most 30 auth emails an hour in all.
+    if (error.status === 429 || error.code === "over_email_send_rate_limit") {
+      return { error: "The server can't send another email yet. Wait a few minutes and try again." };
+    }
+    if (error.message.toLowerCase().includes("error sending")) {
+      return { error: "The server is busy and couldn't send the email. Try again later." };
+    }
+    return { error: friendlyAuthError(error) };
+  }
+
+  return { success: true };
+}
+
+// The reset link signs the person in (see /auth/confirm); this sets the new
+// password on that session.
+export async function updatePasswordAction(values: {
+  password: string;
+  confirmPassword: string;
+}): Promise<{ error: string } | { success: true }> {
+  const parsed = resetPasswordSchema.safeParse(values);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getClaims();
+  if (!data?.claims) {
+    return { error: "Your reset link expired. Go back and send yourself a new one." };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
+  if (error) {
+    return { error: friendlyAuthError(error) };
+  }
+
+  return { success: true };
 }
 
 export async function signOutAction() {

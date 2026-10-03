@@ -37,17 +37,24 @@ export default async function AdminPage() {
     )
     .order("created_at", { ascending: false });
 
-  const { data: reports } = await admin
+  // Every open report, however many junk ones come in after a real one.
+  const { data: open } = await admin
     .from("content_reports")
     .select("*")
+    .eq("status", "open")
+    .order("created_at", { ascending: false });
+  const { data: closed } = await admin
+    .from("content_reports")
+    .select("*")
+    .neq("status", "open")
     .order("created_at", { ascending: false })
-    .limit(50);
+    .limit(10);
   const comments = await getLatestComments().catch((err) => {
     console.error(err);
     return null;
   });
-  const openReports =reports?.filter((r) => r.status === "open") ?? [];
-  const closedReports = reports?.filter((r) => r.status !== "open").slice(0, 10) ?? [];
+  const openReports = open ?? [];
+  const closedReports = closed ?? [];
   // eslint-disable-next-line react-hooks/purity -- server render, runs once per request
   const now = Date.now();
 

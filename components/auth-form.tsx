@@ -19,7 +19,7 @@ import { signInAction, signUpAction } from "@/app/actions/auth";
 
 // The request itself failed: Vercel or Supabase is down or over a limit, or
 // the visitor's connection dropped.
-const UNREACHABLE =
+export const UNREACHABLE =
   "Couldn't reach the server. It may be busy, or your connection dropped. Try again in a few minutes.";
 
 function AuthShell({
@@ -124,7 +124,12 @@ export function LoginForm({ next }: { next?: string }) {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <div className="flex items-baseline justify-between gap-2">
+                <FieldLabel htmlFor="password">Password</FieldLabel>
+                <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
               <Input
                 id="password"
                 type="password"

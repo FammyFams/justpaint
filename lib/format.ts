@@ -55,6 +55,20 @@ export function formatDateTime(isoDate: string): string {
   });
 }
 
+/** "Oct 3, 2:15 PM PDT": a shorter formatDateTime, also pinned to Pacific. */
+export function formatShortDateTime(isoDate: string): string {
+  const date = new Date(isoDate);
+  return date.toLocaleString("en-US", {
+    timeZone: "America/Los_Angeles",
+    month: "short",
+    day: "numeric",
+    year: date.getFullYear() === new Date().getFullYear() ? undefined : "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  });
+}
+
 export function formatDate(isoDate: string): string {
   return new Date(isoDate).toLocaleDateString(undefined, {
     month: "long",

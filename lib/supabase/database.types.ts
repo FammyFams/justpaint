@@ -174,6 +174,29 @@ export type Database = {
           },
         ]
       }
+      notification_reads: {
+        Row: {
+          seen_at: string
+          user_id: string
+        }
+        Insert: {
+          seen_at?: string
+          user_id: string
+        }
+        Update: {
+          seen_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_reads_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       painting_hearts: {
         Row: {
           created_at: string
@@ -386,6 +409,10 @@ export type Database = {
       display_name_taken: {
         Args: { p_exclude?: string; p_name: string }
         Returns: boolean
+      }
+      unread_notification_count: {
+        Args: { p_own_heart_key: string; p_user: string }
+        Returns: number
       }
     }
     Enums: {

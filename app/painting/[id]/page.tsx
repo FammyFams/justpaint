@@ -174,7 +174,8 @@ export default async function PaintingPage({
             </Link>
           </p>
 
-          <div className="mt-10 border-t border-border pt-6">
+          {/* Comment notifications link here; scroll-mt clears the sticky header. */}
+          <div id="comments" className="mt-10 scroll-mt-20 border-t border-border pt-6">
             <h2 className="mb-4 font-heading text-lg italic">
               Comments{comments.length > 0 ? ` (${comments.length})` : ""}
             </h2>

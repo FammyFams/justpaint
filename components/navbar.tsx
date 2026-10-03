@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { artistHref } from "@/lib/artist-url";
 import Image from "next/image";
-import { LogOut, Shield } from "lucide-react";
+import { LogOut, Shield, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -12,13 +12,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LogoutMenuItem } from "@/components/logout-menu-item";
+import { NotificationCountProvider, NotificationsMenuItem } from "@/components/notification-count";
 import { isAdmin } from "@/lib/admin";
 import { getCurrentUser } from "@/lib/current-user";
 import { getAvatarClasses, getInitials } from "@/lib/format";
+import { getUnreadCount } from "@/lib/notifications";
 import { adminLogoutAction } from "@/app/actions/admin";
+
+// Account menu rows: full width and tall enough to tap on a phone.
+const MENU_ITEM = "gap-3 rounded-none px-3 py-2.5 focus:bg-secondary";
 
 export async function Navbar() {
   const [admin, user] = await Promise.all([isAdmin(), getCurrentUser()]);
+  const profileHref = user ? artistHref({ id: user.id, displayName: user.displayName }) : "";
+  const unread = user ? await getUnreadCount(user.id) : 0;
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
@@ -62,15 +69,6 @@ export async function Navbar() {
               </form>
             </>
           )}
-          {!user && (
-            <Button
-              size="lg"
-              variant="ghost"
-              nativeButton={false}
-              className="rounded-full px-3"
-              render={<Link href="/login">log in</Link>}
-            />
-          )}
           <Button
             size="lg"
             nativeButton={false}
@@ -82,29 +80,65 @@ export async function Navbar() {
               </Link>
             }
           />
+          {/* Account spot is always last: log in, or the avatar once signed in. */}
+          {!user && (
+            <Button
+              size="lg"
+              variant="ghost"
+              nativeButton={false}
+              className="rounded-full px-3"
+              render={<Link href="/login">log in</Link>}
+            />
+          )}
           {user && (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                aria-label="Account menu"
-                className="ml-1 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-              >
-                <Avatar className="size-9">
-                  <AvatarFallback className={getAvatarClasses(user.displayName)}>
-                    {getInitials(user.displayName)}
-                  </AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="min-w-44">
-                <div className="px-1.5 py-1 text-sm font-medium">{user.displayName}</div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem render={<Link href={artistHref({ id: user.id, displayName: user.displayName })}>My profile</Link>} />
-                <DropdownMenuItem
-                  render={<Link href={`${artistHref({ id: user.id, displayName: user.displayName })}/edit`}>Edit profile</Link>}
-                />
-                <DropdownMenuSeparator />
-                <LogoutMenuItem />
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <NotificationCountProvider key={unread} unread={unread}>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  aria-label="Account menu"
+                  className="ml-1 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                >
+                  <Avatar className="size-9">
+                    <AvatarFallback className={getAvatarClasses(user.displayName)}>
+                      {getInitials(user.displayName)}
+                    </AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  sideOffset={6}
+                  className="w-60 rounded-[4px] border border-border p-0 shadow-[0_1px_0_rgba(0,0,34,0.08)] ring-0"
+                >
+                  <div className="flex items-center gap-3 px-3 py-3">
+                    <Avatar className="size-9">
+                      <AvatarFallback className={getAvatarClasses(user.displayName)}>
+                        {getInitials(user.displayName)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0 text-sm">
+                      <p className="truncate font-semibold">{user.displayName}</p>
+                      <p className="truncate text-xs text-muted-foreground">justpaint.art{profileHref}</p>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator className="mx-0 my-0" />
+                  <div className="py-1">
+                    <DropdownMenuItem
+                      className={MENU_ITEM}
+                      render={
+                        <Link href={profileHref}>
+                          <User className="text-muted-foreground" />
+                          My profile
+                        </Link>
+                      }
+                    />
+                    <NotificationsMenuItem className={MENU_ITEM} />
+                  </div>
+                  <DropdownMenuSeparator className="mx-0 my-0" />
+                  <div className="py-1">
+                    <LogoutMenuItem className={MENU_ITEM} />
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </NotificationCountProvider>
           )}
         </div>
       </div>

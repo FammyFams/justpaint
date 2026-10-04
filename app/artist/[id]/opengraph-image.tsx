@@ -1,13 +1,13 @@
 import { ImageResponse } from "next/og";
 import { jakartaFonts } from "@/lib/og-fonts";
-import { logoPicture, paintingPicture, type OgPicture } from "@/lib/og-images";
+import { SHARE_PICTURE_HEADERS, logoPicture, paintingPicture, type OgPicture } from "@/lib/og-images";
 import { findArtist, getPaintingsByArtist } from "@/lib/paintings";
 import { createPublicClient } from "@/lib/supabase/public";
 
 // The share preview for a profile: the name, how many paintings, and the
 // latest three. Built on the first share and kept for an hour.
 export const dynamic = "force-static";
-export const revalidate = 3600;
+export const revalidate = 3600; // matches SHARE_PICTURE_HEADERS
 
 export const alt = "Paintings by an artist on justpaint";
 export const size = { width: 1200, height: 630 };
@@ -147,6 +147,6 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         )}
       </div>
     ),
-    { ...size, fonts }
+    { ...size, fonts, headers: SHARE_PICTURE_HEADERS }
   );
 }

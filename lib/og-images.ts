@@ -51,3 +51,13 @@ export async function paintingPicture(
 export async function logoPicture(size: number): Promise<OgPicture> {
   return toDataUrl(await readFile(join(process.cwd(), "public/logo.jpg")), size, size, "cover");
 }
+
+/**
+ * Headers for a cached share picture (routes with `revalidate = 3600`).
+ * next/og sends "max-age=0, must-revalidate" on its own, and Next only adds
+ * its cache header when a response has none, so without this Vercel treats
+ * every copy as expired and rebuilds the picture on each request.
+ */
+export const SHARE_PICTURE_HEADERS = {
+  "cache-control": "s-maxage=3600, stale-while-revalidate=86400",
+};

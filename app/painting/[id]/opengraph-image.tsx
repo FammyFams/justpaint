@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { jakartaFonts } from "@/lib/og-fonts";
-import { logoPicture, paintingPicture } from "@/lib/og-images";
+import { SHARE_PICTURE_HEADERS, logoPicture, paintingPicture } from "@/lib/og-images";
 import { getPaintingById } from "@/lib/paintings";
 import { createPublicClient } from "@/lib/supabase/public";
 import { PROMPTS } from "@/lib/october-challenge";
@@ -11,7 +11,7 @@ import { PROMPTS } from "@/lib/october-challenge";
 // Built on the first share and kept for an hour; deleting the post clears it
 // sooner (lib/delete-painting.ts), so a removed painting doesn't linger here.
 export const dynamic = "force-static";
-export const revalidate = 3600;
+export const revalidate = 3600; // matches SHARE_PICTURE_HEADERS
 
 export const alt = "A beginner painting shared on justpaint";
 export const size = { width: 1200, height: 630 };
@@ -120,6 +120,6 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         </div>
       </div>
     ),
-    { ...size, fonts }
+    { ...size, fonts, headers: SHARE_PICTURE_HEADERS }
   );
 }

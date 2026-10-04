@@ -45,6 +45,11 @@ export async function deletePaintingRecord(
 
   revalidatePath("/");
   revalidatePath(`/painting/${paintingId}`);
-  if (painting.owner_id) revalidatePath("/artist/[id]", "page");
+  // Share pictures are cached for an hour; drop this one now so a removed
+  // painting stops showing up in link previews.
+  revalidatePath(`/painting/${paintingId}/opengraph-image`);
+  // "layout" also covers each profile's share picture, which shows the
+  // latest paintings.
+  if (painting.owner_id) revalidatePath("/artist/[id]", "layout");
   return { success: true, ownerId: painting.owner_id };
 }

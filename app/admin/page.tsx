@@ -93,7 +93,7 @@ export default async function AdminPage() {
                   <p className="font-medium">
                     #{r.id}:{" "}
                     {r.painting_id ? (
-                      <Link href={`/painting/${r.painting_id}`} className="hover:underline">
+                      <Link href={`/painting/${r.painting_id}`} prefetch={false} className="hover:underline">
                         {r.painting_title ?? "post"}
                       </Link>
                     ) : (
@@ -173,6 +173,7 @@ export default async function AdminPage() {
             <li key={p.id} className="flex items-center gap-4 py-3">
               <Link
                 href={`/painting/${p.id}`}
+                prefetch={false}
                 className="relative size-16 shrink-0 overflow-hidden rounded-sm bg-muted"
               >
                 <Image
@@ -186,6 +187,7 @@ export default async function AdminPage() {
               <div className="min-w-0 flex-1">
                 <Link
                   href={`/painting/${p.id}`}
+                  prefetch={false}
                   className="block truncate font-medium hover:underline"
                 >
                   {p.title}

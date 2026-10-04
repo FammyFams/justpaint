@@ -213,6 +213,34 @@ export default async function OctoberChallengePage() {
             Tap the calendar to open it full size.
           </span>
         </a>
+        {/* The picture's text is tiny on a phone, so the prompts are also a
+            plain list: days 1-16 down the left, 17-31 down the right. */}
+        <ol className="mt-5 grid grid-flow-col grid-cols-2 grid-rows-[repeat(16,auto)] gap-x-6 text-sm sm:hidden">
+          {PROMPTS.map((prompt, i) => {
+            const day = i + 1;
+            const isToday = day === today;
+            return (
+              <li
+                key={day}
+                aria-current={isToday ? "date" : undefined}
+                className="flex gap-2.5 border-b border-border/70 py-1.5"
+              >
+                <span
+                  className={cn(
+                    "w-5 shrink-0 text-right font-semibold tabular-nums",
+                    isToday ? "text-primary" : "text-muted-foreground"
+                  )}
+                >
+                  {day}
+                </span>
+                <span className={cn(isToday && "font-semibold text-primary")}>
+                  {prompt}
+                  {isToday && <span className="sr-only"> (today)</span>}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
 
         {/* Desktop: same look as the picture. Thick rules between weeks,
             hairlines between days, big day numbers, prompts on one baseline. */}

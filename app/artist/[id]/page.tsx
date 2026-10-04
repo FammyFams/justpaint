@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/current-user";
 import { getHeartedIds } from "@/lib/hearts";
 import { ProfileHeader } from "@/components/profile-header";
 import { PaintingGrid } from "@/components/painting-grid";
+import { artistJsonLd, jsonLdHtml } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -19,7 +20,9 @@ export async function generateMetadata({
     title: `${artist.displayName} | justpaint`,
     description: `Paintings by ${artist.displayName}, a painter in the justpaint beginner painting community.`,
     alternates: { canonical: artistHref(artist) },
+    // Share picture: ./opengraph-image.tsx.
     openGraph: { siteName: "justpaint", title: `Paintings by ${artist.displayName}` },
+    twitter: { card: "summary_large_image", title: `Paintings by ${artist.displayName}` },
   };
 }
 
@@ -46,6 +49,7 @@ export default async function ArtistPage({
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(artistJsonLd(artist, paintings))} />
       <ProfileHeader
         artist={artist}
         paintingCount={paintings.length}

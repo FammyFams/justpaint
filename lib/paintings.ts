@@ -1,5 +1,6 @@
-import { createClient as createPublicClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import type { Database } from "@/lib/supabase/database.types";
 import type { Artist, Comment, Painting, Tag } from "@/lib/types";
 import { artistSlug, isUuid } from "@/lib/artist-url";
@@ -131,8 +132,12 @@ export async function getFeed({
   };
 }
 
-export async function getPaintingById(id: string): Promise<Painting | null> {
-  const supabase = await createClient();
+/** Pass `client` (lib/supabase/public.ts) to read without cookies, so the caller can be cached. */
+export async function getPaintingById(
+  id: string,
+  client?: SupabaseClient<Database>
+): Promise<Painting | null> {
+  const supabase = client ?? (await createClient());
   const { data, error } = await supabase
     .from("paintings")
     .select(PAINTING_SELECT)
@@ -144,8 +149,11 @@ export async function getPaintingById(id: string): Promise<Painting | null> {
   return toPainting(supabase, data as unknown as PaintingRow);
 }
 
-export async function getPaintingsByArtist(artistId: string): Promise<Painting[]> {
-  const supabase = await createClient();
+export async function getPaintingsByArtist(
+  artistId: string,
+  client?: SupabaseClient<Database>
+): Promise<Painting[]> {
+  const supabase = client ?? (await createClient());
   const { data, error } = await supabase
     .from("paintings")
     .select(PAINTING_SELECT)
@@ -191,8 +199,11 @@ export async function getAllTags(): Promise<Tag[]> {
   return data ?? [];
 }
 
-export async function getArtistById(id: string): Promise<Artist | null> {
-  const supabase = await createClient();
+export async function getArtistById(
+  id: string,
+  client?: SupabaseClient<Database>
+): Promise<Artist | null> {
+  const supabase = client ?? (await createClient());
   const { data, error } = await supabase
     .from("profiles")
     .select("id, display_name, bio, created_at")
@@ -222,11 +233,7 @@ export interface SitemapPainting {
  * of built per request.
  */
 export async function getSitemapPaintings(): Promise<SitemapPainting[]> {
-  const supabase = createPublicClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    { auth: { persistSession: false, autoRefreshToken: false } }
-  );
+  const supabase = createPublicClient();
   // Supabase returns at most 1000 rows per request, so read in chunks.
   const CHUNK = 1000;
   const rows: {
@@ -259,10 +266,13 @@ export async function getSitemapPaintings(): Promise<SitemapPainting[]> {
  * the address can stand for a space or a dash in the name, so this matches
  * either and then checks the exact address.
  */
-export async function getArtistBySlug(slug: string): Promise<Artist | null> {
+export async function getArtistBySlug(
+  slug: string,
+  client?: SupabaseClient<Database>
+): Promise<Artist | null> {
   if (!/^[A-Za-z0-9._-]{1,60}$/.test(slug)) return null;
   const wanted = slug.toLowerCase();
-  const supabase = await createClient();
+  const supabase = client ?? (await createClient());
   // In ilike, "_" matches any one character; escape real underscores first.
   const pattern = slug.replace(/_/g, "\\_").replace(/-/g, "_");
   const { data, error } = await supabase
@@ -288,6 +298,9 @@ export async function getArtistBySlug(slug: string): Promise<Artist | null> {
 }
 
 /** A profile from its address: the name (see lib/artist-url.ts) or an old id link. */
-export async function findArtist(handle: string): Promise<Artist | null> {
-  return isUuid(handle) ? getArtistById(handle) : getArtistBySlug(handle);
+export async function findArtist(
+  handle: string,
+  client?: SupabaseClient<Database>
+): Promise<Artist | null> {
+  return isUuid(handle) ? getArtistById(handle, client) : getArtistBySlug(handle, client);
 }

@@ -41,7 +41,7 @@ export default async function NotificationsPage() {
                 : `/painting/${item.painting.id}`;
             return (
               <li key={item.id}>
-                <Link href={href} className="flex items-start gap-3 px-4 py-3 hover:bg-secondary">
+                <Link href={href} prefetch={false} className="flex items-start gap-3 px-4 py-3 hover:bg-secondary">
                   <span className="relative size-14 shrink-0 overflow-hidden rounded-[2px] border border-border bg-muted">
                     {/* 64px like /admin, so these reuse resized copies that already exist. */}
                     <Image src={item.painting.imageUrl} alt="" fill sizes="64px" className="object-cover" />

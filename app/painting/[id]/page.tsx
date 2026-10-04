@@ -14,6 +14,7 @@ import { LikeButton } from "@/components/like-button";
 import { CommentList } from "@/components/comment-list";
 import { getAvatarClasses, getInitials, formatDate } from "@/lib/format";
 import { CHALLENGE_NAME, PROMPTS } from "@/lib/october-challenge";
+import { jsonLdHtml, paintingJsonLd } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -30,15 +31,15 @@ export async function generateMetadata({
   const description = `${title}, a beginner ${medium ? `${medium} ` : ""}painting shared on justpaint. ${
     summary.length > 110 ? `${summary.slice(0, 107)}...` : summary
   }`;
-  // The painting itself is the share preview and the image search result.
-  const images = [{ url: painting.imageUrl, alt: painting.title }];
-
+  // The share picture comes from ./opengraph-image.tsx (the whole painting
+  // with its title), and the JSON-LD below points image search at the
+  // painting itself.
   return {
     title: `${title} | justpaint`,
     description,
     alternates: { canonical: `/painting/${painting.id}` },
-    openGraph: { siteName: "justpaint", type: "article", title, description, images },
-    twitter: { card: "summary_large_image", title, description, images },
+    openGraph: { siteName: "justpaint", type: "article", title, description },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
@@ -62,6 +63,10 @@ export default async function PaintingPage({
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdHtml(paintingJsonLd(painting, comments.length))}
+      />
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.3fr_1fr]">
         <div className="rounded-sm border border-border/70 bg-card p-3 shadow-[0_1px_2px_rgba(0,0,34,0.06)] sm:p-4">
           <div className="relative w-full overflow-hidden rounded-[2px] bg-muted">
@@ -169,7 +174,7 @@ export default async function PaintingPage({
           </div>
 
           <p className="mt-3 text-xs text-muted-foreground">
-            <Link href={`/report?painting=${painting.id}`} className="hover:text-foreground hover:underline">
+            <Link href={`/report?painting=${painting.id}`} prefetch={false} className="hover:text-foreground hover:underline">
               Report this post
             </Link>
           </p>

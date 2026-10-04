@@ -11,15 +11,17 @@ export function Footer() {
           </span>
           justpaint
         </p>
+        {/* No prefetch: these were rendered in the background on every page
+            view, about 2,300 requests a day for pages few people open. */}
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
           <span>&copy; {new Date().getFullYear()} justpaint</span>
-          <Link href="/privacy" className="transition-colors hover:text-foreground">
+          <Link href="/privacy" prefetch={false} className="transition-colors hover:text-foreground">
             Privacy
           </Link>
-          <Link href="/terms" className="transition-colors hover:text-foreground">
+          <Link href="/terms" prefetch={false} className="transition-colors hover:text-foreground">
             Terms
           </Link>
-          <Link href="/report" className="transition-colors hover:text-foreground">
+          <Link href="/report" prefetch={false} className="transition-colors hover:text-foreground">
             Report a post
           </Link>
         </div>

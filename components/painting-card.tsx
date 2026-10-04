@@ -29,8 +29,10 @@ export function PaintingCard({
     >
       <div className="overflow-hidden rounded-sm border border-border/70 bg-card p-2.5 shadow-[0_1px_2px_rgba(0,0,34,0.06)] transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_16px_32px_-12px_rgba(0,0,34,0.25)]">
         {/* The link covers the picture and title; the heart row sits outside
-            it, since a button can't be nested inside a link. */}
-        <Link href={`/painting/${painting.id}`} className="block">
+            it, since a button can't be nested inside a link. No prefetch:
+            every card scrolled past was a background page render, most of
+            Vercel's free 1M requests a month. */}
+        <Link href={`/painting/${painting.id}`} prefetch={false} className="block">
           <div
             className={`relative w-full overflow-hidden rounded-[2px] bg-muted ${aspectRatio[painting.aspect]}`}
           >

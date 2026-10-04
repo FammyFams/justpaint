@@ -76,7 +76,7 @@ export function AdminCommentFeed({ initialComments }: { initialComments: AdminCo
                   {c.authorName}
                 </Link>{" "}
                 on{" "}
-                <Link href={`/painting/${c.paintingId}`} className="hover:underline">
+                <Link href={`/painting/${c.paintingId}`} prefetch={false} className="hover:underline">
                   {c.paintingTitle}
                 </Link>{" "}
                 · {formatDateTime(c.createdAt)}

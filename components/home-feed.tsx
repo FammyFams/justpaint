@@ -3,7 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { PaintingGrid } from "@/components/painting-grid";
 import { loadFeedAction } from "@/app/actions/feed";
-import { FEED_AUTO_LOAD_UNTIL, FEED_MAX, FEED_PAGE_SIZE } from "@/lib/feed";
+import {
+  FEED_AUTO_LOAD_UNTIL,
+  FEED_LOAD_MORE_SIZE,
+  FEED_MAX,
+  FEED_PAGE_SIZE,
+} from "@/lib/feed";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Painting } from "@/lib/types";
@@ -64,7 +69,7 @@ export function HomeFeed({
   const params = new URLSearchParams();
   if (tag) params.set("tag", tag);
   if (octoberChallenge) params.set("challenge", "october");
-  params.set("shown", String(shown + FEED_PAGE_SIZE));
+  params.set("shown", String(shown + FEED_LOAD_MORE_SIZE));
   const moreHref = `/?${params}`;
 
   async function load(count: number) {
@@ -152,7 +157,7 @@ export function HomeFeed({
             href={moreHref}
             onClick={(e) => {
               e.preventDefault();
-              if (!loading) load(shown + FEED_PAGE_SIZE);
+              if (!loading) load(shown + FEED_LOAD_MORE_SIZE);
             }}
             aria-disabled={loading}
             className={cn(buttonVariants({ variant: "outline" }), "min-w-36")}

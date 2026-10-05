@@ -1,4 +1,4 @@
-/** Posts on the first screen of the home feed, and added by each Load more. */
+/** Posts on the first screen of the home feed, and added by each automatic load. */
 export const FEED_PAGE_SIZE = 6;
 /**
  * The feed loads more on its own while scrolling until this many posts show,
@@ -6,6 +6,8 @@ export const FEED_PAGE_SIZE = 6;
  * long scroll doesn't keep loading paintings nobody asked for.
  */
 export const FEED_AUTO_LOAD_UNTIL = 18;
+/** Posts added by each tap of Load more. A whole number of batches. */
+export const FEED_LOAD_MORE_SIZE = 12;
 /** Most posts one feed page will show. Older ones are still in the sitemap. */
 export const FEED_MAX = 300;
 

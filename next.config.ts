@@ -50,10 +50,12 @@ const nextConfig: NextConfig = {
     // changes (each upload gets a new file name), so keep resized copies for
     // 31 days instead of the default 4 hours.
     minimumCacheTTL: 60 * 60 * 24 * 31,
-    // Fewer widths means fewer resizes per painting. Stored images are at
-    // most 1600px, so the default 1920-3840 widths would only repeat 1600.
-    deviceSizes: [640, 828, 1080, 1200, 1600],
-    imageSizes: [48, 96, 256],
+    // Every width here is one more resize per painting (each screen asks for
+    // the closest width, and each new width is a resize), so keep the list
+    // short. Paintings use 1600 as the stored file itself (PaintingImage's
+    // loader), so Vercel only resizes them to 256, 640 and 1080.
+    deviceSizes: [640, 1080, 1600],
+    imageSizes: [256],
     remotePatterns: [
       {
         protocol: "https",

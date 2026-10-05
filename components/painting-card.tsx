@@ -77,7 +77,10 @@ export function PaintingCard({
               </Badge>
             ))}
           </div>
+          {/* The button only reads its starting count once, so a refreshed
+              count (Back from a painting) starts a new one. */}
           <LikeButton
+            key={`${painting.likeCount}:${hearted}`}
             paintingId={painting.id}
             initialCount={painting.likeCount}
             initialHearted={hearted}

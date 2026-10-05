@@ -81,6 +81,11 @@ export function HomeFeed({
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const moreRef = useRef<HTMLAnchorElement>(null);
+  // True while a reload brings back the saved posts from the server; the
+  // automatic loader waits, or its smaller answer could land last and win.
+  const restoringRef = useRef(false);
+  // Where to scroll once the posts from a load are on the page.
+  const scrollAfterLoad = useRef<number | null>(null);
   const shown = paintings.length;
 
   const params = new URLSearchParams();
@@ -89,7 +94,7 @@ export function HomeFeed({
   params.set("shown", String(shown + FEED_LOAD_MORE_SIZE));
   const moreHref = `/?${params}`;
 
-  async function load(count: number) {
+  async function load(count: number, scrollTo?: number) {
     setLoading(true);
     setFailed(false);
     try {
@@ -98,6 +103,7 @@ export function HomeFeed({
         setFailed(true);
         return false;
       }
+      scrollAfterLoad.current = scrollTo ?? null;
       setPaintings(result.paintings);
       setHeartedIds(result.heartedIds);
       setHasMore(result.hasMore);
@@ -145,15 +151,23 @@ export function HomeFeed({
     if (restored) return;
     const saved = readSaved(filter);
     if (!saved || saved.shown <= initialPaintings.length) return;
+    restoringRef.current = true;
     // Deferred a tick: the saved spot lives in the browser's history, which
     // the server render can't know about.
     Promise.resolve()
-      .then(() => load(saved.shown))
-      .then((ok) => {
-        if (ok) requestAnimationFrame(() => window.scrollTo(0, saved.scrollY));
+      .then(() => load(saved.shown, saved.scrollY))
+      .finally(() => {
+        restoringRef.current = false;
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on arrival
   }, []);
+
+  // Scroll once the loaded posts are on the page, before it's painted.
+  useLayoutEffect(() => {
+    if (scrollAfterLoad.current === null) return;
+    window.scrollTo(0, scrollAfterLoad.current);
+    scrollAfterLoad.current = null;
+  }, [paintings]);
 
   // Remember how far down the visitor is, right before they leave the page
   // (opening a painting, switching tabs, closing).
@@ -182,7 +196,8 @@ export function HomeFeed({
   // FEED_AUTO_LOAD_UNTIL posts show; after that the link waits for a tap.
   useEffect(() => {
     const el = moreRef.current;
-    if (!el || !hasMore || loading || failed || shown >= FEED_AUTO_LOAD_UNTIL) return;
+    if (!el || restoringRef.current || !hasMore || loading || failed) return;
+    if (shown >= FEED_AUTO_LOAD_UNTIL) return;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {

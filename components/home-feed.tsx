@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { PaintingGrid } from "@/components/painting-grid";
 import { loadFeedAction } from "@/app/actions/feed";
-import { FEED_MAX, FEED_PAGE_SIZE } from "@/lib/feed";
+import { FEED_AUTO_LOAD_UNTIL, FEED_MAX, FEED_PAGE_SIZE } from "@/lib/feed";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Painting } from "@/lib/types";
@@ -33,9 +33,10 @@ function writeSaved(saved: SavedFeed) {
   }
 }
 
-// The home feed shows the first posts and loads more as the visitor scrolls,
-// without changing the address. The Load more link still points at
-// /?shown=N, so search engines can follow it to every post.
+// The home feed shows the first posts and loads more as the visitor scrolls
+// (up to FEED_AUTO_LOAD_UNTIL, then on a tap), without changing the address.
+// The Load more link still points at /?shown=N, so search engines can follow
+// it to every post.
 export function HomeFeed({
   initialPaintings,
   initialHeartedIds,
@@ -117,10 +118,11 @@ export function HomeFeed({
     };
   }, [filter, paintings.length]);
 
-  // Load the next batch when the Load more link comes near the screen.
+  // Load the next batch when the Load more link comes near the screen, until
+  // FEED_AUTO_LOAD_UNTIL posts show; after that the link waits for a tap.
   useEffect(() => {
     const el = moreRef.current;
-    if (!el || !hasMore || loading || failed || shown >= FEED_MAX) return;
+    if (!el || !hasMore || loading || failed || shown >= FEED_AUTO_LOAD_UNTIL) return;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {

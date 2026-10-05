@@ -53,8 +53,8 @@ const nextConfig: NextConfig = {
     // Every width here is one more resize per painting (each screen asks for
     // the closest width, and each new width is a resize), so keep the list
     // short. Paintings use 1600 as the stored file itself (PaintingImage's
-    // loader), so Vercel only resizes them to 256, 640 and 1080.
-    deviceSizes: [640, 1080, 1600],
+    // loader), so Vercel only resizes them to 256 and 640.
+    deviceSizes: [640, 1600],
     imageSizes: [256],
     remotePatterns: [
       {

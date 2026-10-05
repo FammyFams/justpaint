@@ -81,7 +81,10 @@ export default async function PaintingPage({
                     ? 1000
                     : 750
               }
-              sizes="(min-width: 1024px) 55vw, 92vw"
+              // The choice is 640 or the stored file. Below 1024px the
+              // painting really is ~92vw, but "200px" makes every phone pick
+              // 640 (the copy the feed already made) instead of the full file.
+              sizes="(min-width: 1024px) 55vw, 200px"
               className="h-auto w-full"
               priority
             />

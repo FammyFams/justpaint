@@ -36,9 +36,9 @@ export function PaintingCard({
           <div
             className={`relative w-full overflow-hidden rounded-[2px] bg-muted ${aspectRatio[painting.aspect]}`}
           >
-            {/* Phones get the same 640px copy as desktops instead of 1080:
-                about half the bytes, one less resize per painting, a little
-                softer on sharp phone screens. */}
+            {/* Phones get the same 640px copy as desktops instead of the
+                full stored file: a fraction of the bytes, a little softer
+                on sharp phone screens. */}
             <PaintingImage
               src={painting.imageUrl}
               alt={painting.title}

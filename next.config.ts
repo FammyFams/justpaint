@@ -20,7 +20,17 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // The logo and tab icons were sent with "max-age=0", so every page
+      // load asked Vercel again whether they'd changed (about 950 requests
+      // a day). Browsers now keep them for a week; a new logo can take
+      // that long to reach everyone.
+      ...["/logo.jpg", "/icon.png", "/apple-icon.png", "/favicon.ico"].map((source) => ({
+        source,
+        headers: [{ key: "Cache-Control", value: "public, max-age=604800" }],
+      })),
+    ];
   },
   async redirects() {
     // www served a second copy of every page; send it to the one address

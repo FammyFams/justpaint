@@ -14,11 +14,14 @@ export function PaintingCard({
   painting,
   index = 0,
   hearted,
+  titleAs: Title = "h2",
 }: {
   painting: Painting;
   index?: number;
   /** Signed-in user's heart state; undefined for guests. */
   hearted?: boolean;
+  /** One level below the heading the grid sits under, so levels don't skip. */
+  titleAs?: "h2" | "h3";
 }) {
   const { authorName, tags } = painting;
 
@@ -27,7 +30,7 @@ export function PaintingCard({
       className="group animate-rise opacity-0"
       style={{ animationDelay: `${Math.min(index, 10) * 70}ms` }}
     >
-      <div className="overflow-hidden rounded-sm border border-border/70 bg-card p-2.5 shadow-[0_1px_2px_rgba(0,0,34,0.06)] transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_16px_32px_-12px_rgba(0,0,34,0.25)]">
+      <div className="overflow-hidden rounded-sm border border-border/70 bg-card p-2.5 shadow-[0_1px_2px_rgba(0,0,34,0.06)] transition-all duration-300 motion-safe:group-hover:-translate-y-1 group-hover:shadow-[0_16px_32px_-12px_rgba(0,0,34,0.25)]">
         {/* The link covers the picture and title; the heart row sits outside
             it, since a button can't be nested inside a link. No prefetch:
             every card scrolled past was a background page render, most of
@@ -46,18 +49,18 @@ export function PaintingCard({
               sizes="(min-width: 1024px) 24vw, (min-width: 640px) 40vw, 90vw"
               maxWidth={640}
               priority={index < 8}
-              className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+              className="object-cover transition-transform duration-500 ease-out motion-safe:group-hover:scale-[1.04]"
             />
           </div>
 
           <div className="px-1 pt-3">
-            <h3 className="truncate font-heading text-lg leading-tight text-card-foreground">
+            <Title className="truncate font-heading text-lg leading-tight text-card-foreground">
               {painting.title}
-            </h3>
+            </Title>
             <p className="mt-0.5 text-xs tracking-wide text-muted-foreground uppercase">
               {authorName}
               {!painting.artistId && (
-                <span className="ml-1.5 normal-case text-muted-foreground/70">
+                <span className="ml-1.5 normal-case text-muted-foreground">
                   · guest
                 </span>
               )}

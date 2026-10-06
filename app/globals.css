@@ -51,7 +51,9 @@
 /* Palette: coolors.co/fbf5f3-e28413-000022-de3c4b-c42847
    Crimson #c42847 carries light text (5:1); orange #e28413 only ever carries
    navy text, since light text on it fails contrast. Borders, muted surfaces
-   and muted text are tints of the navy/off-white. */
+   and muted text are tints of the navy/off-white. The focus ring is navy:
+   rings draw at 50%, and half-strength red (#de3c4b) is only 2:1 against the
+   page, under WCAG's 3:1 for focus indicators; half-strength navy is 3.8:1. */
 :root {
   --background: #fbf5f3;
   --foreground: #000022;
@@ -69,8 +71,9 @@
   --accent-foreground: #000022;
   --destructive: #c42847;
   --border: #eaddd8;
-  --input: #d9cac5;
-  --ring: #de3c4b;
+  /* Text box edges need 3:1 against the page to be found (WCAG 1.4.11). */
+  --input: #948985;
+  --ring: #000022;
   --chart-1: #c42847;
   --chart-2: #e28413;
   --chart-3: #000022;
@@ -84,7 +87,7 @@
   --sidebar-accent: #e28413;
   --sidebar-accent-foreground: #000022;
   --sidebar-border: #eaddd8;
-  --sidebar-ring: #de3c4b;
+  --sidebar-ring: #000022;
 }
 
 @keyframes rise {
@@ -119,6 +122,9 @@
   }
   html {
     @apply font-sans;
+    /* Keeps whatever has keyboard focus (and #anchor targets) from landing
+       under the sticky 64px header when the browser scrolls to it. */
+    scroll-padding-top: 5rem;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;

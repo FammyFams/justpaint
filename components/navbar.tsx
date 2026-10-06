@@ -2,7 +2,8 @@ import Link from "next/link";
 import { artistHref } from "@/lib/artist-url";
 import Image from "next/image";
 import { LogOut, Shield, User } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -38,7 +39,7 @@ export async function Navbar() {
           prefetch={false}
           className="group flex items-center gap-2 font-heading text-2xl italic tracking-tight text-foreground"
         >
-          <span className="relative size-9 shrink-0 overflow-hidden rounded-full border border-border bg-card transition-transform duration-300 group-hover:-rotate-6">
+          <span className="relative size-9 shrink-0 overflow-hidden rounded-full border border-border bg-card transition-transform duration-300 motion-safe:group-hover:-rotate-6">
             <Image
               src="/logo.jpg"
               unoptimized
@@ -54,17 +55,11 @@ export async function Navbar() {
         <div className="flex items-center gap-2">
           {admin && (
             <>
-              <Button
-                size="sm"
-                variant="ghost"
-                nativeButton={false}
-                render={
-                  <Link href="/admin">
-                    <Shield />
-                    <span className="hidden sm:inline">Admin</span>
-                  </Link>
-                }
-              />
+              <Link href="/admin" className={buttonVariants({ size: "sm", variant: "ghost" })}>
+                <Shield />
+                {/* Icon only on phones, but still named for screen readers. */}
+                <span className="sr-only sm:not-sr-only">Admin</span>
+              </Link>
               <form action={adminLogoutAction}>
                 <Button type="submit" size="sm" variant="outline" aria-label="Exit admin">
                   <LogOut />
@@ -73,26 +68,26 @@ export async function Navbar() {
               </form>
             </>
           )}
-          <Button
-            size="lg"
-            nativeButton={false}
-            className="rounded-full px-4"
-            render={
-              <Link href="/upload" prefetch={false} aria-label="Post a painting">
-                <span className="sm:hidden">post</span>
-                <span className="hidden sm:inline">post a painting</span>
-              </Link>
-            }
-          />
+          {/* Plain links styled as buttons: rendering them through <Button>
+              gave them role="button", so screen readers called them buttons. */}
+          <Link
+            href="/upload"
+            prefetch={false}
+            aria-label="Post a painting"
+            className={cn(buttonVariants({ size: "lg" }), "rounded-full px-4")}
+          >
+            <span className="sm:hidden">post</span>
+            <span className="hidden sm:inline">post a painting</span>
+          </Link>
           {/* Account spot is always last: log in, or the avatar once signed in. */}
           {!user && (
-            <Button
-              size="lg"
-              variant="ghost"
-              nativeButton={false}
-              className="rounded-full px-3"
-              render={<Link href="/login" prefetch={false}>log in</Link>}
-            />
+            <Link
+              href="/login"
+              prefetch={false}
+              className={cn(buttonVariants({ size: "lg", variant: "ghost" }), "rounded-full px-3")}
+            >
+              log in
+            </Link>
           )}
           {user && (
             <NotificationCountProvider key={unread} unread={unread}>

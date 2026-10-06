@@ -83,8 +83,8 @@ export function ReportForm({ paintingLink }: { paintingLink?: string }) {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel>What&rsquo;s wrong with it?</FieldLabel>
-              <div className="flex flex-col gap-2" role="radiogroup">
+              <FieldLabel id="reason-label">What&rsquo;s wrong with it?</FieldLabel>
+              <div className="flex flex-col gap-2" role="radiogroup" aria-labelledby="reason-label">
                 {(Object.keys(REPORT_REASONS) as ReportReason[]).map((key) => (
                   <label key={key} className="flex items-start gap-2.5 text-sm">
                     <input
@@ -138,7 +138,13 @@ export function ReportForm({ paintingLink }: { paintingLink?: string }) {
                   · Only used to follow up on this report
                 </span>
               </FieldLabel>
-              <Input id="email" type="email" {...field} aria-invalid={fieldState.invalid} />
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                {...field}
+                aria-invalid={fieldState.invalid}
+              />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
@@ -153,7 +159,7 @@ export function ReportForm({ paintingLink }: { paintingLink?: string }) {
                 <span className="shrink-0">Signature</span>
                 <span className="font-normal text-muted-foreground">· Type your full name</span>
               </FieldLabel>
-              <Input id="signature" {...field} aria-invalid={fieldState.invalid} />
+              <Input id="signature" autoComplete="name" {...field} aria-invalid={fieldState.invalid} />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}

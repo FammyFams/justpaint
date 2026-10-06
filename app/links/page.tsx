@@ -30,7 +30,7 @@ const LINKS = [
 ] as const;
 
 const rowClass =
-  "group flex items-center gap-4 rounded-sm border border-border/70 bg-card px-4 py-3.5 shadow-[0_1px_2px_rgba(0,0,34,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_10px_24px_-12px_rgba(0,0,34,0.25)]";
+  "group flex items-center gap-4 rounded-sm border border-border/70 bg-card px-4 py-3.5 shadow-[0_1px_2px_rgba(0,0,34,0.06)] transition-all duration-200 motion-safe:hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_10px_24px_-12px_rgba(0,0,34,0.25)]";
 
 export default function LinksPage() {
   return (
@@ -51,7 +51,7 @@ export default function LinksPage() {
               <span className="block font-medium">justpaint</span>
               <span className="block text-sm text-muted-foreground">justpaint.art</span>
             </span>
-            <ArrowUpRight className="size-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            <ArrowUpRight className="size-4 text-muted-foreground transition-transform motion-safe:group-hover:-translate-y-0.5 motion-safe:group-hover:translate-x-0.5" />
           </Link>
         </li>
         {LINKS.map(({ label, handle, href, icon: Icon }) => (
@@ -64,7 +64,7 @@ export default function LinksPage() {
                 <span className="block font-medium">{label}</span>
                 <span className="block text-sm text-muted-foreground">{handle}</span>
               </span>
-              <ArrowUpRight className="size-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              <ArrowUpRight className="size-4 text-muted-foreground transition-transform motion-safe:group-hover:-translate-y-0.5 motion-safe:group-hover:translate-x-0.5" />
             </a>
           </li>
         ))}

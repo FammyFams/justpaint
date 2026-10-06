@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { ResetPasswordForm } from "@/components/password-forms";
 import { getCurrentUser } from "@/lib/current-user";
 
@@ -24,11 +24,9 @@ export default async function ResetPasswordPage() {
           Reset links expire and only work once. Send yourself a new one.
         </p>
         <div className="mt-6">
-          <Button
-            variant="outline"
-            nativeButton={false}
-            render={<Link href="/forgot-password">Send a new link</Link>}
-          />
+          <Link href="/forgot-password" className={buttonVariants({ variant: "outline" })}>
+            Send a new link
+          </Link>
         </div>
       </main>
     );

@@ -19,10 +19,18 @@ export function FeedFilter({ challenge, tag }: { challenge: boolean; tag?: strin
 
   return (
     <div className="flex gap-2">
-      <Link href={href(false)} className={cn(pill, challenge ? inactive : active)}>
+      <Link
+        href={href(false)}
+        aria-current={challenge ? undefined : "page"}
+        className={cn(pill, challenge ? inactive : active)}
+      >
         All
       </Link>
-      <Link href={href(true)} className={cn(pill, challenge ? active : inactive)}>
+      <Link
+        href={href(true)}
+        aria-current={challenge ? "page" : undefined}
+        className={cn(pill, challenge ? active : inactive)}
+      >
         October Challenge 2026
       </Link>
     </div>

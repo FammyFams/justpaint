@@ -55,14 +55,14 @@ function AuthShell({
         {mode === "login" ? (
           <>
             New here?{" "}
-            <Link href="/signup" className="text-primary hover:underline">
+            <Link href="/signup" className="text-primary underline underline-offset-2">
               Create an account
             </Link>
           </>
         ) : (
           <>
             Already painting here?{" "}
-            <Link href="/login" className="text-primary hover:underline">
+            <Link href="/login" className="text-primary underline underline-offset-2">
               Log in
             </Link>
           </>
@@ -111,6 +111,7 @@ export function LoginForm({ next }: { next?: string }) {
               <Input
                 id="email"
                 type="email"
+                autoComplete="email"
                 placeholder="you@example.com"
                 {...field}
                 aria-invalid={fieldState.invalid}
@@ -133,6 +134,7 @@ export function LoginForm({ next }: { next?: string }) {
               <Input
                 id="password"
                 type="password"
+                autoComplete="current-password"
                 {...field}
                 aria-invalid={fieldState.invalid}
               />
@@ -174,7 +176,7 @@ export function SignupForm() {
 
   if (needsConfirmation) {
     return (
-      <div className="flex flex-col items-center gap-3 py-4 text-center">
+      <div className="flex flex-col items-center gap-3 py-4 text-center" role="status">
         <MailCheck className="size-8 text-primary" />
         <p className="font-medium">Check your email</p>
         <p className="text-sm text-muted-foreground">
@@ -200,6 +202,7 @@ export function SignupForm() {
               <FieldLabel htmlFor="displayName">Display name</FieldLabel>
               <Input
                 id="displayName"
+                autoComplete="nickname"
                 placeholder="Your name"
                 {...field}
                 aria-invalid={fieldState.invalid}
@@ -217,6 +220,7 @@ export function SignupForm() {
               <Input
                 id="email"
                 type="email"
+                autoComplete="email"
                 placeholder="you@example.com"
                 {...field}
                 aria-invalid={fieldState.invalid}
@@ -230,10 +234,14 @@ export function SignupForm() {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <FieldLabel htmlFor="password">
+                <span className="shrink-0">Password</span>
+                <span className="font-normal text-muted-foreground">· At least 8 characters</span>
+              </FieldLabel>
               <Input
                 id="password"
                 type="password"
+                autoComplete="new-password"
                 {...field}
                 aria-invalid={fieldState.invalid}
               />
@@ -260,7 +268,7 @@ export function SignupForm() {
                   <Link
                     href="/terms"
                     target="_blank"
-                    className="text-primary underline-offset-2 hover:underline"
+                    className="text-primary underline underline-offset-2"
                   >
                     Terms of Use
                   </Link>{" "}
@@ -268,7 +276,7 @@ export function SignupForm() {
                   <Link
                     href="/privacy"
                     target="_blank"
-                    className="text-primary underline-offset-2 hover:underline"
+                    className="text-primary underline underline-offset-2"
                   >
                     Privacy Policy
                   </Link>

@@ -17,8 +17,19 @@ export function SiteChrome({
   const bare = BARE_PATHS.includes(usePathname());
   return (
     <>
+      {/* First thing a keyboard visitor reaches; hidden until focused. */}
+      {!bare && (
+        <a
+          href="#content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-sm focus:bg-card focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:shadow-md focus:outline-2 focus:outline-foreground"
+        >
+          Skip to content
+        </a>
+      )}
       {!bare && header}
-      <div className="flex-1">{children}</div>
+      <div id="content" tabIndex={-1} className="flex-1 outline-none">
+        {children}
+      </div>
       {!bare && footer}
     </>
   );

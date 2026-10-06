@@ -154,7 +154,7 @@ export default async function OctoberChallengePage() {
               aria-hidden
               viewBox="0 0 160 50"
               preserveAspectRatio="none"
-              className="absolute -inset-x-1 -inset-y-1 h-[calc(100%+0.5rem)] w-[calc(100%+0.5rem)] text-primary transition-transform duration-200 group-hover:-rotate-2"
+              className="absolute -inset-x-1 -inset-y-1 h-[calc(100%+0.5rem)] w-[calc(100%+0.5rem)] text-primary transition-transform duration-200 motion-safe:group-hover:-rotate-2"
             >
               <path
                 d="M30 8 C 70 0, 140 4, 152 20 C 160 36, 110 46, 70 44 C 25 42, 4 34, 8 22 C 12 10, 50 4, 95 6"
@@ -203,7 +203,8 @@ export default async function OctoberChallengePage() {
           {/* eslint-disable-next-line @next/next/no-img-element -- already a sized PNG */}
           <img
             src="/october-challenge/calendar.png"
-            alt={`${CHALLENGE_NAME} calendar: ${PROMPTS.map((p, i) => `day ${i + 1}, ${p}`).join("; ")}`}
+            // Short: the same prompts follow as a text list just below.
+            alt={`${CHALLENGE_NAME} calendar`}
             width={1080}
             height={1350}
             loading="lazy"
@@ -347,7 +348,7 @@ export default async function OctoberChallengePage() {
               See every entry &rarr;
             </Link>
           </div>
-          <PaintingGrid paintings={latest} heartedIds={heartedIds} narrow />
+          <PaintingGrid paintings={latest} heartedIds={heartedIds} narrow underHeading />
         </section>
       )}
     </main>

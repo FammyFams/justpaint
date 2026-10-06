@@ -27,11 +27,15 @@ export function TagSelect({
 
   return (
     <DropdownMenu>
+      {/* The field's <label> becomes the button's name and hides its text,
+          so the picked tags are tied back on as the description. */}
       <DropdownMenuTrigger
         id={id}
+        aria-describedby={id ? `${id}-value` : undefined}
         className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         <span
+          id={id ? `${id}-value` : undefined}
           className={cn(
             "truncate text-left",
             value.length === 0 && "text-muted-foreground"

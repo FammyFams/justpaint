@@ -45,12 +45,12 @@ export function CommentList({
         <p className="text-sm text-muted-foreground">
           <Link
             href={`/login?next=/painting/${paintingId}`}
-            className="text-primary hover:underline"
+            className="text-primary underline underline-offset-2"
           >
             Log in
           </Link>{" "}
           or{" "}
-          <Link href="/signup" className="text-primary hover:underline">
+          <Link href="/signup" className="text-primary underline underline-offset-2">
             sign up
           </Link>{" "}
           to comment.
@@ -65,7 +65,14 @@ export function CommentList({
         <ul className="flex flex-col gap-4">
           {comments.map((comment) => (
             <li key={comment.id} className="flex gap-3">
-              <Link href={artistHref({ id: comment.authorId, displayName: comment.authorName })} className="shrink-0">
+              {/* Same place as the name link next to it, so keyboards and
+                  screen readers skip it instead of meeting it twice. */}
+              <Link
+                href={artistHref({ id: comment.authorId, displayName: comment.authorName })}
+                aria-hidden
+                tabIndex={-1}
+                className="shrink-0"
+              >
                 <Avatar className="size-8">
                   <AvatarFallback className={getAvatarClasses(comment.authorName)}>
                     {getInitials(comment.authorName)}

@@ -25,6 +25,7 @@ export function CommentForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2">
       <Textarea
+        aria-label="Comment"
         value={value}
         onChange={(event) => setValue(event.target.value)}
         placeholder="Say something about this piece..."

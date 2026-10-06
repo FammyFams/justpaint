@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function AuthCodeErrorPage() {
   return (
@@ -12,8 +12,12 @@ export default function AuthCodeErrorPage() {
         logging in, or sign up again to get a fresh one.
       </p>
       <div className="mt-6 flex gap-3">
-        <Button variant="outline" nativeButton={false} render={<Link href="/login">Log in</Link>} />
-        <Button nativeButton={false} render={<Link href="/signup">Sign up</Link>} />
+        <Link href="/login" className={buttonVariants({ variant: "outline" })}>
+          Log in
+        </Link>
+        <Link href="/signup" className={buttonVariants()}>
+          Sign up
+        </Link>
       </div>
     </main>
   );

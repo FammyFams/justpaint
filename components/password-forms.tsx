@@ -91,7 +91,7 @@ export function ForgotPasswordForm() {
 
         <p className="text-center text-sm text-muted-foreground">
           Remembered it?{" "}
-          <Link href="/login" className="text-primary hover:underline">
+          <Link href="/login" className="text-primary underline underline-offset-2">
             Log in
           </Link>
         </p>
@@ -147,7 +147,10 @@ export function ResetPasswordForm() {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="password">New password</FieldLabel>
+              <FieldLabel htmlFor="password">
+                <span className="shrink-0">New password</span>
+                <span className="font-normal text-muted-foreground">· At least 8 characters</span>
+              </FieldLabel>
               <Input
                 id="password"
                 type="password"

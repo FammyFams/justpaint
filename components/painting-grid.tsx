@@ -8,6 +8,7 @@ export function PaintingGrid({
   emptyHint = "Try a different tag, or check back soon.",
   groupByOctoberDay = false,
   narrow = false,
+  underHeading = false,
 }: {
   paintings: Painting[];
   /** Signed-in user's hearted painting ids; undefined for guests. */
@@ -21,6 +22,8 @@ export function PaintingGrid({
   groupByOctoberDay?: boolean;
   /** At most three columns, for pages narrower than the home feed. */
   narrow?: boolean;
+  /** The grid sits under its own h2, so painting titles are h3s. */
+  underHeading?: boolean;
 }) {
   if (paintings.length === 0) {
     return (
@@ -35,6 +38,9 @@ export function PaintingGrid({
     );
   }
 
+  // Day headings are h2s, so titles under them are h3s.
+  const titleAs = underHeading || groupByOctoberDay ? "h3" : "h2";
+
   const renderGrid = (items: Painting[], offset: number) => (
     <div
       className={`grid grid-cols-1 items-start gap-5 sm:grid-cols-2 lg:grid-cols-3 ${narrow ? "" : "xl:grid-cols-4"}`}
@@ -45,6 +51,7 @@ export function PaintingGrid({
           painting={painting}
           index={offset + i}
           hearted={heartedIds ? heartedIds.includes(painting.id) : undefined}
+          titleAs={titleAs}
         />
       ))}
     </div>

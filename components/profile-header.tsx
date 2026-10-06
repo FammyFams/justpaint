@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { artistHref } from "@/lib/artist-url";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { getAvatarClasses, getInitials, formatDate } from "@/lib/format";
 import type { Artist } from "@/lib/types";
 
@@ -37,11 +37,12 @@ export function ProfileHeader({
       </div>
 
       {isOwnProfile && (
-        <Button
-          variant="outline"
-          nativeButton={false}
-          render={<Link href={`${artistHref(artist)}/edit`}>Edit profile</Link>}
-        />
+        <Link
+          href={`${artistHref(artist)}/edit`}
+          className={buttonVariants({ variant: "outline" })}
+        >
+          Edit profile
+        </Link>
       )}
     </div>
   );

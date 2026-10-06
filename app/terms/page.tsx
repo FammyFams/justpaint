@@ -76,14 +76,14 @@ export default function TermsPage() {
           <h2 className="mb-2 font-heading text-xl">Reporting and removing posts</h2>
           <p className="mb-2">
             Anyone can report a post, with or without an account, using the{" "}
-            <Link href="/report" className="text-primary hover:underline">
+            <Link href="/report" className="text-primary underline underline-offset-2">
               report form
             </Link>{" "}
             (also linked at the bottom of every page and on every post) or
             by email to{" "}
             <a
               href="mailto:thewcookie@gmail.com"
-              className="text-primary hover:underline"
+              className="text-primary underline underline-offset-2"
             >
               thewcookie@gmail.com
             </a>
@@ -115,14 +115,14 @@ export default function TermsPage() {
             without permission, contact our designated agent.
           </p>
 
-          <dl className="mb-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-sm border border-border bg-card px-4 py-4 shadow-[0_1px_2px_rgba(0,0,34,0.06)]">
+          <dl className="mb-6 grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 [&_dd]:[overflow-wrap:anywhere] gap-y-2 rounded-sm border border-border bg-card px-4 py-4 shadow-[0_1px_2px_rgba(0,0,34,0.06)]">
             <dt className="text-muted-foreground">Designated agent</dt>
             <dd className="font-medium text-foreground">Matthew Zheng</dd>
             <dt className="text-muted-foreground">Email</dt>
             <dd>
               <a
                 href="mailto:thewcookie@gmail.com?subject=DMCA%20notice"
-                className="text-primary hover:underline"
+                className="text-primary underline underline-offset-2"
               >
                 thewcookie@gmail.com
               </a>
@@ -140,7 +140,7 @@ export default function TermsPage() {
                 href="https://dmca.copyright.gov/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:underline"
+                className="text-primary underline underline-offset-2"
               >
                 U.S. Copyright Office DMCA Agent Directory
               </a>
@@ -193,7 +193,7 @@ export default function TermsPage() {
           <h2 className="mb-2 font-heading text-xl">Privacy</h2>
           <p>
             How we handle your data is covered in our{" "}
-            <Link href="/privacy" className="text-primary hover:underline">
+            <Link href="/privacy" className="text-primary underline underline-offset-2">
               privacy policy
             </Link>
             .
@@ -227,7 +227,7 @@ export default function TermsPage() {
             Questions about these terms? Email{" "}
             <a
               href="mailto:thewcookie@gmail.com"
-              className="text-primary hover:underline"
+              className="text-primary underline underline-offset-2"
             >
               thewcookie@gmail.com
             </a>

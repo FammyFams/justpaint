@@ -135,7 +135,7 @@ export default function PrivacyPage() {
               block them in your browser&rsquo;s cookie settings or with{" "}
               <a
                 href="https://tools.google.com/dlpage/gaoptout"
-                className="text-primary hover:underline"
+                className="text-primary underline underline-offset-2"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -183,7 +183,7 @@ export default function PrivacyPage() {
               provides Google Analytics. Google handles that data under{" "}
               <a
                 href="https://policies.google.com/privacy"
-                className="text-primary hover:underline"
+                className="text-primary underline underline-offset-2"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -213,7 +213,7 @@ export default function PrivacyPage() {
               everything in it deleted, email{" "}
               <a
                 href="mailto:thewcookie@gmail.com"
-                className="text-primary hover:underline"
+                className="text-primary underline underline-offset-2"
               >
                 thewcookie@gmail.com
               </a>
@@ -244,7 +244,7 @@ export default function PrivacyPage() {
             Questions about this policy? Email{" "}
             <a
               href="mailto:thewcookie@gmail.com"
-              className="text-primary hover:underline"
+              className="text-primary underline underline-offset-2"
             >
               thewcookie@gmail.com
             </a>

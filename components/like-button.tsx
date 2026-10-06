@@ -60,6 +60,9 @@ function HeartButton({
   }, [paintingId, isGuest]);
 
   function handleClick() {
+    // Ignored rather than disabled while saving: disabling the focused
+    // button would drop keyboard focus to the top of the page.
+    if (isPending) return;
     const next = !hearted;
     setHearted(next);
     setCount((prev) => Math.max(0, prev + (next ? 1 : -1)));
@@ -84,9 +87,10 @@ function HeartButton({
       variant={compact ? "ghost" : "outline"}
       size={compact ? "sm" : "default"}
       onClick={handleClick}
-      disabled={isPending}
+      // Same name either way (aria-pressed says whether it's on). It has to
+      // include the visible count: WCAG asks that a name contain what's shown.
       aria-pressed={hearted}
-      aria-label={hearted ? "Remove heart" : "Heart this painting"}
+      aria-label={`Heart this painting, ${count} ${count === 1 ? "heart" : "hearts"}`}
       className={compact ? "-mr-1.5 gap-1 px-1.5 text-xs" : "gap-1.5"}
     >
       <Heart

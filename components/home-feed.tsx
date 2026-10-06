@@ -234,9 +234,10 @@ export function HomeFeed({
           >
             {loading ? "Loading…" : failed ? "Try again" : "Load more"}
           </a>
-          {failed && (
-            <p className="text-sm text-muted-foreground">Couldn&rsquo;t load more posts.</p>
-          )}
+          {/* Always rendered, so screen readers announce the text when it appears. */}
+          <p role="status" className="text-sm text-muted-foreground">
+            {failed ? "Couldn’t load more posts." : ""}
+          </p>
         </div>
       )}
     </>

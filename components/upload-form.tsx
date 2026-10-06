@@ -127,7 +127,9 @@ export function UploadForm({
               <FieldLabel htmlFor="image">Image</FieldLabel>
               <label
                 htmlFor="image"
-                className={`group relative flex ${preview ? "aspect-[4/5]" : "h-40"} w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-sm border border-dashed border-border bg-card text-center transition-colors hover:border-primary/60`}
+                // The real file input inside is invisible, so the box shows
+                // its keyboard focus.
+                className={`group relative flex ${preview ? "aspect-[4/5]" : "h-40"} w-full cursor-pointer flex-col items-center justify-center gap-2 overflow-hidden rounded-sm border border-dashed border-border bg-card text-center transition-colors hover:border-primary/60 has-focus-visible:border-solid has-focus-visible:border-ring has-focus-visible:ring-3 has-focus-visible:ring-ring/50`}
               >
                 {preview ? (
                   <Image
@@ -203,7 +205,7 @@ export function UploadForm({
           ) : (
             <p className="text-sm text-muted-foreground">
               Posting as a guest.{" "}
-              <Link href="/login?next=/upload" className="text-primary hover:underline">
+              <Link href="/login?next=/upload" className="text-primary underline underline-offset-2">
                 Log in
               </Link>{" "}
               to keep your paintings on a profile.
@@ -223,6 +225,7 @@ export function UploadForm({
                   </FieldLabel>
                   <Input
                     id="name"
+                    autoComplete="nickname"
                     placeholder="What should we call you?"
                     {...field}
                     aria-invalid={fieldState.invalid}
@@ -310,7 +313,7 @@ export function UploadForm({
                     <Link
                       href="/terms"
                       target="_blank"
-                      className="text-primary underline-offset-2 hover:underline"
+                      className="text-primary underline underline-offset-2"
                     >
                       Terms of Use
                     </Link>{" "}
@@ -318,7 +321,7 @@ export function UploadForm({
                     <Link
                       href="/privacy"
                       target="_blank"
-                      className="text-primary underline-offset-2 hover:underline"
+                      className="text-primary underline underline-offset-2"
                     >
                       Privacy Policy
                     </Link>
@@ -354,7 +357,7 @@ export function UploadForm({
                   <Link
                     href="/october-challenge"
                     target="_blank"
-                    className="text-primary underline-offset-2 hover:underline"
+                    className="text-primary underline underline-offset-2"
                   >
                     {CHALLENGE_NAME}
                   </Link>
@@ -406,6 +409,10 @@ export function UploadForm({
             </p>
           )}
 
+          {/* Says out loud what the button's label shows while it's busy. */}
+          <p role="status" className="sr-only">
+            {preparing ? "Preparing image" : form.formState.isSubmitting ? "Posting" : ""}
+          </p>
           <div className="flex justify-end">
             <Button
               type="submit"

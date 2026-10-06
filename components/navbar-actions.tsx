@@ -4,7 +4,7 @@ import Link from "next/link";
 import { LogOut, Shield, User } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ArtistAvatar } from "@/components/artist-avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +16,6 @@ import { LogoutMenuItem } from "@/components/logout-menu-item";
 import { NotificationCountProvider, NotificationsMenuItem } from "@/components/notification-count";
 import { useViewer } from "@/components/viewer";
 import { artistHref } from "@/lib/artist-url";
-import { getAvatarClasses, getInitials } from "@/lib/format";
 import { adminLogoutAction } from "@/app/actions/admin";
 
 // Account menu rows: full width and tall enough to tap on a phone.
@@ -83,11 +82,7 @@ export function NavbarActions() {
               aria-label="Account menu"
               className="ml-1 rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             >
-              <Avatar className="size-9">
-                <AvatarFallback className={getAvatarClasses(user.displayName)}>
-                  {getInitials(user.displayName)}
-                </AvatarFallback>
-              </Avatar>
+              <ArtistAvatar name={user.displayName} src={user.avatarUrl} className="size-9" />
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
@@ -95,11 +90,7 @@ export function NavbarActions() {
               className="w-60 rounded-[4px] border border-border p-0 shadow-[0_1px_0_rgba(0,0,34,0.08)] ring-0"
             >
               <div className="flex items-center gap-3 px-3 py-3">
-                <Avatar className="size-9">
-                  <AvatarFallback className={getAvatarClasses(user.displayName)}>
-                    {getInitials(user.displayName)}
-                  </AvatarFallback>
-                </Avatar>
+                <ArtistAvatar name={user.displayName} src={user.avatarUrl} className="size-9" />
                 <div className="min-w-0 text-sm">
                   <p className="truncate font-semibold">{user.displayName}</p>
                   <p className="truncate text-xs text-muted-foreground">justpaint.art{profileHref}</p>

@@ -6,7 +6,7 @@ import { getAllHeartedIds } from "@/lib/hearts";
 import { getUnreadCount } from "@/lib/notifications";
 
 export interface Viewer {
-  user: { id: string; displayName: string } | null;
+  user: { id: string; displayName: string; avatarUrl: string | null } | null;
   admin: boolean;
   /** New notifications, for the account menu. */
   unread: number;
@@ -29,5 +29,10 @@ export async function getViewerAction(): Promise<Viewer> {
     getUnreadCount(user.id),
     getAllHeartedIds(user.id),
   ]);
-  return { user: { id: user.id, displayName: user.displayName }, admin, unread, heartedIds };
+  return {
+    user: { id: user.id, displayName: user.displayName, avatarUrl: user.avatarUrl },
+    admin,
+    unread,
+    heartedIds,
+  };
 }

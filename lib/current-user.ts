@@ -1,9 +1,11 @@
+import { avatarUrlOrNull } from "@/lib/avatar-url";
 import { createClient } from "@/lib/supabase/server";
 
 export interface CurrentUser {
   id: string;
   email: string | undefined;
   displayName: string;
+  avatarUrl: string | null;
 }
 
 export async function getCurrentUser(): Promise<CurrentUser | null> {
@@ -14,7 +16,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name")
+    .select("display_name, avatar_url")
     .eq("id", claims.sub)
     .single();
 
@@ -22,6 +24,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     id: claims.sub,
     email: claims.email,
     displayName: profile?.display_name || claims.email?.split("@")[0] || "You",
+    avatarUrl: avatarUrlOrNull(profile?.avatar_url),
   };
 }
 

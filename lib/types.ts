@@ -9,6 +9,8 @@ export interface Comment {
   paintingId: string;
   authorId: string;
   authorName: string;
+  /** Their profile picture, or null for initials. */
+  authorAvatarUrl: string | null;
   body: string;
   createdAt: string;
 }
@@ -24,6 +26,8 @@ export interface Painting {
   artistId: string | null;
   /** Display name to credit: the artist's profile name, or the guest's typed name. */
   authorName: string;
+  /** The artist's profile picture; null for initials and for guests. */
+  authorAvatarUrl: string | null;
   tags: Tag[];
   likeCount: number;
   createdAt: string;
@@ -37,5 +41,7 @@ export interface Artist {
   id: string;
   displayName: string;
   bio: string;
+  /** Profile picture, or null for initials. */
+  avatarUrl: string | null;
   joinedAt: string;
 }

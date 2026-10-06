@@ -5,9 +5,9 @@ import { artistHref } from "@/lib/artist-url";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ArtistAvatar } from "@/components/artist-avatar";
 import { CommentForm } from "@/components/comment-form";
-import { getAvatarClasses, getInitials, formatRelativeTime } from "@/lib/format";
+import { formatRelativeTime } from "@/lib/format";
 import { addCommentAction } from "@/app/actions/comments";
 import { useViewer } from "@/components/viewer";
 import type { Comment } from "@/lib/types";
@@ -88,11 +88,11 @@ export function CommentList({
                 tabIndex={-1}
                 className="shrink-0"
               >
-                <Avatar className="size-8">
-                  <AvatarFallback className={getAvatarClasses(comment.authorName)}>
-                    {getInitials(comment.authorName)}
-                  </AvatarFallback>
-                </Avatar>
+                <ArtistAvatar
+                  name={comment.authorName}
+                  src={comment.authorAvatarUrl}
+                  className="size-8"
+                />
               </Link>
               <div className="min-w-0">
                 <div className="flex items-baseline gap-2">

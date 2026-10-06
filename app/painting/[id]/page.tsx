@@ -5,11 +5,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCommentsForPainting, getPaintingById } from "@/lib/paintings";
 import { PaintingDeleteButton } from "@/components/admin-delete-button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ArtistAvatar } from "@/components/artist-avatar";
 import { Badge } from "@/components/ui/badge";
 import { LikeButton } from "@/components/like-button";
 import { CommentList } from "@/components/comment-list";
-import { getAvatarClasses, getInitials, formatDate } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 import { CHALLENGE_NAME, PROMPTS } from "@/lib/october-challenge";
 import { jsonLdHtml, paintingJsonLd } from "@/lib/seo";
 
@@ -112,11 +112,11 @@ export default async function PaintingPage({
               href={artistHref({ id: painting.artistId, displayName: painting.authorName })}
               className="mt-4 flex items-center gap-2.5"
             >
-              <Avatar className="size-9">
-                <AvatarFallback className={getAvatarClasses(painting.authorName)}>
-                  {getInitials(painting.authorName)}
-                </AvatarFallback>
-              </Avatar>
+              <ArtistAvatar
+                name={painting.authorName}
+                src={painting.authorAvatarUrl}
+                className="size-9"
+              />
               <div>
                 <p className="text-sm font-medium leading-tight">
                   {painting.authorName}
@@ -128,11 +128,7 @@ export default async function PaintingPage({
             </Link>
           ) : (
             <div className="mt-4 flex items-center gap-2.5">
-              <Avatar className="size-9">
-                <AvatarFallback className={getAvatarClasses(painting.authorName)}>
-                  {getInitials(painting.authorName)}
-                </AvatarFallback>
-              </Avatar>
+              <ArtistAvatar name={painting.authorName} className="size-9" />
               <div>
                 <p className="text-sm font-medium leading-tight">
                   {painting.authorName}{" "}

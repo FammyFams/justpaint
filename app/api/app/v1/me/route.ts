@@ -1,5 +1,6 @@
 import { getBearerUserId } from "@/lib/api/auth";
 import { busy, json, unauthorized } from "@/lib/api/respond";
+import { avatarUrlOrNull } from "@/lib/avatar-url";
 import { createPublicClient } from "@/lib/supabase/public";
 
 // The signed-in app user's profile. The app also uses it to check its token works.
@@ -9,7 +10,7 @@ export async function GET(request: Request) {
 
   const { data, error } = await createPublicClient()
     .from("profiles")
-    .select("id, display_name, bio, created_at")
+    .select("id, display_name, bio, avatar_url, created_at")
     .eq("id", userId)
     .maybeSingle();
   if (error) return busy();
@@ -19,6 +20,7 @@ export async function GET(request: Request) {
       id: userId,
       displayName: data?.display_name ?? null,
       bio: data?.bio ?? "",
+      avatarUrl: avatarUrlOrNull(data?.avatar_url),
       joinedAt: data?.created_at ?? null,
     },
   });

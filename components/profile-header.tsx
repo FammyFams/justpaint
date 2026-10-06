@@ -1,7 +1,7 @@
 import { artistHref } from "@/lib/artist-url";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ArtistAvatar } from "@/components/artist-avatar";
 import { EditProfileLink } from "@/components/edit-profile-link";
-import { getAvatarClasses, getInitials, formatDate } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 import type { Artist } from "@/lib/types";
 
 export function ProfileHeader({
@@ -14,11 +14,11 @@ export function ProfileHeader({
   return (
     <div className="mb-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-4">
-        <Avatar className="size-16 text-lg sm:size-20">
-          <AvatarFallback className={getAvatarClasses(artist.displayName)}>
-            {getInitials(artist.displayName)}
-          </AvatarFallback>
-        </Avatar>
+        <ArtistAvatar
+          name={artist.displayName}
+          src={artist.avatarUrl}
+          className="size-16 text-lg sm:size-20"
+        />
         <div>
           <h1 className="font-heading text-3xl italic leading-tight">
             {artist.displayName}

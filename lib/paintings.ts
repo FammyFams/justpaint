@@ -3,6 +3,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 import type { Database } from "@/lib/supabase/database.types";
 import type { Artist, Comment, Painting, Tag } from "@/lib/types";
 import { artistSlug, isUuid } from "@/lib/artist-url";
+import { avatarUrlOrNull } from "@/lib/avatar-url";
 
 // Everything here reads what any visitor can see, with a client that never
 // reads cookies, so the pages using it can be cached (lib/supabase/public.ts).
@@ -10,7 +11,7 @@ import { artistSlug, isUuid } from "@/lib/artist-url";
 const PAINTING_SELECT = `
   id, title, description, image_path, aspect, owner_id, guest_name, created_at, heart_count,
   october_challenge, october_day,
-  profiles!paintings_owner_id_fkey ( display_name ),
+  profiles!paintings_owner_id_fkey ( display_name, avatar_url ),
   paintings_tags ( tags ( id, name, slug ) )
 `;
 
@@ -26,7 +27,7 @@ interface PaintingRow {
   heart_count: number;
   october_challenge: boolean;
   october_day: number | null;
-  profiles: { display_name: string } | null;
+  profiles: { display_name: string; avatar_url: string | null } | null;
   paintings_tags: { tags: { id: string; name: string; slug: string } | null }[];
 }
 
@@ -49,6 +50,7 @@ function toPainting(
     authorName: row.owner_id
       ? row.profiles?.display_name || "Unknown artist"
       : row.guest_name || "Guest",
+    authorAvatarUrl: row.owner_id ? avatarUrlOrNull(row.profiles?.avatar_url) : null,
     tags: row.paintings_tags
       .map((pt) => pt.tags)
       .filter((t): t is Tag => Boolean(t)),
@@ -172,14 +174,14 @@ interface CommentRow {
   user_id: string;
   body: string;
   created_at: string;
-  profiles: { display_name: string } | null;
+  profiles: { display_name: string; avatar_url: string | null } | null;
 }
 
 export async function getCommentsForPainting(paintingId: string): Promise<Comment[]> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("comments")
-    .select("id, painting_id, user_id, body, created_at, profiles ( display_name )")
+    .select("id, painting_id, user_id, body, created_at, profiles ( display_name, avatar_url )")
     .eq("painting_id", paintingId)
     .order("created_at", { ascending: true });
 
@@ -189,6 +191,7 @@ export async function getCommentsForPainting(paintingId: string): Promise<Commen
     paintingId: row.painting_id,
     authorId: row.user_id,
     authorName: row.profiles?.display_name || "Someone",
+    authorAvatarUrl: avatarUrlOrNull(row.profiles?.avatar_url),
     body: row.body,
     createdAt: row.created_at,
   }));
@@ -207,7 +210,7 @@ export async function getArtistById(
   const supabase = client ?? createPublicClient();
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, display_name, bio, created_at")
+    .select("id, display_name, bio, avatar_url, created_at")
     .eq("id", id)
     .maybeSingle();
 
@@ -217,6 +220,7 @@ export async function getArtistById(
     id: data.id,
     displayName: data.display_name || "Unnamed artist",
     bio: data.bio || "",
+    avatarUrl: avatarUrlOrNull(data.avatar_url),
     joinedAt: data.created_at,
   };
 }
@@ -278,7 +282,7 @@ export async function getArtistBySlug(
   const pattern = slug.replace(/_/g, "\\_").replace(/-/g, "_");
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, display_name, bio, created_at")
+    .select("id, display_name, bio, avatar_url, created_at")
     .ilike("display_name", pattern)
     .order("created_at", { ascending: true })
     .limit(10);
@@ -294,6 +298,7 @@ export async function getArtistBySlug(
     id: row.id,
     displayName: row.display_name || "Unnamed artist",
     bio: row.bio || "",
+    avatarUrl: avatarUrlOrNull(row.avatar_url),
     joinedAt: row.created_at,
   };
 }

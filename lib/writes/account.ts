@@ -8,6 +8,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
 import { signupSchema } from "@/lib/validations/auth";
 import { profileSchema } from "@/lib/validations/profile";
+import { removeAvatarFiles } from "@/lib/writes/avatar";
 import { fail, type WriteFailure } from "@/lib/writes/result";
 
 // Account writes shared by the website's server actions (app/actions/auth.ts,
@@ -189,6 +190,7 @@ export async function deleteAccount(userId: string): Promise<WriteFailure | { ok
   for (let i = 0; i < paths.length; i += 100) {
     await admin.storage.from("paintings").remove(paths.slice(i, i + 100));
   }
+  await removeAvatarFiles(userId);
 
   const { error } = await admin.auth.admin.deleteUser(userId);
   if (error) {

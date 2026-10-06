@@ -20,11 +20,11 @@ function loadImage(file: File): Promise<HTMLImageElement> {
 }
 
 /**
- * Scales a photo down to at most MAX_EDGE px on its longest side and re-encodes
+ * Scales a photo down to at most `maxEdge` px on its longest side and re-encodes
  * it as WebP (JPEG where WebP encoding isn't supported). Returns the original file for GIFs (to keep animation), when the
  * image can't be decoded, or when compressing wouldn't make it smaller.
  */
-export async function compressImage(file: File): Promise<File> {
+export async function compressImage(file: File, maxEdge = MAX_EDGE): Promise<File> {
   if (file.type === "image/gif") return file;
 
   let img: HTMLImageElement;
@@ -34,7 +34,7 @@ export async function compressImage(file: File): Promise<File> {
     return file;
   }
 
-  const scale = Math.min(1, MAX_EDGE / Math.max(img.naturalWidth, img.naturalHeight));
+  const scale = Math.min(1, maxEdge / Math.max(img.naturalWidth, img.naturalHeight));
   const width = Math.round(img.naturalWidth * scale);
   const height = Math.round(img.naturalHeight * scale);
 

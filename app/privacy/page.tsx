@@ -13,7 +13,7 @@ export default function PrivacyPage() {
         Privacy policy
       </h1>
       <p className="mt-3 text-sm text-muted-foreground">
-        Last updated September 26, 2026
+        Last updated October 6, 2026
       </p>
 
       <div className="prose-content mt-10 flex flex-col gap-8 text-sm leading-relaxed text-foreground/90">
@@ -33,7 +33,10 @@ export default function PrivacyPage() {
               entirely by our authentication provider (Supabase), so we
               never see or store them in plain text.
             </li>
-            <li>The display name and bio you choose to add to your profile.</li>
+            <li>
+              The display name, bio and profile picture you choose to add to
+              your profile.
+            </li>
             <li>Paintings you upload: the image, title, description, and tags.</li>
             <li>Likes and comments you make.</li>
           </ul>
@@ -198,7 +201,7 @@ export default function PrivacyPage() {
           <h2 className="mb-2 font-heading text-xl">Public content</h2>
           <p>
             Paintings, titles, descriptions, tags, comments, and profile
-            display names and bios are public by design. That&rsquo;s the
+            display names, bios and pictures are public by design. That&rsquo;s the
             point of the site. Please don&rsquo;t upload or post
             anything you don&rsquo;t want visible to anyone who visits
             justpaint.

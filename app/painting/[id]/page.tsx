@@ -4,10 +4,7 @@ import { PaintingImage } from "@/components/painting-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCommentsForPainting, getPaintingById } from "@/lib/paintings";
-import { getCurrentUser } from "@/lib/current-user";
-import { getHeartedIds } from "@/lib/hearts";
-import { isAdmin } from "@/lib/admin";
-import { AdminDeleteButton } from "@/components/admin-delete-button";
+import { PaintingDeleteButton } from "@/components/admin-delete-button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { LikeButton } from "@/components/like-button";
@@ -15,6 +12,17 @@ import { CommentList } from "@/components/comment-list";
 import { getAvatarClasses, getInitials, formatDate } from "@/lib/format";
 import { CHALLENGE_NAME, PROMPTS } from "@/lib/october-challenge";
 import { jsonLdHtml, paintingJsonLd } from "@/lib/seo";
+
+// Cached per painting and the same for everyone; the heart, delete and
+// comment buttons fill in from the browser. Hearts, comments and deletes
+// rebuild the page right away (revalidatePath in their actions).
+export const revalidate = 86400;
+
+// None built ahead of time: each painting is built on its first visit, then
+// cached.
+export async function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({
   params,
@@ -52,14 +60,7 @@ export default async function PaintingPage({
   const painting = await getPaintingById(id);
   if (!painting) notFound();
 
-  const [comments, currentUser, admin] = await Promise.all([
-    getCommentsForPainting(painting.id),
-    getCurrentUser(),
-    isAdmin(),
-  ]);
-  const hearted = currentUser
-    ? (await getHeartedIds(currentUser.id, [painting.id])).length > 0
-    : undefined;
+  const comments = await getCommentsForPainting(painting.id);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
@@ -161,19 +162,12 @@ export default async function PaintingPage({
           </div>
 
           <div className="mt-6 flex items-center justify-between gap-4">
-            <LikeButton
+            <LikeButton paintingId={painting.id} initialCount={painting.likeCount} />
+            <PaintingDeleteButton
               paintingId={painting.id}
-              initialCount={painting.likeCount}
-              initialHearted={hearted}
+              artistId={painting.artistId}
+              title={painting.title}
             />
-            {(admin || (currentUser && currentUser.id === painting.artistId)) && (
-              <AdminDeleteButton
-                mode={admin ? "admin" : "owner"}
-                paintingId={painting.id}
-                title={painting.title}
-                redirectTo="/"
-              />
-            )}
           </div>
 
           <p className="mt-3 text-xs text-muted-foreground">
@@ -187,11 +181,7 @@ export default async function PaintingPage({
             <h2 className="mb-4 font-heading text-lg italic">
               Comments{comments.length > 0 ? ` (${comments.length})` : ""}
             </h2>
-            <CommentList
-              initialComments={comments}
-              paintingId={painting.id}
-              isLoggedIn={Boolean(currentUser)}
-            />
+            <CommentList initialComments={comments} paintingId={painting.id} />
           </div>
         </div>
       </div>

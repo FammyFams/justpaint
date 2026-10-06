@@ -7,6 +7,8 @@ import { Footer } from "@/components/footer";
 import { SiteChrome } from "@/components/site-chrome";
 import { getSiteUrl } from "@/lib/site-url";
 import { SITE_DESCRIPTION } from "@/lib/seo";
+import { ViewerProvider } from "@/components/viewer";
+import { SESSION_COOKIE_PATTERN } from "@/lib/session-cookie";
 import "./globals.css";
 
 // Stand-in for Alteix Sans, whose free version is personal-use only.
@@ -48,16 +50,32 @@ export const metadata: Metadata = {
   },
 };
 
+// Runs before the first paint: a browser holding a login or admin cookie
+// gets data-session, so CSS hides "log in" and the like until the account
+// loads (components/viewer.tsx). Pages are cached and the same for everyone,
+// so the server can't decide this.
+const sessionScript = `try{if(new RegExp(${JSON.stringify(SESSION_COOKIE_PATTERN)}).test(document.cookie))document.documentElement.setAttribute("data-session","")}catch(e){}`;
+
+// Nothing here reads cookies, so every page can be cached instead of built
+// per visit (Vercel's free plan includes 4 hours of server CPU a month).
+// The per-visitor parts load in the browser through ViewerProvider.
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
       className={`${jakarta.variable} h-full antialiased`}
+      // The head script adds data-session before React loads.
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: sessionScript }} />
+      </head>
       <body className="min-h-full flex flex-col">
-        <SiteChrome header={<Navbar />} footer={<Footer />}>
-          {children}
-        </SiteChrome>
+        <ViewerProvider>
+          <SiteChrome header={<Navbar />} footer={<Footer />}>
+            {children}
+          </SiteChrome>
+        </ViewerProvider>
         <Toaster position="bottom-right" />
       </body>
       {/* Production only, so local dev visits don't count as traffic.

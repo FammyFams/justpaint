@@ -11,6 +11,7 @@ import { visitorKey } from "@/lib/client-ip";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, MAX_IMAGE_LABEL } from "@/lib/validations/painting";
 import { guestNameSchema } from "@/lib/validations/names";
 import { deletePaintingRecord } from "@/lib/delete-painting";
+import { revalidateFeeds } from "@/lib/revalidate";
 
 interface CreatePaintingInput {
   title: string;
@@ -202,7 +203,7 @@ export async function createPaintingAction(
     console.error("post-create update failed", paintingId, extras.october_challenge, extrasError);
   }
 
-  revalidatePath("/");
+  revalidateFeeds();
   if (ownerId) revalidatePath("/artist/[id]", "page");
   return { success: true, paintingId: rpcData as string };
 }

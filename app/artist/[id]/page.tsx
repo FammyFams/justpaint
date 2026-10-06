@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { findArtist, getPaintingsByArtist } from "@/lib/paintings";
 import { artistHref } from "@/lib/artist-url";
-import { getCurrentUser } from "@/lib/current-user";
-import { getHeartedIds } from "@/lib/hearts";
 import { ProfileHeader } from "@/components/profile-header";
 import { PaintingGrid } from "@/components/painting-grid";
 import { artistJsonLd, jsonLdHtml } from "@/lib/seo";
+import { CanonicalAddress } from "@/components/address-query";
+
+// Cached per artist and the same for everyone. New posts, deletes and
+// renames rebuild it right away; heart counts catch up within 10 minutes.
+export const revalidate = 600;
+
+// None built ahead of time: each profile is built on its first visit.
+export async function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({
   params,
@@ -34,28 +42,19 @@ export default async function ArtistPage({
   const { id } = await params;
   const artist = await findArtist(id);
   if (!artist) notFound();
-  // Old id links and other spellings go to the one address for this name.
+  // Old id links and other spellings show the same profile and switch to
+  // the one address for this name (CanonicalAddress, plus the canonical
+  // link above for search engines).
   const href = artistHref(artist);
-  if (`/artist/${id}` !== href) redirect(href);
 
-  const [paintings, currentUser] = await Promise.all([
-    getPaintingsByArtist(artist.id),
-    getCurrentUser(),
-  ]);
-
-  const heartedIds = currentUser
-    ? await getHeartedIds(currentUser.id, paintings.map((p) => p.id))
-    : undefined;
+  const paintings = await getPaintingsByArtist(artist.id);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(artistJsonLd(artist, paintings))} />
-      <ProfileHeader
-        artist={artist}
-        paintingCount={paintings.length}
-        isOwnProfile={currentUser?.id === artist.id}
-      />
-      <PaintingGrid paintings={paintings} heartedIds={heartedIds} />
+      <CanonicalAddress href={href} />
+      <ProfileHeader artist={artist} paintingCount={paintings.length} />
+      <PaintingGrid paintings={paintings} />
     </main>
   );
 }

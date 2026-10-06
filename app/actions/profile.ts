@@ -46,7 +46,9 @@ export async function updateProfileAction(values: {
     return { error: SERVER_BUSY };
   }
 
-  // Profile addresses follow the name, which may have just changed.
-  revalidatePath("/artist/[id]", "layout");
+  // The name shows on every cached page with this artist's posts or
+  // comments, and the profile address follows it. Renames are rare, so
+  // rebuild everything.
+  revalidatePath("/", "layout");
   return { success: true };
 }

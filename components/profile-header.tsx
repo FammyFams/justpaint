@@ -1,18 +1,15 @@
-import Link from "next/link";
 import { artistHref } from "@/lib/artist-url";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { buttonVariants } from "@/components/ui/button";
+import { EditProfileLink } from "@/components/edit-profile-link";
 import { getAvatarClasses, getInitials, formatDate } from "@/lib/format";
 import type { Artist } from "@/lib/types";
 
 export function ProfileHeader({
   artist,
   paintingCount,
-  isOwnProfile,
 }: {
   artist: Artist;
   paintingCount: number;
-  isOwnProfile: boolean;
 }) {
   return (
     <div className="mb-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -36,14 +33,7 @@ export function ProfileHeader({
         </div>
       </div>
 
-      {isOwnProfile && (
-        <Link
-          href={`${artistHref(artist)}/edit`}
-          className={buttonVariants({ variant: "outline" })}
-        >
-          Edit profile
-        </Link>
-      )}
+      <EditProfileLink artistId={artist.id} href={`${artistHref(artist)}/edit`} />
     </div>
   );
 }

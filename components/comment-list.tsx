@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { artistHref } from "@/lib/artist-url";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,18 +9,32 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CommentForm } from "@/components/comment-form";
 import { getAvatarClasses, getInitials, formatRelativeTime } from "@/lib/format";
 import { addCommentAction } from "@/app/actions/comments";
+import { useViewer } from "@/components/viewer";
 import type { Comment } from "@/lib/types";
+
+// The page is cached, so "2h ago" from when it was built is wrong by the
+// time someone reads it. After hydration the time is worked out again; the
+// key change swaps in a fresh node, since React leaves mismatched text alone.
+function TimeAgo({ iso }: { iso: string }) {
+  const [live, setLive] = useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- once, after hydration
+  useEffect(() => setLive(true), []);
+  return (
+    <span key={live ? "live" : "built"} suppressHydrationWarning>
+      {formatRelativeTime(iso)}
+    </span>
+  );
+}
 
 export function CommentList({
   initialComments,
   paintingId,
-  isLoggedIn,
 }: {
   initialComments: Comment[];
   paintingId: string;
-  isLoggedIn: boolean;
 }) {
   const router = useRouter();
+  const { user } = useViewer();
   const comments = initialComments;
   const [submitting, setSubmitting] = useState(false);
 
@@ -39,10 +53,11 @@ export function CommentList({
 
   return (
     <div className="flex flex-col gap-5">
-      {isLoggedIn ? (
+      {user ? (
         <CommentForm onSubmit={handleAdd} submitting={submitting} />
       ) : (
-        <p className="text-sm text-muted-foreground">
+        // Hidden from signed-in browsers until their account arrives.
+        <p data-guest-only="" className="text-sm text-muted-foreground">
           <Link
             href={`/login?next=/painting/${paintingId}`}
             className="text-primary underline underline-offset-2"
@@ -88,7 +103,7 @@ export function CommentList({
                     {comment.authorName}
                   </Link>
                   <span className="text-xs text-muted-foreground">
-                    {formatRelativeTime(comment.createdAt)}
+                    <TimeAgo iso={comment.createdAt} />
                   </span>
                 </div>
                 <p className="mt-0.5 text-sm text-foreground/90">{comment.body}</p>

@@ -16,6 +16,7 @@ import {
   type SignupFormValues,
 } from "@/lib/validations/auth";
 import { signInAction, signUpAction } from "@/app/actions/auth";
+import { nextFromAddress } from "@/components/address-query";
 
 // The request itself failed: Vercel or Supabase is down or over a limit, or
 // the visitor's connection dropped.
@@ -72,7 +73,7 @@ function AuthShell({
   );
 }
 
-export function LoginForm({ next }: { next?: string }) {
+export function LoginForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -83,7 +84,8 @@ export function LoginForm({ next }: { next?: string }) {
     setFormError(null);
     let result;
     try {
-      result = await signInAction(values, next);
+      // Where to go afterwards (?next=); the server checks it again.
+      result = await signInAction(values, nextFromAddress());
     } catch (error) {
       // A successful login redirects by throwing; let that through.
       unstable_rethrow(error);

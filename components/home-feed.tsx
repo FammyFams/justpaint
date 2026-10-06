@@ -3,12 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { PaintingGrid } from "@/components/painting-grid";
 import { loadFeedAction } from "@/app/actions/feed";
-import {
-  FEED_AUTO_LOAD_UNTIL,
-  FEED_LOAD_MORE_SIZE,
-  FEED_MAX,
-  FEED_PAGE_SIZE,
-} from "@/lib/feed";
+import { FEED_LOAD_MORE_SIZE, FEED_MAX } from "@/lib/feed";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Painting } from "@/lib/types";
@@ -22,7 +17,6 @@ interface SavedFeed {
   scrollY: number;
   /** The posts themselves, so Back can show them without asking the server. */
   paintings?: Painting[];
-  heartedIds?: string[];
   hasMore?: boolean;
 }
 
@@ -47,20 +41,19 @@ function writeSaved(saved: SavedFeed) {
   }
 }
 
-// The home feed shows the first posts and loads more as the visitor scrolls
-// (up to FEED_AUTO_LOAD_UNTIL, then on a tap), without changing the address.
-// The Load more link still points at /?shown=N, so search engines can follow
-// it to every post.
+// The home feed shows the first posts (FEED_FIRST, with the cached page)
+// and adds more on a tap, without changing the address. The Load more link
+// still points at /?shown=N, so search engines can follow it to every post.
+// Heart counts on screen are kept current by the hearts themselves
+// (components/viewer.tsx), not by asking the server again.
 export function HomeFeed({
   initialPaintings,
-  initialHeartedIds,
   initialHasMore,
   tag,
   octoberChallenge,
   emptyHint,
 }: {
   initialPaintings: Painting[];
-  initialHeartedIds?: string[];
   initialHasMore: boolean;
   tag?: string;
   octoberChallenge: boolean;
@@ -68,22 +61,15 @@ export function HomeFeed({
 }) {
   const filter = `${tag ?? ""}|${octoberChallenge}`;
   // Back from a painting: start with the posts the visitor had, so the first
-  // frame is already the full feed instead of 6 posts and then a jump.
+  // frame is already the full feed instead of the first posts and then a jump.
   const [restored] = useState(() => {
     const saved = hydrated ? readSaved(filter) : null;
     return saved?.paintings ? { ...saved, paintings: saved.paintings } : null;
   });
   const [paintings, setPaintings] = useState(restored?.paintings ?? initialPaintings);
-  const [heartedIds, setHeartedIds] = useState(
-    restored ? restored.heartedIds : initialHeartedIds
-  );
   const [hasMore, setHasMore] = useState(restored?.hasMore ?? initialHasMore);
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
-  const moreRef = useRef<HTMLAnchorElement>(null);
-  // True while a reload brings back the saved posts from the server; the
-  // automatic loader waits, or its smaller answer could land last and win.
-  const restoringRef = useRef(false);
   // Where to scroll once the posts from a load are on the page.
   const scrollAfterLoad = useRef<number | null>(null);
   const shown = paintings.length;
@@ -105,7 +91,6 @@ export function HomeFeed({
       }
       scrollAfterLoad.current = scrollTo ?? null;
       setPaintings(result.paintings);
-      setHeartedIds(result.heartedIds);
       setHasMore(result.hasMore);
       return true;
     } catch {
@@ -116,49 +101,23 @@ export function HomeFeed({
     }
   }
 
-  // Hearts may have changed while the visitor was away, often on the painting
-  // they just opened. Update the counts on the posts already showing without
-  // adding newer posts, so nothing on screen moves.
-  async function refreshHearts(count: number) {
-    try {
-      const result = await loadFeedAction({ tag, octoberChallenge, shown: count });
-      if ("error" in result) return;
-      const counts = new Map(result.paintings.map((p) => [p.id, p.likeCount]));
-      setPaintings((prev) => prev.map((p) => ({ ...p, likeCount: counts.get(p.id) ?? p.likeCount })));
-      const freshHearted = result.heartedIds;
-      if (freshHearted) {
-        setHeartedIds((prev) => [...(prev ?? []).filter((id) => !counts.has(id)), ...freshHearted]);
-      }
-    } catch {
-      // Keep the saved counts.
-    }
-  }
-
   // Back with saved posts: jump to the saved spot before the first paint.
   useLayoutEffect(() => {
     hydrated = true;
-    if (!restored) return;
-    window.scrollTo(0, restored.scrollY);
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- counts update once the server answers, not during this effect
-    refreshHearts(restored.paintings.length);
+    if (restored) window.scrollTo(0, restored.scrollY);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on arrival
   }, []);
 
   // Coming back without saved posts (a reload, or a spot saved before posts
-  // were kept): reload as many posts as before, then return to the same
-  // scroll spot.
+  // were kept) after loading more: load as many posts as before, then
+  // return to the same scroll spot.
   useEffect(() => {
     if (restored) return;
     const saved = readSaved(filter);
     if (!saved || saved.shown <= initialPaintings.length) return;
-    restoringRef.current = true;
     // Deferred a tick: the saved spot lives in the browser's history, which
     // the server render can't know about.
-    Promise.resolve()
-      .then(() => load(saved.shown, saved.scrollY))
-      .finally(() => {
-        restoringRef.current = false;
-      });
+    Promise.resolve().then(() => load(saved.shown, saved.scrollY));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on arrival
   }, []);
 
@@ -178,7 +137,6 @@ export function HomeFeed({
         shown: paintings.length,
         scrollY: window.scrollY,
         paintings,
-        heartedIds,
         hasMore,
       });
     const onVisibility = () => {
@@ -190,40 +148,18 @@ export function HomeFeed({
       document.removeEventListener("click", save, true);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [filter, paintings, heartedIds, hasMore]);
-
-  // Load the next batch when the Load more link comes near the screen, until
-  // FEED_AUTO_LOAD_UNTIL posts show; after that the link waits for a tap.
-  useEffect(() => {
-    const el = moreRef.current;
-    if (!el || restoringRef.current || !hasMore || loading || failed) return;
-    if (shown >= FEED_AUTO_LOAD_UNTIL) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          observer.disconnect();
-          load(shown + FEED_PAGE_SIZE);
-        }
-      },
-      { rootMargin: "800px 0px" }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- load reads the latest props
-  }, [hasMore, loading, failed, shown]);
+  }, [filter, paintings, hasMore]);
 
   return (
     <>
       <PaintingGrid
         paintings={paintings}
-        heartedIds={heartedIds}
         emptyHint={emptyHint}
         groupByOctoberDay={octoberChallenge}
       />
       {hasMore && shown < FEED_MAX && (
         <div className="mt-10 flex flex-col items-center gap-2">
           <a
-            ref={moreRef}
             href={moreHref}
             onClick={(e) => {
               e.preventDefault();

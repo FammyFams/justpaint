@@ -27,6 +27,7 @@ import { TagSelect } from "@/components/tag-select";
 import { compressImage } from "@/lib/compress-image";
 import { CHALLENGE_NAME, PROMPTS, octoberDay } from "@/lib/october-challenge";
 import type { Tag } from "@/lib/types";
+import { useViewer } from "@/components/viewer";
 
 function detectAspect(file: File): Promise<"portrait" | "landscape" | "square"> {
   return new Promise((resolve) => {
@@ -47,14 +48,11 @@ function detectAspect(file: File): Promise<"portrait" | "landscape" | "square"> 
   });
 }
 
-export function UploadForm({
-  currentUser,
-  tags,
-}: {
-  currentUser: { id: string; displayName: string } | null;
-  tags: Tag[];
-}) {
+export function UploadForm({ tags }: { tags: Tag[] }) {
   const router = useRouter();
+  // The page is cached and the same for everyone; who's posting comes from
+  // the browser (components/viewer.tsx). The server checks again.
+  const { ready, user: currentUser } = useViewer();
   const [preview, setPreview] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [preparing, setPreparing] = useState(false);
@@ -76,6 +74,10 @@ export function UploadForm({
   async function onSubmit(values: PaintingFormValues) {
     setFormError(null);
 
+    if (!ready) {
+      setFormError("Still loading your account. Try again in a moment.");
+      return;
+    }
     if (!currentUser && !values.name?.trim()) {
       form.setError("name", { message: "Add your name" });
       return;
@@ -203,7 +205,8 @@ export function UploadForm({
               . It&rsquo;ll show up on your profile.
             </p>
           ) : (
-            <p className="text-sm text-muted-foreground">
+            // Hidden from signed-in browsers until their account arrives.
+            <p data-guest-only="" className="text-sm text-muted-foreground">
               Posting as a guest.{" "}
               <Link href="/login?next=/upload" className="text-primary underline underline-offset-2">
                 Log in
@@ -216,7 +219,7 @@ export function UploadForm({
               name="name"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid} data-guest-only="">
                   <FieldLabel htmlFor="name">
                     <span className="shrink-0">Your name</span>
                     <span className="font-normal text-muted-foreground">

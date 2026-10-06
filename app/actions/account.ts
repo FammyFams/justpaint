@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { SERVER_BUSY } from "@/lib/busy";
 import { createClient } from "@/lib/supabase/server";
@@ -38,5 +39,7 @@ export async function deleteAccountAction(): Promise<{ error: string } | undefin
   }
 
   await supabase.auth.signOut();
+  // Their posts and comments were on cached pages all over the site.
+  revalidatePath("/", "layout");
   redirect("/");
 }

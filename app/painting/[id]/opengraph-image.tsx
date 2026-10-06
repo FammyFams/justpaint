@@ -11,7 +11,7 @@ import { PROMPTS } from "@/lib/october-challenge";
 // Built on the first share and kept for an hour; deleting the post clears it
 // sooner (lib/delete-painting.ts), so a removed painting doesn't linger here.
 export const dynamic = "force-static";
-export const revalidate = 3600; // matches SHARE_PICTURE_HEADERS
+export const revalidate = 86400; // matches SHARE_PICTURE_HEADERS
 
 export const alt = "A beginner painting shared on justpaint";
 export const size = { width: 1200, height: 630 };

@@ -1,6 +1,7 @@
 import "server-only";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { revalidateFeeds } from "@/lib/revalidate";
 
 // Not a Server Action: this lives outside app/actions and is server-only, so
 // the browser can't call it directly. Callers must check who's asking first.
@@ -43,9 +44,9 @@ export async function deletePaintingRecord(
     await admin.storage.from("paintings").remove([painting.image_path]);
   }
 
-  revalidatePath("/");
+  revalidateFeeds();
   revalidatePath(`/painting/${paintingId}`);
-  // Share pictures are cached for an hour; drop this one now so a removed
+  // Share pictures are cached for a day; drop this one now so a removed
   // painting stops showing up in link previews.
   revalidatePath(`/painting/${paintingId}/opengraph-image`);
   // "layout" also covers each profile's share picture, which shows the

@@ -7,6 +7,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { hashedClientIp } from "@/lib/client-ip";
 import { deletePaintingRecord } from "@/lib/delete-painting";
 import { ADMIN_COOKIE, adminToken, isAdmin, safeEqual } from "@/lib/admin";
+import { ADMIN_FLAG_COOKIE } from "@/lib/session-cookie";
+import { revalidateFeeds } from "@/lib/revalidate";
 import { getLatestComments, type AdminComment } from "@/lib/admin-comments";
 import { SERVER_BUSY } from "@/lib/busy";
 
@@ -38,18 +40,24 @@ export async function adminLoginAction(
     return { error: "Wrong password." };
   }
 
-  (await cookies()).set(ADMIN_COOKIE, token, {
-    httpOnly: true,
+  const cookieOptions = {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
-  });
+  } as const;
+  const cookieStore = await cookies();
+  cookieStore.set(ADMIN_COOKIE, token, { ...cookieOptions, httpOnly: true });
+  // Readable by scripts and proves nothing: it only tells the browser to ask
+  // the server whether this is an admin (components/viewer.tsx).
+  cookieStore.set(ADMIN_FLAG_COOKIE, "1", cookieOptions);
   redirect("/admin");
 }
 
 export async function adminLogoutAction() {
-  (await cookies()).delete(ADMIN_COOKIE);
+  const cookieStore = await cookies();
+  cookieStore.delete(ADMIN_COOKIE);
+  cookieStore.delete(ADMIN_FLAG_COOKIE);
   redirect("/admin");
 }
 
@@ -92,7 +100,7 @@ export async function adminSetOctoberChallengeAction(
   }
 
   revalidatePath("/admin");
-  revalidatePath("/");
+  revalidateFeeds();
   revalidatePath(`/painting/${paintingId}`);
   return { success: true };
 }

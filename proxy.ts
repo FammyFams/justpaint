@@ -35,6 +35,24 @@ export async function proxy(request: NextRequest) {
   return supabaseResponse;
 }
 
+// Only for browsers holding a Supabase login cookie: there's no session to
+// refresh otherwise. Every run of this counts toward Vercel's free 4 hours
+// of server CPU a month, and before this it ran on every request, guests
+// and cached pages included. Vercel checks the cookie before starting it.
+//
+// The name is Supabase's sb-<project ref>-auth-token (AUTH_COOKIE in
+// lib/session-cookie.ts; this config can't import it), plus .0 for a
+// session long enough to be split across cookies. A new Supabase project
+// means a new name here. Static files and images are skipped either way.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.svg$).*)"],
+  matcher: [
+    {
+      source: "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp|ico|txt|xml)$).*)",
+      has: [{ type: "cookie", key: "sb-ptiwywmprtiardksjgad-auth-token" }],
+    },
+    {
+      source: "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp|ico|txt|xml)$).*)",
+      has: [{ type: "cookie", key: "sb-ptiwywmprtiardksjgad-auth-token.0" }],
+    },
+  ],
 };

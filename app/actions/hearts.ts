@@ -45,7 +45,6 @@ export async function setHeartAction(
     .maybeSingle();
   if (!data) return { error: "That painting no longer exists." };
 
-  revalidatePath("/");
   revalidatePath(`/painting/${paintingId}`);
 
   return { count: data.heart_count };

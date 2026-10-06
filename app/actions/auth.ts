@@ -1,7 +1,6 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteUrl } from "@/lib/site-url";
@@ -108,7 +107,6 @@ export async function signUpAction(values: {
   }
 
   if (data.session) {
-    revalidatePath("/", "layout");
     redirect("/");
   }
 
@@ -134,7 +132,6 @@ export async function signInAction(
     return { error: friendlyAuthError(error) };
   }
 
-  revalidatePath("/", "layout");
   redirect(safeNext(next));
 }
 
@@ -202,6 +199,5 @@ export async function updatePasswordAction(values: {
 export async function signOutAction() {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  revalidatePath("/", "layout");
   redirect("/");
 }

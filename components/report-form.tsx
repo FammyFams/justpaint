@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleCheck } from "lucide-react";
@@ -10,25 +10,34 @@ import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import {
   REPORT_REASONS,
+  paintingIdFrom,
   reportSchema,
   type ReportFormValues,
   type ReportReason,
 } from "@/lib/validations/report";
 import { submitReportAction } from "@/app/actions/reports";
+import { getSiteUrl } from "@/lib/site-url";
 
-export function ReportForm({ paintingLink }: { paintingLink?: string }) {
+export function ReportForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const [reference, setReference] = useState<number | null>(null);
   const form = useForm<ReportFormValues>({
     resolver: zodResolver(reportSchema),
     defaultValues: {
-      painting: paintingLink ?? "",
+      painting: "",
       details: "",
       email: "",
       signature: "",
       goodFaith: false as unknown as true,
     },
   });
+
+  // "Report this post" links here with ?painting=<id>. Read in the browser,
+  // so the page can be cached.
+  useEffect(() => {
+    const id = paintingIdFrom(new URLSearchParams(window.location.search).get("painting") ?? "");
+    if (id && !form.getValues("painting")) form.setValue("painting", `${getSiteUrl()}/painting/${id}`);
+  }, [form]);
 
   async function onSubmit(values: ReportFormValues) {
     setFormError(null);

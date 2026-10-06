@@ -32,6 +32,22 @@ const nextConfig: NextConfig = {
       })),
     ];
   },
+  async rewrites() {
+    // The home feed is cached at / (all posts) and /feed/october (the
+    // October tab), and built per request at /feed for a tag or a longer
+    // list. Visitors keep seeing / with its query in the address bar.
+    return {
+      beforeFiles: [
+        { source: "/", has: [{ type: "query", key: "tag" }], destination: "/feed" },
+        { source: "/", has: [{ type: "query", key: "shown" }], destination: "/feed" },
+        {
+          source: "/",
+          has: [{ type: "query", key: "challenge", value: "october" }],
+          destination: "/feed/october",
+        },
+      ],
+    };
+  },
   async redirects() {
     // www served a second copy of every page; send it to the one address
     // search engines should index.

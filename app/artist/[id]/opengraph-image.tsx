@@ -7,7 +7,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 // The share preview for a profile: the name, how many paintings, and the
 // latest three. Built on the first share and kept for an hour.
 export const dynamic = "force-static";
-export const revalidate = 3600; // matches SHARE_PICTURE_HEADERS
+export const revalidate = 86400; // matches SHARE_PICTURE_HEADERS
 
 export const alt = "Paintings by an artist on justpaint";
 export const size = { width: 1200, height: 630 };

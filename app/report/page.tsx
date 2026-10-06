@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ReportForm } from "@/components/report-form";
-import { paintingIdFrom } from "@/lib/validations/report";
-import { getSiteUrl } from "@/lib/site-url";
 
 export const metadata: Metadata = {
   title: "Report a post | justpaint",
@@ -12,14 +10,8 @@ export const metadata: Metadata = {
 
 // The notice-and-removal process the TAKE IT DOWN Act requires: plain
 // language, linked from every page (footer) and every post, no account needed.
-export default async function ReportPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ painting?: string }>;
-}) {
-  const id = paintingIdFrom((await searchParams).painting ?? "");
-  const paintingLink = id ? `${getSiteUrl()}/painting/${id}` : undefined;
-
+// Cached; the form fills in ?painting= itself.
+export default function ReportPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
       <h1 className="font-heading text-4xl italic leading-tight sm:text-5xl">Report a post</h1>
@@ -89,7 +81,7 @@ export default async function ReportPage({
       </div>
 
       <div className="mt-8 rounded-sm border border-border/70 bg-card p-6 shadow-[0_1px_2px_rgba(0,0,34,0.06)]">
-        <ReportForm paintingLink={paintingLink} />
+        <ReportForm />
       </div>
     </main>
   );

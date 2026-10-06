@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useViewer } from "@/components/viewer";
 import { cn } from "@/lib/utils";
 import { setHeartAction } from "@/app/actions/hearts";
 
@@ -32,51 +33,58 @@ function writeHearted(paintingId: string, hearted: boolean) {
 
 // One heart per painting per visitor. For guests the server counts per IP and
 // this browser remembers what it hearted in localStorage. For signed-in users
-// the server counts per account and the page passes initialHearted, so their
-// hearts show the same on every device.
+// the server counts per account and the hearts come with the account
+// (components/viewer.tsx), so they show the same on every device.
 function HeartButton({
   paintingId,
   initialCount,
-  initialHearted,
   compact,
 }: {
   paintingId: string;
+  /** The page's count. Cached pages can be a few minutes behind. */
   initialCount: number;
-  /** Set for signed-in users (from the server); guests leave it undefined. */
-  initialHearted?: boolean;
   /** Small ghost-style heart for feed cards. */
   compact?: boolean;
 }) {
-  const isGuest = initialHearted === undefined;
-  const [hearted, setHearted] = useState(initialHearted ?? false);
-  const [count, setCount] = useState(initialCount);
+  const viewer = useViewer();
+  const member = viewer.user !== null;
+  const [remembered, setRemembered] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const hearted = member ? viewer.hearted.has(paintingId) : remembered;
+  // A heart given this visit (here or on another copy of this card) knows
+  // the newest count.
+  const count = viewer.heartCounts.get(paintingId) ?? initialCount;
 
   // localStorage only exists in the browser, so read it after hydration.
   useEffect(() => {
-    if (!isGuest) return;
+    if (member) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setHearted(readHearted().includes(paintingId));
-  }, [paintingId, isGuest]);
+    setRemembered(readHearted().includes(paintingId));
+  }, [paintingId, member]);
+
+  function show(on: boolean, newCount: number) {
+    viewer.setHeart(paintingId, on, newCount);
+    if (!member) {
+      setRemembered(on);
+      writeHearted(paintingId, on);
+    }
+  }
 
   function handleClick() {
     // Ignored rather than disabled while saving: disabling the focused
     // button would drop keyboard focus to the top of the page.
     if (isPending) return;
     const next = !hearted;
-    setHearted(next);
-    setCount((prev) => Math.max(0, prev + (next ? 1 : -1)));
-    if (isGuest) writeHearted(paintingId, next);
+    const before = count;
+    show(next, Math.max(0, before + (next ? 1 : -1)));
 
     startTransition(async () => {
       try {
         const result = await setHeartAction(paintingId, next);
         if ("error" in result) throw new Error(result.error);
-        setCount(result.count);
+        viewer.setHeart(paintingId, next, result.count);
       } catch {
-        setHearted(!next);
-        setCount((prev) => Math.max(0, prev + (next ? -1 : 1)));
-        if (isGuest) writeHearted(paintingId, !next);
+        show(!next, before);
         toast.error("The server is busy and couldn't save your heart. Try again later.");
       }
     });

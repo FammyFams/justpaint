@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { connection } from "next/server";
 import { cn } from "@/lib/utils";
 import { DownloadCalendarButton, ShareCalendarButton } from "@/components/share-calendar-button";
 import { PaintingGrid } from "@/components/painting-grid";
 import { buttonVariants } from "@/components/ui/button";
-import { getSessionUserId } from "@/lib/current-user";
-import { getHeartedIds } from "@/lib/hearts";
 import { getFeed } from "@/lib/paintings";
 import { getSiteUrl } from "@/lib/site-url";
 import {
@@ -81,19 +78,16 @@ const ABOUT = [
   },
 ];
 
+// Cached and the same for everyone. New entries show right away
+// (lib/revalidate.ts); today's prompt turns over within 10 minutes of
+// midnight Pacific.
+export const revalidate = 600;
+
 export default async function OctoberChallengePage() {
-  // Rendered per visit so today's prompt and the latest entries stay current.
-  await connection();
   const today = octoberDay();
   const pageUrl = `${getSiteUrl()}/october-challenge`;
 
-  const [{ paintings: latest }, userId] = await Promise.all([
-    getFeed({ octoberChallenge: true, limit: LATEST_COUNT }),
-    getSessionUserId(),
-  ]);
-  const heartedIds = userId
-    ? await getHeartedIds(userId, latest.map((p) => p.id))
-    : undefined;
+  const { paintings: latest } = await getFeed({ octoberChallenge: true, limit: LATEST_COUNT });
 
   // Tells search engines this is a free, online, month-long event.
   const eventJsonLd = {
@@ -348,7 +342,7 @@ export default async function OctoberChallengePage() {
               See every entry &rarr;
             </Link>
           </div>
-          <PaintingGrid paintings={latest} heartedIds={heartedIds} narrow underHeading />
+          <PaintingGrid paintings={latest} narrow underHeading />
         </section>
       )}
     </main>

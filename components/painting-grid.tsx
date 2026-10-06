@@ -4,15 +4,12 @@ import { PROMPTS } from "@/lib/october-challenge";
 
 export function PaintingGrid({
   paintings,
-  heartedIds,
   emptyHint = "Try a different tag, or check back soon.",
   groupByOctoberDay = false,
   narrow = false,
   underHeading = false,
 }: {
   paintings: Painting[];
-  /** Signed-in user's hearted painting ids; undefined for guests. */
-  heartedIds?: string[];
   /** Second line of the empty state. */
   emptyHint?: string;
   /**
@@ -50,7 +47,6 @@ export function PaintingGrid({
           key={painting.id}
           painting={painting}
           index={offset + i}
-          hearted={heartedIds ? heartedIds.includes(painting.id) : undefined}
           titleAs={titleAs}
         />
       ))}

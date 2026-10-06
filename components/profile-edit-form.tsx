@@ -19,9 +19,11 @@ import {
 import { updateProfileAction } from "@/app/actions/profile";
 import type { Artist } from "@/lib/types";
 import { artistHref } from "@/lib/artist-url";
+import { useViewer } from "@/components/viewer";
 
 export function ProfileEditForm({ artist }: { artist: Artist }) {
   const router = useRouter();
+  const { refresh } = useViewer();
   const [formError, setFormError] = useState<string | null>(null);
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -47,6 +49,8 @@ export function ProfileEditForm({ artist }: { artist: Artist }) {
     // The address follows the name, so a new name means a new address.
     router.push(artistHref({ id: artist.id, displayName: values.displayName }));
     router.refresh();
+    // The account menu shows the name too.
+    refresh();
   }
 
   return (

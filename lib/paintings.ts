@@ -1,9 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { Database } from "@/lib/supabase/database.types";
 import type { Artist, Comment, Painting, Tag } from "@/lib/types";
 import { artistSlug, isUuid } from "@/lib/artist-url";
+
+// Everything here reads what any visitor can see, with a client that never
+// reads cookies, so the pages using it can be cached (lib/supabase/public.ts).
 
 const PAINTING_SELECT = `
   id, title, description, image_path, aspect, owner_id, guest_name, created_at, heart_count,
@@ -89,7 +91,7 @@ export async function getFeed({
   limit: number;
   withCount?: boolean;
 }): Promise<FeedPage> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
 
   let paintingIds: string[] | null = null;
   if (tagSlug) {
@@ -132,12 +134,11 @@ export async function getFeed({
   };
 }
 
-/** Pass `client` (lib/supabase/public.ts) to read without cookies, so the caller can be cached. */
 export async function getPaintingById(
   id: string,
   client?: SupabaseClient<Database>
 ): Promise<Painting | null> {
-  const supabase = client ?? (await createClient());
+  const supabase = client ?? createPublicClient();
   const { data, error } = await supabase
     .from("paintings")
     .select(PAINTING_SELECT)
@@ -153,7 +154,7 @@ export async function getPaintingsByArtist(
   artistId: string,
   client?: SupabaseClient<Database>
 ): Promise<Painting[]> {
-  const supabase = client ?? (await createClient());
+  const supabase = client ?? createPublicClient();
   const { data, error } = await supabase
     .from("paintings")
     .select(PAINTING_SELECT)
@@ -175,7 +176,7 @@ interface CommentRow {
 }
 
 export async function getCommentsForPainting(paintingId: string): Promise<Comment[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("comments")
     .select("id, painting_id, user_id, body, created_at, profiles ( display_name )")
@@ -194,7 +195,7 @@ export async function getCommentsForPainting(paintingId: string): Promise<Commen
 }
 
 export async function getAllTags(): Promise<Tag[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data } = await supabase.from("tags").select("id, name, slug").order("name");
   return data ?? [];
 }
@@ -203,7 +204,7 @@ export async function getArtistById(
   id: string,
   client?: SupabaseClient<Database>
 ): Promise<Artist | null> {
-  const supabase = client ?? (await createClient());
+  const supabase = client ?? createPublicClient();
   const { data, error } = await supabase
     .from("profiles")
     .select("id, display_name, bio, created_at")
@@ -272,7 +273,7 @@ export async function getArtistBySlug(
 ): Promise<Artist | null> {
   if (!/^[A-Za-z0-9._-]{1,60}$/.test(slug)) return null;
   const wanted = slug.toLowerCase();
-  const supabase = client ?? (await createClient());
+  const supabase = client ?? createPublicClient();
   // In ilike, "_" matches any one character; escape real underscores first.
   const pattern = slug.replace(/_/g, "\\_").replace(/-/g, "_");
   const { data, error } = await supabase

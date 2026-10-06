@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { adminDeletePaintingAction } from "@/app/actions/admin";
 import { deleteOwnPaintingAction } from "@/app/actions/paintings";
+import { useViewer } from "@/components/viewer";
 
 export function AdminDeleteButton({
   paintingId,
@@ -90,5 +91,32 @@ export function AdminDeleteButton({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * The delete button for whoever may use it: the admin, or the painting's
+ * own artist. Painting pages are cached and the same for everyone, so this
+ * decides in the browser (components/viewer.tsx); the server checks again.
+ */
+export function PaintingDeleteButton({
+  paintingId,
+  artistId,
+  title,
+}: {
+  paintingId: string;
+  artistId: string | null;
+  title: string;
+}) {
+  const { admin, user } = useViewer();
+  const owner = Boolean(user && artistId && user.id === artistId);
+  if (!admin && !owner) return null;
+  return (
+    <AdminDeleteButton
+      mode={admin ? "admin" : "owner"}
+      paintingId={paintingId}
+      title={title}
+      redirectTo="/"
+    />
   );
 }

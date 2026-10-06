@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { UploadForm } from "@/components/upload-form";
 import { getAllTags } from "@/lib/paintings";
-import { getCurrentUser } from "@/lib/current-user";
 
 export const metadata: Metadata = {
   title: "Upload a painting | justpaint",
@@ -15,8 +14,12 @@ export const metadata: Metadata = {
   },
 };
 
+// Cached and the same for everyone; the form works out who's posting in the
+// browser. Rebuilt hourly in case a tag is added.
+export const revalidate = 3600;
+
 export default async function UploadPage() {
-  const [tags, currentUser] = await Promise.all([getAllTags(), getCurrentUser()]);
+  const tags = await getAllTags();
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-14">
@@ -28,7 +31,7 @@ export default async function UploadPage() {
       </p>
 
       <div className="mt-10">
-        <UploadForm currentUser={currentUser} tags={tags} />
+        <UploadForm tags={tags} />
       </div>
     </main>
   );

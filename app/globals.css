@@ -105,6 +105,14 @@
   animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Browsers holding a login cookie (data-session, set in app/layout.tsx before
+   the first paint) hide the guest-only bits and show placeholders until the
+   account loads, so "log in" doesn't flash on cached pages. */
+html[data-session] [data-guest-only],
+html:not([data-session]) [data-session-only] {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-rise {
     animation: none;

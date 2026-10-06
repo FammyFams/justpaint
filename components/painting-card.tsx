@@ -13,13 +13,10 @@ const aspectRatio: Record<Painting["aspect"], string> = {
 export function PaintingCard({
   painting,
   index = 0,
-  hearted,
   titleAs: Title = "h2",
 }: {
   painting: Painting;
   index?: number;
-  /** Signed-in user's heart state; undefined for guests. */
-  hearted?: boolean;
   /** One level below the heading the grid sits under, so levels don't skip. */
   titleAs?: "h2" | "h3";
 }) {
@@ -80,15 +77,7 @@ export function PaintingCard({
               </Badge>
             ))}
           </div>
-          {/* The button only reads its starting count once, so a refreshed
-              count (Back from a painting) starts a new one. */}
-          <LikeButton
-            key={`${painting.likeCount}:${hearted}`}
-            paintingId={painting.id}
-            initialCount={painting.likeCount}
-            initialHearted={hearted}
-            compact
-          />
+          <LikeButton paintingId={painting.id} initialCount={painting.likeCount} compact />
         </div>
       </div>
     </div>

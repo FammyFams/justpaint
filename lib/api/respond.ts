@@ -1,3 +1,5 @@
+import type { FailureCode, WriteFailure } from "@/lib/writes/result";
+
 // JSON answers for the app's API (/api/app/v1/*). Errors share one shape,
 // { error: { code, message } }: the app switches on code and can show message,
 // which is written in the app's lowercase voice.
@@ -15,6 +17,28 @@ export function apiError(status: number, code: string, message: string) {
 }
 
 export const unauthorized = () => apiError(401, "unauthorized", "sign in to do that.");
+
+const STATUS: Record<FailureCode, number> = {
+  invalid: 400,
+  unauthorized: 401,
+  closed: 403,
+  taken: 409,
+  exists: 409,
+  rate_limited: 429,
+  busy: 503,
+};
+
+// A write from lib/writes that couldn't go ahead. Its message is the website's
+// wording, so the app can show it as-is.
+export function failed(failure: WriteFailure) {
+  return apiError(STATUS[failure.code], failure.code, failure.error);
+}
+
+// The request's JSON body, or undefined when it isn't JSON (the write's own
+// checks then answer "invalid").
+export async function readJson(request: Request): Promise<unknown> {
+  return request.json().catch(() => undefined);
+}
 
 // Supabase is down or over a limit (the website shows "the server is busy").
 export const busy = () =>

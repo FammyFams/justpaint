@@ -1,11 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { SERVER_BUSY } from "@/lib/busy";
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { deleteAccount } from "@/lib/writes/account";
 
+// The deleting lives in lib/writes/account.ts, shared with the app's API.
 export async function deleteAccountAction(): Promise<{ error: string } | undefined> {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
@@ -15,31 +14,9 @@ export async function deleteAccountAction(): Promise<{ error: string } | undefin
     return { error: "Not signed in." };
   }
 
-  const admin = createAdminClient();
-
-  // Painting/comment/profile rows cascade-delete via their foreign keys once
-  // the auth user is gone, but the uploaded image files in Storage don't.
-  // Remove them by the paths recorded on the user's posts (a folder listing
-  // would stop at 100 files).
-  const { data: paintings } = await admin
-    .from("paintings")
-    .select("image_path")
-    .eq("owner_id", userId);
-  const paths = (paintings ?? [])
-    .map((p) => p.image_path)
-    .filter((path) => path.startsWith(`${userId}/`));
-  for (let i = 0; i < paths.length; i += 100) {
-    await admin.storage.from("paintings").remove(paths.slice(i, i + 100));
-  }
-
-  const { error } = await admin.auth.admin.deleteUser(userId);
-  if (error) {
-    console.error("account delete failed", error);
-    return { error: SERVER_BUSY };
-  }
+  const result = await deleteAccount(userId);
+  if (!result.ok) return { error: result.error };
 
   await supabase.auth.signOut();
-  // Their posts and comments were on cached pages all over the site.
-  revalidatePath("/", "layout");
   redirect("/");
 }

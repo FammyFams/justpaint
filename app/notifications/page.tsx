@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { MarkNotificationsSeen } from "@/components/notification-count";
+import { NotificationLink } from "@/components/notification-link";
 import { PaintingImage } from "@/components/painting-image";
 import { getCurrentUser } from "@/lib/current-user";
 import { formatRelativeTime, formatShortDateTime } from "@/lib/format";
@@ -16,12 +15,11 @@ export default async function NotificationsPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/notifications");
 
-  const { items, seenAt } = await getNotifications(user.id);
-  const seen = Date.parse(seenAt);
+  // A notification stays new until it's clicked (NotificationLink).
+  const { items } = await getNotifications(user.id);
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
-      <MarkNotificationsSeen />
       <h1 className="font-heading text-3xl italic leading-tight">Notifications</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Comments and hearts on your paintings from the last 30 days.
@@ -34,14 +32,17 @@ export default async function NotificationsPage() {
       ) : (
         <ul className="mt-8 divide-y divide-border rounded-[4px] border border-border bg-card shadow-[0_1px_0_rgba(0,0,34,0.08)]">
           {items.map((item) => {
-            const isNew = Date.parse(item.at) > seen;
             const href =
               item.kind === "comment"
                 ? `/painting/${item.painting.id}#comments`
                 : `/painting/${item.painting.id}`;
             return (
               <li key={item.id}>
-                <Link href={href} prefetch={false} className="flex items-start gap-3 px-4 py-3 hover:bg-secondary">
+                <NotificationLink
+                  itemId={item.id}
+                  href={href}
+                  className="flex items-start gap-3 px-4 py-3 hover:bg-secondary"
+                >
                   <span className="relative size-14 shrink-0 overflow-hidden rounded-[2px] border border-border bg-muted">
                     <PaintingImage src={item.painting.imageUrl} alt="" fill sizes="64px" className="object-cover" />
                   </span>
@@ -63,12 +64,12 @@ export default async function NotificationsPage() {
                       <time dateTime={item.at}>{formatShortDateTime(item.at)}</time>
                     </p>
                   </div>
-                  {isNew && (
+                  {item.new && (
                     <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary">
                       <span className="sr-only">New</span>
                     </span>
                   )}
-                </Link>
+                </NotificationLink>
               </li>
             );
           })}

@@ -4,16 +4,15 @@ import { createContext, useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import { Bell } from "lucide-react";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { markNotificationsSeenAction } from "@/app/actions/notifications";
 
-const SEEN_EVENT = "justpaint:notifications-seen";
+const COUNT_EVENT = "justpaint:notification-count";
 const NotificationCountContext = createContext(0);
 
 /**
  * The unread count for the navbar. The navbar lives in the layout, which
- * doesn't re-render on every click, so opening /notifications clears the
- * count with a browser event instead. The navbar keys this by the server's
- * count, so a fresh count from the server starts it over.
+ * doesn't re-render on every click, so clicking a notification sends the new
+ * count with a browser event instead (announceUnreadCount). The navbar keys
+ * this by the server's count, so a fresh count from the server starts it over.
  */
 export function NotificationCountProvider({
   unread,
@@ -24,9 +23,9 @@ export function NotificationCountProvider({
 }) {
   const [count, setCount] = useState(unread);
   useEffect(() => {
-    const clear = () => setCount(0);
-    window.addEventListener(SEEN_EVENT, clear);
-    return () => window.removeEventListener(SEEN_EVENT, clear);
+    const update = (event: Event) => setCount((event as CustomEvent<number>).detail);
+    window.addEventListener(COUNT_EVENT, update);
+    return () => window.removeEventListener(COUNT_EVENT, update);
   }, []);
   return (
     <NotificationCountContext.Provider value={count}>{children}</NotificationCountContext.Provider>
@@ -51,11 +50,7 @@ export function NotificationsMenuItem({ className }: { className?: string }) {
   );
 }
 
-/** Rendered by /notifications: marks everything seen once it's on screen. */
-export function MarkNotificationsSeen() {
-  useEffect(() => {
-    window.dispatchEvent(new Event(SEEN_EVENT));
-    markNotificationsSeenAction().catch(() => {});
-  }, []);
-  return null;
+/** Sets the account menu's unread count, after a notification is clicked. */
+export function announceUnreadCount(count: number) {
+  window.dispatchEvent(new CustomEvent(COUNT_EVENT, { detail: count }));
 }

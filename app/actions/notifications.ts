@@ -1,12 +1,14 @@
 "use server";
 
 import { getSessionUserId } from "@/lib/current-user";
-import { markNotificationsSeen } from "@/lib/notifications";
+import { markNotificationTapped } from "@/lib/notifications";
 
-// Called from /notifications once the page is on screen (not while it
-// renders, so a prefetch can't mark anything seen).
-export async function markNotificationsSeenAction(): Promise<void> {
+// Called when a notification on /notifications is clicked; opening the page
+// marks nothing (lib/notifications.ts, TAP_MARKS). The new unread count for
+// the account menu, or null if it wasn't saved.
+export async function markNotificationTappedAction(itemId: string): Promise<number | null> {
   const userId = await getSessionUserId();
-  if (!userId) return;
-  await markNotificationsSeen(userId);
+  if (!userId || typeof itemId !== "string") return null;
+  const result = await markNotificationTapped(userId, itemId);
+  return result.ok ? result.unreadCount : null;
 }

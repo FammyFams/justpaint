@@ -197,6 +197,42 @@ export type Database = {
           },
         ]
       }
+      notification_taps: {
+        Row: {
+          item_id: string
+          painting_id: string
+          tapped_at: string
+          user_id: string
+        }
+        Insert: {
+          item_id: string
+          painting_id: string
+          tapped_at?: string
+          user_id: string
+        }
+        Update: {
+          item_id?: string
+          painting_id?: string
+          tapped_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_taps_painting_id_fkey"
+            columns: ["painting_id"]
+            isOneToOne: false
+            referencedRelation: "paintings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_taps_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       painting_hearts: {
         Row: {
           created_at: string
@@ -411,7 +447,7 @@ export type Database = {
         Returns: boolean
       }
       unread_notification_count: {
-        Args: { p_own_heart_key: string; p_user: string }
+        Args: { p_by_painting?: boolean; p_own_heart_key: string; p_user: string }
         Returns: number
       }
     }

@@ -1,11 +1,22 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { visitorKey } from "@/lib/client-ip";
+import { fail, type WriteFailure } from "@/lib/writes/result";
 
-// Comments and hearts on someone's paintings, for /notifications. Nothing
-// is stored per notification: they're read straight from comments and
-// painting_hearts. notification_reads only remembers when the person last
-// looked (migration 20261003000002).
+// Comments and hearts on someone's paintings, for /notifications and the
+// app's Activity tab. Nothing is stored per notification: they're read
+// straight from comments and painting_hearts. A notification stops being new
+// when it's tapped (app) or clicked (website): notification_taps remembers
+// those (migration 20261007000001). notification_reads.seen_at is an older
+// "everything before this is seen" mark (migration 20261003000002).
+
+// What a tap or click on a notification marks seen:
+//   "notification"  just that one
+//   "painting"      every notification about that painting
+// Change it here and push: the website, the app and the badge count all
+// follow, and no data needs moving (taps keep both the notification and its
+// painting).
+export const TAP_MARKS: "notification" | "painting" = "notification";
 
 const WINDOW_DAYS = 30;
 const MAX_ITEMS = 50;
@@ -23,18 +34,23 @@ export interface NotifiedPainting {
 export type Notification =
   | {
       kind: "comment";
+      /** comment:<comment id> */
       id: string;
       at: string;
       painting: NotifiedPainting;
+      /** Not tapped yet (see TAP_MARKS) and after seen_at. */
+      new: boolean;
       authorName: string;
       body: string;
     }
   | {
       kind: "hearts";
+      /** hearts:<painting id>:<YYYY-MM-DD, Pacific day> */
       id: string;
       /** The newest heart in the group. */
       at: string;
       painting: NotifiedPainting;
+      new: boolean;
       count: number;
     };
 
@@ -58,8 +74,14 @@ export async function getNotifications(
   // Hearts from this account are stored under this key; leave those out.
   const ownHeartKey = await visitorKey(userId);
 
-  const [seen, comments, hearts] = await Promise.all([
+  const [seen, taps, comments, hearts] = await Promise.all([
     admin.from("notification_reads").select("seen_at").eq("user_id", userId).maybeSingle(),
+    // A tap always comes after its notification, so older taps can't matter.
+    admin
+      .from("notification_taps")
+      .select("item_id, painting_id, tapped_at")
+      .eq("user_id", userId)
+      .gt("tapped_at", since),
     admin
       .from("comments")
       .select("id, body, created_at, profiles ( display_name ), paintings!inner ( id, title, image_path, owner_id )")
@@ -80,6 +102,7 @@ export async function getNotifications(
 
   if (comments.error) console.error("notifications: comments failed", comments.error);
   if (hearts.error) console.error("notifications: hearts failed", hearts.error);
+  if (taps.error) console.error("notifications: taps failed", taps.error);
 
   const toPainting = (p: PaintingEmbed): NotifiedPainting => ({
     id: p.id,
@@ -92,6 +115,7 @@ export async function getNotifications(
     id: `comment:${c.id}`,
     at: c.created_at,
     painting: toPainting(c.paintings as PaintingEmbed),
+    new: false,
     authorName: (c.profiles as { display_name: string } | null)?.display_name || "Someone",
     body: c.body,
   }));
@@ -105,7 +129,14 @@ export async function getNotifications(
     if (group) {
       group.count += 1;
     } else {
-      groups.set(key, { kind: "hearts", id: `hearts:${key}`, at: h.created_at, painting: toPainting(painting), count: 1 });
+      groups.set(key, {
+        kind: "hearts",
+        id: `hearts:${key}`,
+        at: h.created_at,
+        painting: toPainting(painting),
+        new: false,
+        count: 1,
+      });
     }
   }
   items.push(...groups.values());
@@ -115,7 +146,71 @@ export async function getNotifications(
   const seenAt =
     seen.data?.seen_at ?? new Date(Date.now() - FIRST_VISIT_DAYS * DAY_MS).toISOString();
 
+  // New until tapped, the same rule as unread_notification_count(). A tap
+  // covers what had arrived by then, so later hearts that day count again.
+  const seenMs = Date.parse(seenAt);
+  for (const item of items) {
+    const at = Date.parse(item.at);
+    item.new =
+      at > seenMs &&
+      !(taps.data ?? []).some(
+        (t) =>
+          Date.parse(t.tapped_at) >= at &&
+          (t.item_id === item.id || (TAP_MARKS === "painting" && t.painting_id === item.painting.id))
+      );
+  }
+
   return { items: items.slice(0, MAX_ITEMS), seenAt };
+}
+
+const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+const COMMENT_ID = new RegExp(`^comment:(${UUID})$`, "i");
+const HEARTS_ID = new RegExp(`^hearts:(${UUID}):\\d{4}-\\d{2}-\\d{2}$`, "i");
+
+/**
+ * Remembers that the person tapped (app) or clicked (website) one of their
+ * notifications; TAP_MARKS decides how much that marks seen. Only
+ * notifications about their own paintings. Returns the new unread count.
+ */
+export async function markNotificationTapped(
+  userId: string,
+  itemId: string
+): Promise<WriteFailure | { ok: true; unreadCount: number }> {
+  const gone = fail("not_found", "That notification is gone.");
+  const admin = createAdminClient();
+
+  let paintingId: string | undefined;
+  const comment = COMMENT_ID.exec(itemId);
+  const hearts = HEARTS_ID.exec(itemId);
+  if (comment) {
+    const { data } = await admin.from("comments").select("painting_id").eq("id", comment[1]).maybeSingle();
+    paintingId = data?.painting_id;
+  } else if (hearts) {
+    paintingId = hearts[1];
+  } else {
+    return fail("invalid", "That isn't a notification.");
+  }
+  if (!paintingId) return gone;
+
+  const { data: painting } = await admin
+    .from("paintings")
+    .select("owner_id")
+    .eq("id", paintingId)
+    .maybeSingle();
+  if (!painting) return gone;
+  if (painting.owner_id !== userId) return fail("forbidden", "That isn't one of your notifications.");
+
+  const { error } = await admin.from("notification_taps").upsert({
+    user_id: userId,
+    item_id: itemId,
+    painting_id: paintingId,
+    tapped_at: new Date().toISOString(),
+  });
+  if (error) {
+    console.error("markNotificationTapped failed", error);
+    return fail("busy", "Couldn't save that. Try again.");
+  }
+  return { ok: true, unreadCount: await getUnreadCount(userId) };
 }
 
 /**
@@ -139,6 +234,7 @@ export async function getUnreadCount(userId: string): Promise<number> {
   const { data, error } = await createAdminClient().rpc("unread_notification_count", {
     p_user: userId,
     p_own_heart_key: await visitorKey(userId),
+    p_by_painting: TAP_MARKS === "painting",
   });
   if (error) {
     if (error.code === "PGRST202") {

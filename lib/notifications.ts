@@ -118,6 +118,22 @@ export async function getNotifications(
   return { items: items.slice(0, MAX_ITEMS), seenAt };
 }
 
+/**
+ * Marks everything up to now as seen, for /notifications and the app's
+ * Activity tab. The new time, or null if it couldn't be saved.
+ */
+export async function markNotificationsSeen(userId: string): Promise<string | null> {
+  const seenAt = new Date().toISOString();
+  const { error } = await createAdminClient()
+    .from("notification_reads")
+    .upsert({ user_id: userId, seen_at: seenAt });
+  if (error) {
+    console.error("markNotificationsSeen failed", error);
+    return null;
+  }
+  return seenAt;
+}
+
 /** How many notifications are new, for the account menu. 0 on any error. */
 export async function getUnreadCount(userId: string): Promise<number> {
   const { data, error } = await createAdminClient().rpc("unread_notification_count", {

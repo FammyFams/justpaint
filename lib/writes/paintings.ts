@@ -10,6 +10,7 @@ import { allImagePaths, sizedImagePath, SMALL_WIDTHS, type SmallWidth } from "@/
 import { makeSmallCopies } from "@/lib/resize-painting";
 import { revalidateFeeds } from "@/lib/revalidate";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { hasBlockedWord, NAME_BLOCKED } from "@/lib/text-filter";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, MAX_IMAGE_LABEL } from "@/lib/validations/painting";
 import { guestNameSchema } from "@/lib/validations/names";
 import { fail, type WriteFailure } from "@/lib/writes/result";
@@ -115,6 +116,12 @@ export async function createPainting(
     return fail("invalid", parsed.error.issues[0]?.message ?? "Check the form and try again.");
   }
   const { title, description, tags, aspect, image } = parsed.data;
+  if (hasBlockedWord(title)) {
+    return fail("invalid", "The title has a word we don't allow. Please reword it.");
+  }
+  if (hasBlockedWord(description)) {
+    return fail("invalid", "The description has a word we don't allow. Please reword it.");
+  }
   const admin = createAdminClient();
 
   let guestName: string | undefined;
@@ -122,6 +129,7 @@ export async function createPainting(
     const name = guestNameSchema.safeParse(parsed.data.guestName ?? "");
     if (!name.success) return fail("invalid", name.error.issues[0]?.message ?? "Add your name.");
     guestName = name.data;
+    if (hasBlockedWord(guestName)) return fail("invalid", NAME_BLOCKED);
 
     const { data: taken } = await admin.rpc("display_name_taken", { p_name: guestName });
     if (taken) {

@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { isUuid } from "@/lib/artist-url";
 import { SERVER_BUSY } from "@/lib/busy";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { hasBlockedWord } from "@/lib/text-filter";
 import { COMMENT_MAX_LENGTH } from "@/lib/validations/comment";
 import { fail, type WriteFailure } from "@/lib/writes/result";
 
@@ -28,6 +29,9 @@ export async function addComment(
   if (!trimmed) return fail("invalid", "Comment can't be empty.");
   if (trimmed.length > COMMENT_MAX_LENGTH) {
     return fail("invalid", `Keep it under ${COMMENT_MAX_LENGTH} characters.`);
+  }
+  if (hasBlockedWord(trimmed)) {
+    return fail("invalid", "Your comment has a word we don't allow. Please reword it.");
   }
 
   const { data: id, error } = await createAdminClient().rpc("add_comment", {

@@ -7,6 +7,7 @@ import { allImagePaths } from "@/lib/painting-sizes";
 import { getSiteUrl } from "@/lib/site-url";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
+import { hasBlockedWord, NAME_BLOCKED } from "@/lib/text-filter";
 import { signupSchema } from "@/lib/validations/auth";
 import { profileSchema } from "@/lib/validations/profile";
 import { removeAvatarFiles } from "@/lib/writes/avatar";
@@ -100,6 +101,7 @@ export async function signUp(
 > {
   const parsed = signupSchema.safeParse(values);
   if (!parsed.success) return firstIssue(parsed.error);
+  if (hasBlockedWord(parsed.data.displayName)) return fail("invalid", NAME_BLOCKED);
 
   const limited = await claimAuthAttempt("sign_up");
   if (limited) return limited;
@@ -137,6 +139,10 @@ export async function updateProfile(
 ): Promise<WriteFailure | { ok: true; profile: { displayName: string; bio: string } }> {
   const parsed = profileSchema.safeParse(values);
   if (!parsed.success) return firstIssue(parsed.error);
+  if (hasBlockedWord(parsed.data.displayName)) return fail("invalid", NAME_BLOCKED);
+  if (hasBlockedWord(parsed.data.bio ?? "")) {
+    return fail("invalid", "Your bio has a word we don't allow. Please reword it.");
+  }
 
   const admin = createAdminClient();
   const { data: taken } = await admin.rpc("display_name_taken", {

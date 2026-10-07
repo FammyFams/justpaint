@@ -22,6 +22,7 @@ const STATUS: Record<FailureCode, number> = {
   invalid: 400,
   unauthorized: 401,
   closed: 403,
+  forbidden: 403,
   not_found: 404,
   taken: 409,
   exists: 409,

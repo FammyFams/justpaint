@@ -148,7 +148,7 @@ export async function createPainting(
     if (slotError.message.includes("rate_limited_ip")) {
       return fail(
         "rate_limited",
-        "You can post 5 paintings every 16 hours. Come back a little later for more."
+        "You can post 5 paintings every 16 hours. justpaint is for what you painted today, so come back when you've painted something new."
       );
     }
     if (slotError.message.includes("rate_limited_site")) {

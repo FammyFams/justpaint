@@ -7,6 +7,7 @@ export type FailureCode =
   | "taken" // a display name someone else has
   | "exists" // an account with that email already
   | "closed" // sign-ups are switched off
+  | "not_found" // the painting was deleted, or the id isn't a painting's
   | "rate_limited"
   | "busy"; // Supabase, Vercel or the email service failed or is over a limit
 

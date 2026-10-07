@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { SERVER_BUSY } from "@/lib/busy";
 import { hashedClientIp, hashedEmail } from "@/lib/client-ip";
+import { allImagePaths } from "@/lib/painting-sizes";
 import { getSiteUrl } from "@/lib/site-url";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
@@ -186,7 +187,8 @@ export async function deleteAccount(userId: string): Promise<WriteFailure | { ok
     .eq("owner_id", userId);
   const paths = (paintings ?? [])
     .map((p) => p.image_path)
-    .filter((path) => path.startsWith(`${userId}/`));
+    .filter((path) => path.startsWith(`${userId}/`))
+    .flatMap(allImagePaths);
   for (let i = 0; i < paths.length; i += 100) {
     await admin.storage.from("paintings").remove(paths.slice(i, i + 100));
   }

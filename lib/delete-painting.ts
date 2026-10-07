@@ -1,5 +1,6 @@
 import "server-only";
 import { revalidatePath } from "next/cache";
+import { allImagePaths } from "@/lib/painting-sizes";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidateFeeds } from "@/lib/revalidate";
 import type { FailureCode } from "@/lib/writes/result";
@@ -42,11 +43,12 @@ export async function deletePaintingRecord(
     return { error: "Couldn't delete that. Try again.", code: "busy" };
   }
 
-  // Only remove the file this post owns: its own folder and its own id. An
-  // image_path pointing anywhere else is left alone.
+  // Only remove the files this post owns: its own folder and its own id. An
+  // image_path pointing anywhere else is left alone. The smaller copies sit
+  // next to it (lib/painting-sizes.ts).
   const folder = painting.owner_id ?? "guest";
   if (painting.image_path.startsWith(`${folder}/${paintingId}.`)) {
-    await admin.storage.from("paintings").remove([painting.image_path]);
+    await admin.storage.from("paintings").remove(allImagePaths(painting.image_path));
   }
 
   revalidateFeeds();

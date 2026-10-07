@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { MarkNotificationsSeen } from "@/components/notification-count";
+import { PaintingImage } from "@/components/painting-image";
 import { getCurrentUser } from "@/lib/current-user";
 import { formatRelativeTime, formatShortDateTime } from "@/lib/format";
 import { getNotifications } from "@/lib/notifications";
@@ -43,8 +43,7 @@ export default async function NotificationsPage() {
               <li key={item.id}>
                 <Link href={href} prefetch={false} className="flex items-start gap-3 px-4 py-3 hover:bg-secondary">
                   <span className="relative size-14 shrink-0 overflow-hidden rounded-[2px] border border-border bg-muted">
-                    {/* 64px like /admin, so these reuse resized copies that already exist. */}
-                    <Image src={item.painting.imageUrl} alt="" fill sizes="64px" className="object-cover" />
+                    <PaintingImage src={item.painting.imageUrl} alt="" fill sizes="64px" className="object-cover" />
                   </span>
                   <div className="min-w-0 flex-1 text-sm">
                     {item.kind === "comment" ? (

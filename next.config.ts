@@ -61,24 +61,13 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    // Vercel's free plan includes 5,000 image resizes a month, and a resize is
-    // redone whenever its cached copy expires. A painting's image never
-    // changes (each upload gets a new file name), so keep resized copies for
-    // 31 days instead of the default 4 hours.
-    minimumCacheTTL: 60 * 60 * 24 * 31,
-    // Every width here is one more resize per painting (each screen asks for
-    // the closest width, and each new width is a resize), so keep the list
-    // short. Paintings use 1600 as the stored file itself (PaintingImage's
-    // loader), so Vercel only resizes them to 256 and 640.
+    // Paintings are stored at exactly these widths (lib/painting-sizes.ts)
+    // and PaintingImage loads them straight from Supabase. Vercel's resizer
+    // isn't used: its free plan counts every view of a resized copy. Supabase
+    // isn't in remotePatterns on purpose, so a painting shown with a plain
+    // <Image> fails loudly instead of quietly going through the resizer.
     deviceSizes: [640, 1600],
     imageSizes: [256],
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "ptiwywmprtiardksjgad.supabase.co",
-        pathname: "/storage/v1/object/public/**",
-      },
-    ],
   },
   experimental: {
     serverActions: {

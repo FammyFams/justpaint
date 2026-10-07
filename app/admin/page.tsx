@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
+import { PaintingImage } from "@/components/painting-image";
 import { isAdmin } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatDateTime } from "@/lib/format";
@@ -176,7 +176,7 @@ export default async function AdminPage() {
                 prefetch={false}
                 className="relative size-16 shrink-0 overflow-hidden rounded-sm bg-muted"
               >
-                <Image
+                <PaintingImage
                   src={imageUrl}
                   alt={p.title}
                   fill

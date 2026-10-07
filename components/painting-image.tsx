@@ -2,30 +2,31 @@
 
 import { useState } from "react";
 import Image, { type ImageLoaderProps, type ImageProps } from "next/image";
+import { sizedImagePath } from "@/lib/painting-sizes";
 
-// Stored paintings are already WebP at most 1600px wide, so resizing one to
-// 1600 only re-made the original (same size, one more of the free plan's
-// resizes). The 1600 slot loads the stored file instead; smaller widths go
-// through Vercel's resizer like Next's default loader would. Screens that
-// ask for more than maxWidth get the maxWidth copy.
+// Each painting is stored at 256, 640 and its full size (at most 1600), all
+// loaded straight from Supabase (lib/painting-sizes.ts). Those are the only
+// widths in next.config.ts, so the browser picks one of the three. Screens
+// that ask for more than maxWidth get the maxWidth copy. Nothing goes through
+// Vercel's image resizer.
 function loaderUpTo(maxWidth: number) {
-  return ({ src, width, quality }: ImageLoaderProps) => {
+  return ({ src, width }: ImageLoaderProps) => {
     const w = Math.min(width, maxWidth);
-    if (w >= 1600) return src;
-    return `/_next/image?url=${encodeURIComponent(src)}&w=${w}&q=${quality ?? 75}`;
+    if (w <= 256) return sizedImagePath(src, 256);
+    if (w <= 640) return sizedImagePath(src, 640);
+    return src;
   };
 }
 
-// A painting image that survives Vercel's image resizer failing, e.g. after
-// the free plan's 5,000 resizes a month run out. It first falls back to the
-// stored file straight from Supabase (already WebP, at most 1600px), and only
-// if that fails too shows a message instead of a broken image.
+// A painting image that survives a missing smaller copy: it falls back to the
+// stored painting, and only if that fails too shows a message instead of a
+// broken image.
 export function PaintingImage({
   alt,
   maxWidth = 1600,
   ...props
 }: ImageProps & { maxWidth?: number }) {
-  const [stage, setStage] = useState<"resized" | "direct" | "failed">("resized");
+  const [stage, setStage] = useState<"copy" | "original" | "failed">("copy");
 
   if (stage === "failed") {
     return (
@@ -44,8 +45,8 @@ export function PaintingImage({
       {...props}
       alt={alt}
       loader={loaderUpTo(maxWidth)}
-      unoptimized={stage === "direct"}
-      onError={() => setStage((s) => (s === "resized" ? "direct" : "failed"))}
+      unoptimized={stage === "original"}
+      onError={() => setStage((s) => (s === "copy" ? "original" : "failed"))}
     />
   );
 }

@@ -6,6 +6,8 @@ import * as z from "zod";
 import { SERVER_BUSY } from "@/lib/busy";
 import { visitorKey } from "@/lib/client-ip";
 import { deletePaintingRecord } from "@/lib/delete-painting";
+import { allImagePaths, sizedImagePath, SMALL_WIDTHS, type SmallWidth } from "@/lib/painting-sizes";
+import { makeSmallCopies } from "@/lib/resize-painting";
 import { revalidateFeeds } from "@/lib/revalidate";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, MAX_IMAGE_LABEL } from "@/lib/validations/painting";
@@ -152,8 +154,10 @@ export async function createPainting(
   }
 
   let cleanImage: Awaited<ReturnType<typeof reencode>>;
+  let copies: { width: SmallWidth; data: Buffer }[];
   try {
     cleanImage = await reencode(image);
+    copies = await makeSmallCopies(cleanImage.data, SMALL_WIDTHS);
   } catch {
     return fail("invalid", "Couldn't read that image. Try a different file.");
   }
@@ -161,10 +165,27 @@ export async function createPainting(
   const paintingId = crypto.randomUUID();
   const path = `${ownerId ?? "guest"}/${paintingId}.${cleanImage.ext}`;
 
-  const { error: uploadError } = await admin.storage
-    .from("paintings")
-    .upload(path, cleanImage.data, { contentType: cleanImage.contentType, upsert: false });
+  // The painting and its smaller copies (lib/painting-sizes.ts). Pages and the
+  // app load the copies without checking they exist, so it's all three files
+  // or no post.
+  const files = [
+    { path, data: cleanImage.data, contentType: cleanImage.contentType },
+    ...copies.map((c) => ({
+      path: sizedImagePath(path, c.width),
+      data: c.data,
+      contentType: "image/webp",
+    })),
+  ];
+  const uploads = await Promise.all(
+    files.map((f) =>
+      admin.storage
+        .from("paintings")
+        .upload(f.path, f.data, { contentType: f.contentType, upsert: false })
+    )
+  );
+  const uploadError = uploads.find((u) => u.error)?.error;
   if (uploadError) {
+    await admin.storage.from("paintings").remove(allImagePaths(path));
     console.error("storage upload failed", uploadError);
     return fail("busy", "The server is busy and couldn't save your photo. Try again in a few minutes.");
   }
@@ -181,7 +202,7 @@ export async function createPainting(
   });
 
   if (rpcError) {
-    await admin.storage.from("paintings").remove([path]);
+    await admin.storage.from("paintings").remove(allImagePaths(path));
     console.error("create_painting failed", rpcError);
     return fail("busy", SERVER_BUSY);
   }

@@ -30,6 +30,16 @@ const nextConfig: NextConfig = {
         source,
         headers: [{ key: "Cache-Control", value: "public, max-age=604800" }],
       })),
+      // Tells iPhones which justpaint.art links open the justPaint Art app,
+      // and lets them offer passwords saved for the site in the app. A static
+      // file; Apple wants it served as JSON (it has no file extension).
+      {
+        source: "/.well-known/apple-app-site-association",
+        headers: [
+          { key: "Content-Type", value: "application/json" },
+          { key: "Cache-Control", value: "public, max-age=3600" },
+        ],
+      },
     ];
   },
   async rewrites() {

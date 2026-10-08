@@ -1,0 +1,17 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["5C5NXQ456H.art.justpaint.app"],
+        "components": [
+          { "/": "/artist/*/edit", "exclude": true, "comment": "Editing a profile stays on the website" },
+          { "/": "/painting/*", "comment": "A painting" },
+          { "/": "/artist/*", "comment": "An artist's page" }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["5C5NXQ456H.art.justpaint.app"]
+  }
+}

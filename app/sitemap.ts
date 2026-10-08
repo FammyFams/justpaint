@@ -18,6 +18,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/terms`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${base}/privacy`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${base}/accessibility`, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${base}/support`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/delete-account`, changeFrequency: "yearly", priority: 0.1 },
   ];
 
   // If Supabase is down, still serve the pages above rather than an error.

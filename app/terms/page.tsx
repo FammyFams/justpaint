@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Terms | justpaint",
-  description: "The rules for posting on justpaint: 13 and older, only your own new paintings, and how removals and copyright requests work.",
+  description: "The rules for justpaint and the justPaint Art app: 13 and older, only your own new paintings, no tolerance for abuse, and how removals and copyright requests work.",
   alternates: { canonical: "/terms" },
 };
 
@@ -14,14 +14,15 @@ export default function TermsPage() {
         Terms of use
       </h1>
       <p className="mt-3 text-sm text-muted-foreground">
-        Last updated September 26, 2026
+        Last updated October 8, 2026
       </p>
 
       <div className="prose-content mt-10 flex flex-col gap-8 text-sm leading-relaxed text-foreground/90">
         <p>
-          justpaint is a small, independently run place to share paintings.
-          By using the site or posting to it, you agree to these terms. If you
-          don&rsquo;t agree, please don&rsquo;t use justpaint.
+          justpaint is a small, independently run place to share paintings,
+          on justpaint.art and in the justPaint Art app for iPhone and Android.
+          By using either one or posting to it, you agree to these terms. If
+          you don&rsquo;t agree, please don&rsquo;t use justpaint.
         </p>
 
         <section>
@@ -61,6 +62,19 @@ export default function TermsPage() {
         </section>
 
         <section>
+          <h2 className="mb-2 font-heading text-xl">
+            No tolerance for objectionable content or abuse
+          </h2>
+          <p>
+            There is no tolerance for objectionable content or abusive users on
+            justpaint. We remove posts and comments that break these terms, and
+            we remove the accounts of people who post them or who harass
+            others. Names, titles, descriptions and comments are checked for
+            slurs and explicit words before they&rsquo;re posted.
+          </p>
+        </section>
+
+        <section>
           <h2 className="mb-2 font-heading text-xl">Your paintings stay yours</h2>
           <p>
             You keep ownership of everything you post. By posting, you give
@@ -73,14 +87,14 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="mb-2 font-heading text-xl">Reporting and removing posts</h2>
+          <h2 className="mb-2 font-heading text-xl">Reporting, blocking and removing posts</h2>
           <p className="mb-2">
             Anyone can report a post, with or without an account, using the{" "}
             <Link href="/report" className="text-primary underline underline-offset-2">
               report form
             </Link>{" "}
-            (also linked at the bottom of every page and on every post) or
-            by email to{" "}
+            (also linked at the bottom of every page and on every post), the
+            &#8943; menu in the app, or by email to{" "}
             <a
               href="mailto:thewcookie@gmail.com"
               className="text-primary underline underline-offset-2"
@@ -98,12 +112,20 @@ export default function TermsPage() {
             reference number, and we keep a record of each request and what we
             did about it.
           </p>
+          <p className="mb-2">
+            In the app, you can also block another member. You won&rsquo;t see
+            their paintings or comments anymore, and they aren&rsquo;t told.
+          </p>
           <p>
             We can also remove any post, at any time, for any reason,
             including anything that breaks these terms. If you have an
-            account, you can delete your own posts yourself; guest posts can
-            be taken down by emailing us. If something on justpaint uses your
-            work without permission, see Copyright below.
+            account, you can delete your own posts yourself, and{" "}
+            <Link href="/delete-account" className="text-primary underline underline-offset-2">
+              your whole account
+            </Link>{" "}
+            at any time; guest posts can be taken down by emailing us. If
+            something on justpaint uses your work without permission, see
+            Copyright below.
           </p>
         </section>
 
@@ -224,7 +246,11 @@ export default function TermsPage() {
         <section>
           <h2 className="mb-2 font-heading text-xl">Contact</h2>
           <p>
-            Questions about these terms? Email{" "}
+            Questions about these terms? See{" "}
+            <Link href="/support" className="text-primary underline underline-offset-2">
+              support
+            </Link>{" "}
+            or email{" "}
             <a
               href="mailto:thewcookie@gmail.com"
               className="text-primary underline underline-offset-2"

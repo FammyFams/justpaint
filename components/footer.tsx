@@ -27,6 +27,9 @@ export function Footer() {
           <Link href="/report" prefetch={false} className="transition-colors hover:text-foreground">
             Report a post
           </Link>
+          <Link href="/support" prefetch={false} className="transition-colors hover:text-foreground">
+            Support
+          </Link>
         </div>
       </div>
     </footer>

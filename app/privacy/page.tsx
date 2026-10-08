@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Privacy | justpaint",
-  description: "How justpaint handles your data: what we collect when you post or sign up, how long we keep it, and your choices.",
+  description: "How justpaint and the justPaint Art app handle your data: what we collect when you post or sign up, how long we keep it, and your choices.",
   alternates: { canonical: "/privacy" },
 };
 
@@ -13,13 +14,14 @@ export default function PrivacyPage() {
         Privacy policy
       </h1>
       <p className="mt-3 text-sm text-muted-foreground">
-        Last updated October 6, 2026
+        Last updated October 8, 2026
       </p>
 
       <div className="prose-content mt-10 flex flex-col gap-8 text-sm leading-relaxed text-foreground/90">
         <p>
           justpaint is a small, independently run project. This page explains
-          what data we collect and how we use it.
+          what data we collect and how we use it, on justpaint.art and in the
+          justPaint Art app for iPhone and Android.
         </p>
 
         <section>
@@ -41,7 +43,34 @@ export default function PrivacyPage() {
             <li>Likes and comments you make.</li>
           </ul>
           <p className="mb-2 font-medium text-foreground">
-            If you post as a guest (no account):
+            If you use the justPaint Art app:
+          </p>
+          <ul className="mb-4 list-disc space-y-1 pl-5">
+            <li>
+              The same account data as above: the app and the website share one
+              account.
+            </li>
+            <li>
+              The camera and your photo library, only when you choose to post,
+              and only the photo you pick. It&rsquo;s shrunk and stripped of
+              location and camera details before it&rsquo;s stored.
+            </li>
+            <li>
+              The people you block, so their paintings and comments stay hidden
+              from you, and which notifications you&rsquo;ve opened. Only you
+              can see these.
+            </li>
+            <li>
+              On your phone, the app keeps your sign-in (encrypted) and whether
+              you&rsquo;ve seen the welcome screen.
+            </li>
+            <li>
+              The app has no analytics, advertising or tracking code, and
+              doesn&rsquo;t track you across other apps or websites.
+            </li>
+          </ul>
+          <p className="mb-2 font-medium text-foreground">
+            If you post as a guest on the website (no account):
           </p>
           <ul className="mb-4 list-disc space-y-1 pl-5">
             <li>
@@ -73,9 +102,9 @@ export default function PrivacyPage() {
           <ul className="list-disc space-y-1 pl-5">
             <li>
               Standard server request logs collected by our hosting
-              provider (Vercel), like IP address, browser type, and
-              timestamps. These are used only to operate and secure the
-              site.
+              providers (Vercel and Supabase), like IP address, browser or app
+              type, and timestamps. These are used only to operate and secure
+              justpaint.
             </li>
             <li>
               A scrambled (one-way hashed) version of your IP address. When
@@ -88,7 +117,7 @@ export default function PrivacyPage() {
               your IP.
             </li>
             <li>
-              Visit statistics collected by Google Analytics: which pages
+              On the website only, visit statistics collected by Google Analytics: which pages
               you view, roughly where you are (city or country level), your
               device and browser type, and how you found the site. We use
               this only to understand how many people visit and what they
@@ -106,6 +135,7 @@ export default function PrivacyPage() {
               ad personalization.
             </li>
             <li>We don&rsquo;t sell your data to anyone.</li>
+            <li>The app doesn&rsquo;t use cookies or your phone&rsquo;s advertising ID.</li>
           </ul>
         </section>
 
@@ -183,7 +213,7 @@ export default function PrivacyPage() {
             </li>
             <li>
               <span className="font-medium text-foreground">Google</span>{" "}
-              provides Google Analytics. Google handles that data under{" "}
+              provides Google Analytics on the website. Google handles that data under{" "}
               <a
                 href="https://policies.google.com/privacy"
                 className="text-primary underline underline-offset-2"
@@ -195,6 +225,10 @@ export default function PrivacyPage() {
               .
             </li>
           </ul>
+          <p className="mt-2">
+            If you download the app, Apple&rsquo;s App Store or Google Play
+            handles the download under their own privacy policies.
+          </p>
         </section>
 
         <section>
@@ -212,8 +246,16 @@ export default function PrivacyPage() {
           <h2 className="mb-2 font-heading text-xl">Your choices</h2>
           <ul className="list-disc space-y-1 pl-5">
             <li>
-              To have a painting you posted taken down, or your account and
-              everything in it deleted, email{" "}
+              You can delete your own paintings, and your whole account with
+              everything in it, yourself on the website or in the app. See{" "}
+              <Link href="/delete-account" className="text-primary underline underline-offset-2">
+                Delete your account
+              </Link>{" "}
+              for the steps and what gets deleted.
+            </li>
+            <li>
+              To have a guest painting taken down, or if you can&rsquo;t sign in,
+              email{" "}
               <a
                 href="mailto:thewcookie@gmail.com"
                 className="text-primary underline underline-offset-2"
@@ -222,6 +264,7 @@ export default function PrivacyPage() {
               </a>
               .
             </li>
+            <li>In the app, you can block people whose work you don&rsquo;t want to see.</li>
           </ul>
         </section>
 
@@ -244,7 +287,11 @@ export default function PrivacyPage() {
         <section>
           <h2 className="mb-2 font-heading text-xl">Contact</h2>
           <p>
-            Questions about this policy? Email{" "}
+            Questions about this policy? See{" "}
+            <Link href="/support" className="text-primary underline underline-offset-2">
+              support
+            </Link>{" "}
+            or email{" "}
             <a
               href="mailto:thewcookie@gmail.com"
               className="text-primary underline underline-offset-2"

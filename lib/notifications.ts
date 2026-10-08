@@ -74,7 +74,7 @@ export async function getNotifications(
   // Hearts from this account are stored under this key; leave those out.
   const ownHeartKey = await visitorKey(userId);
 
-  const [seen, taps, comments, hearts] = await Promise.all([
+  const [seen, taps, comments, hearts, blocks] = await Promise.all([
     admin.from("notification_reads").select("seen_at").eq("user_id", userId).maybeSingle(),
     // A tap always comes after its notification, so older taps can't matter.
     admin
@@ -84,7 +84,7 @@ export async function getNotifications(
       .gt("tapped_at", since),
     admin
       .from("comments")
-      .select("id, body, created_at, profiles ( display_name ), paintings!inner ( id, title, image_path, owner_id )")
+      .select("id, user_id, body, created_at, profiles ( display_name ), paintings!inner ( id, title, image_path, owner_id )")
       .eq("paintings.owner_id", userId)
       .neq("user_id", userId)
       .gt("created_at", since)
@@ -98,11 +98,14 @@ export async function getNotifications(
       .gt("created_at", since)
       .order("created_at", { ascending: false })
       .limit(1000),
+    // People this account blocked in the app (at most 1,000).
+    admin.from("user_blocks").select("blocked_id").eq("blocker_id", userId),
   ]);
 
   if (comments.error) console.error("notifications: comments failed", comments.error);
   if (hearts.error) console.error("notifications: hearts failed", hearts.error);
   if (taps.error) console.error("notifications: taps failed", taps.error);
+  if (blocks.error) console.error("notifications: blocks failed", blocks.error);
 
   const toPainting = (p: PaintingEmbed): NotifiedPainting => ({
     id: p.id,
@@ -110,15 +113,20 @@ export async function getNotifications(
     imageUrl: admin.storage.from("paintings").getPublicUrl(p.image_path).data.publicUrl,
   });
 
-  const items: Notification[] = (comments.data ?? []).map((c) => ({
-    kind: "comment",
-    id: `comment:${c.id}`,
-    at: c.created_at,
-    painting: toPainting(c.paintings as PaintingEmbed),
-    new: false,
-    authorName: (c.profiles as { display_name: string } | null)?.display_name || "Someone",
-    body: c.body,
-  }));
+  // Blocked people's comments don't notify you; unread_notification_count()
+  // leaves them out the same way. Hearts carry no name, so they stay.
+  const blocked = new Set((blocks.data ?? []).map((b) => b.blocked_id));
+  const items: Notification[] = (comments.data ?? [])
+    .filter((c) => !blocked.has(c.user_id))
+    .map((c) => ({
+      kind: "comment",
+      id: `comment:${c.id}`,
+      at: c.created_at,
+      painting: toPainting(c.paintings as PaintingEmbed),
+      new: false,
+      authorName: (c.profiles as { display_name: string } | null)?.display_name || "Someone",
+      body: c.body,
+    }));
 
   // Newest first, so the first heart seen in each group is its newest.
   const groups = new Map<string, Extract<Notification, { kind: "hearts" }>>();

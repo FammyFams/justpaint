@@ -323,12 +323,12 @@ export default async function OctoberChallengePage() {
           </Link>
           , tick &ldquo;This is part of the {CHALLENGE_NAME}&rdquo; and pick the
           day&rsquo;s prompt. You can see every entry, grouped by day, by picking{" "}
-          <Link
-            href="/?challenge=october"
-            className={LINK}
-          >
+          {/* Plain <a>, like components/feed-filter.tsx: a <Link> to this
+              query rewrite kept showing the full feed. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a href="/?challenge=october" className={LINK}>
             October Challenge 2026
-          </Link>{" "}
+          </a>{" "}
           on the home page. Posting somewhere else too? Add{" "}
           <span className="font-semibold text-foreground">{HASHTAG}</span>.
         </p>
@@ -338,9 +338,10 @@ export default async function OctoberChallengePage() {
         <section className="mt-12">
           <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
             <h2 className="font-heading text-xl">Latest entries</h2>
-            <Link href="/?challenge=october" className={cn(LINK, "text-sm")}>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- see above */}
+            <a href="/?challenge=october" className={cn(LINK, "text-sm")}>
               See every entry &rarr;
-            </Link>
+            </a>
           </div>
           <PaintingGrid paintings={latest} narrow underHeading />
         </section>

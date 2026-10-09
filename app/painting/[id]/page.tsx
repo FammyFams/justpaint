@@ -148,12 +148,14 @@ export default async function PaintingPage({
           </p>
 
           <div className="mt-4 flex flex-wrap gap-1.5">
+            {/* Plain <a>, like components/feed-filter.tsx: a <Link> to this
+                query rewrite kept showing the full feed. */}
             {painting.tags.map((tag) => (
-              <Link key={tag.id} href={`/?tag=${tag.slug}`}>
+              <a key={tag.id} href={`/?tag=${tag.slug}`}>
                 <Badge variant="secondary" className="rounded-sm font-normal">
                   {tag.name}
                 </Badge>
-              </Link>
+              </a>
             ))}
           </div>
 

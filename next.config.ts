@@ -46,6 +46,9 @@ const nextConfig: NextConfig = {
     // The home feed is cached at / (all posts) and /feed/october (the
     // October tab), and built per request at /feed for a tag or a longer
     // list. Visitors keep seeing / with its query in the address bar.
+    // Link to these with a plain <a>, never <Link>: Next's router treats any
+    // /?query as the home page it already has and never asks the server, so
+    // the rewrite doesn't run (the October tab click did nothing).
     return {
       beforeFiles: [
         { source: "/", has: [{ type: "query", key: "tag" }], destination: "/feed" },

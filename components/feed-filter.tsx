@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const pill = "shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-colors";
@@ -7,7 +6,10 @@ const inactive =
   "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground";
 
 // Quick sort above the feed: everything, or only October challenge entries.
-// Keeps an active ?tag= filter when switching.
+// Keeps an active ?tag= filter when switching. Plain <a>, not <Link>: these
+// addresses are rewritten by their query (next.config.ts), and Next's router
+// treats any /?query as the home page it already has, so a <Link> click
+// changed the address but kept showing the full feed.
 export function FeedFilter({ challenge, tag }: { challenge: boolean; tag?: string }) {
   const href = (october: boolean) => {
     const params = new URLSearchParams();
@@ -19,20 +21,20 @@ export function FeedFilter({ challenge, tag }: { challenge: boolean; tag?: strin
 
   return (
     <div className="flex gap-2">
-      <Link
+      <a
         href={href(false)}
         aria-current={challenge ? undefined : "page"}
         className={cn(pill, challenge ? inactive : active)}
       >
         All
-      </Link>
-      <Link
+      </a>
+      <a
         href={href(true)}
         aria-current={challenge ? "page" : undefined}
         className={cn(pill, challenge ? active : inactive)}
       >
         October Challenge 2026
-      </Link>
+      </a>
     </div>
   );
 }

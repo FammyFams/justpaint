@@ -81,7 +81,13 @@ export function artistJsonLd(artist: Artist, paintings: Painting[]) {
   };
 }
 
-/** JSON for a <script type="application/ld+json">. Escapes "<" so text people typed can't close the tag. */
+/**
+ * JSON for a <script type="application/ld+json">. Writes each "<" as a JSON
+ * escape so text people typed (a bio, a painting description) can't close
+ * the tag with "</script>" and run a script of its own. The replacement
+ * needs two backslashes: with one, it's just "<" again (that bug was live
+ * from 2026-10-04 to 2026-10-09).
+ */
 export function jsonLdHtml(data: object) {
-  return { __html: JSON.stringify(data).replace(/</g, "\u003c") };
+  return { __html: JSON.stringify(data).replace(/</g, "\\u003c") };
 }

@@ -99,6 +99,38 @@ export default function DeleteAccountPage() {
             </li>
           </ul>
         </section>
+
+        {/* Linked from Google Play's data safety form as the "delete some
+            data" page: /delete-account#some-data. */}
+        <section id="some-data" className="scroll-mt-20">
+          <h2 className="mb-2 font-heading text-xl">Delete only some of your data</h2>
+          <p>You can remove things one at a time and keep your account:</p>
+          <ul className="mt-2 list-disc space-y-1 pl-5">
+            <li>
+              A painting: open it and choose Delete on the website, or Delete
+              painting in the app. Its pictures, hearts and comments go with it.
+            </li>
+            <li>
+              Your profile picture: open your profile, choose Edit profile, then
+              Remove on the website or Remove picture in the app. Your initials
+              show instead.
+            </li>
+            <li>Your bio: clear it in Edit profile and save.</li>
+            <li>A heart: tap the heart again.</li>
+            <li>
+              A comment you wrote: email{" "}
+              <a href={`mailto:${EMAIL}?subject=Delete%20my%20comment`} className={link}>
+                {EMAIL}
+              </a>{" "}
+              the painting&rsquo;s link and which comment. We&rsquo;ll delete
+              it within 30 days and reply when it&rsquo;s done.
+            </li>
+          </ul>
+          <p className="mt-2">
+            Paintings and pictures are deleted right away. Copies can take up to
+            an hour to clear from caches.
+          </p>
+        </section>
       </div>
     </main>
   );

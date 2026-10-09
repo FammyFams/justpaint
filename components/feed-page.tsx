@@ -7,6 +7,7 @@ import { FeedFilter } from "@/components/feed-filter";
 import { getSiteUrl } from "@/lib/site-url";
 import { SITE_DESCRIPTION } from "@/lib/seo";
 import { CHALLENGE_NAME } from "@/lib/october-challenge";
+import { TodayMark } from "@/components/today-mark";
 
 // Every version of the home feed (/, /?challenge=october, /?tag=, /?shown=)
 // is the same page to search engines.
@@ -56,7 +57,9 @@ export async function FeedPage({
         <h1 className="font-heading text-4xl italic leading-none tracking-tight sm:text-5xl">
           JUST PAINT
         </h1>
-        <p className="mt-3 text-muted-foreground">what did you paint today?</p>
+        <p className="mt-3 text-muted-foreground">
+          what did you paint <TodayMark />?
+        </p>
         <p className="mt-1 text-sm text-muted-foreground">
           a painting community for beginners.
         </p>

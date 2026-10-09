@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { TodayMark } from "@/components/today-mark";
 
 export const metadata: Metadata = {
   title: "Terms | justpaint",
@@ -42,7 +43,7 @@ export default function TermsPage() {
               people&rsquo;s work, even with credit.
             </li>
             <li>
-              justpaint is for what you painted today. Please
+              justpaint is for what you painted <TodayMark />. Please
               don&rsquo;t upload older, previously finished paintings.
             </li>
             <li>

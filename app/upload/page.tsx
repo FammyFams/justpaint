@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { UploadForm } from "@/components/upload-form";
+import { TodayMark } from "@/components/today-mark";
 import { getAllTags } from "@/lib/paintings";
 
 export const metadata: Metadata = {
@@ -27,7 +28,7 @@ export default async function UploadPage() {
         Upload painting
       </h1>
       <p className="mt-3 max-w-xl text-muted-foreground">
-        Let&apos;s see what you painted today. No previously done paintings.
+        Let&apos;s see what you painted <TodayMark />. No previously done paintings.
       </p>
 
       <div className="mt-10">

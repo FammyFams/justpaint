@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { TodayMark } from "@/components/today-mark";
 
 export const metadata: Metadata = {
   title: "Support | justpaint",
@@ -52,8 +53,8 @@ export default function SupportPage() {
         <section>
           <h2 className="mb-2 font-heading text-xl">How often can I post?</h2>
           <p>
-            Up to 5 paintings every 16 hours. justpaint is for what you painted
-            today, so come back when you&rsquo;ve painted something new. If you
+            Up to 5 paintings every 16 hours. justpaint is for what you painted{" "}
+            <TodayMark />, so come back when you&rsquo;ve painted something new. If you
             comment a lot in a short time, you&rsquo;ll be asked to take a short
             break.
           </p>

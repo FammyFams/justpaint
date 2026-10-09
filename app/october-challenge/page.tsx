@@ -3,6 +3,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { DownloadCalendarButton, ShareCalendarButton } from "@/components/share-calendar-button";
 import { PaintingGrid } from "@/components/painting-grid";
+import { TodayMark } from "@/components/today-mark";
 import { buttonVariants } from "@/components/ui/button";
 import { getFeed } from "@/lib/paintings";
 import { getSiteUrl } from "@/lib/site-url";
@@ -133,7 +134,7 @@ export default async function OctoberChallengePage() {
         <div className="mt-8 flex flex-wrap items-end justify-between gap-4 rounded-sm border border-border/70 bg-card px-5 py-5 shadow-[0_1px_2px_rgba(0,0,34,0.06)] sm:px-6">
           <div>
             <p className="text-xs font-semibold tracking-widest text-primary uppercase">
-              Today&rsquo;s prompt, day {today}
+              <TodayMark>Today&rsquo;s</TodayMark> prompt, day {today}
             </p>
             <p className="mt-1 font-heading text-3xl italic leading-tight text-foreground">
               {PROMPTS[today - 1]}

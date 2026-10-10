@@ -63,3 +63,12 @@ export async function logoPicture(size: number): Promise<OgPicture> {
 export const SHARE_PICTURE_HEADERS = {
   "cache-control": "s-maxage=86400, stale-while-revalidate=604800",
 };
+
+/**
+ * A painting's share picture (route with `revalidate = 2592000`): 30 days,
+ * since nothing on it changes by itself. Deletes and admin challenge edits
+ * clear it right away.
+ */
+export const PAINTING_PICTURE_HEADERS = {
+  "cache-control": "s-maxage=2592000, stale-while-revalidate=604800",
+};

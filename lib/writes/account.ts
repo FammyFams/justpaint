@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { SERVER_BUSY } from "@/lib/busy";
 import { hashedClientIp, hashedEmail } from "@/lib/client-ip";
 import { allImagePaths } from "@/lib/painting-sizes";
+import { revalidateFeeds, revalidatePaintingsShowing, revalidateProfile } from "@/lib/revalidate";
 import { getSiteUrl } from "@/lib/site-url";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
@@ -151,6 +152,12 @@ export async function updateProfile(
   });
   if (taken) return fail("taken", NAME_TAKEN);
 
+  const { data: before } = await admin
+    .from("profiles")
+    .select("display_name")
+    .eq("id", userId)
+    .maybeSingle();
+
   const bio = parsed.data.bio ?? "";
   const { error } = await admin
     .from("profiles")
@@ -168,10 +175,16 @@ export async function updateProfile(
     return fail("busy", SERVER_BUSY);
   }
 
-  // The name shows on every cached page with this artist's posts or
-  // comments, and the profile address follows it. Renames are rare, so
-  // rebuild everything.
-  revalidatePath("/", "layout");
+  // The bio only shows on the profile. A new name also shows on the feeds,
+  // their posts and the posts they commented on, and the profile moves to a
+  // new address. Never the whole site: people save their profile many times
+  // a day, and each full rebuild cost Active CPU (lib/revalidate.ts).
+  revalidateProfile(userId, parsed.data.displayName);
+  if (before?.display_name !== parsed.data.displayName) {
+    if (before?.display_name) revalidateProfile(userId, before.display_name);
+    revalidateFeeds();
+    await revalidatePaintingsShowing(userId);
+  }
   return { ok: true, profile: { displayName: parsed.data.displayName, bio } };
 }
 

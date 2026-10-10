@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { jakartaFonts } from "@/lib/og-fonts";
-import { SHARE_PICTURE_HEADERS, logoPicture, paintingPicture } from "@/lib/og-images";
+import { PAINTING_PICTURE_HEADERS, logoPicture, paintingPicture } from "@/lib/og-images";
 import { getPaintingById } from "@/lib/paintings";
 import { createPublicClient } from "@/lib/supabase/public";
 import { PROMPTS } from "@/lib/october-challenge";
@@ -8,10 +8,10 @@ import { PROMPTS } from "@/lib/october-challenge";
 // The share preview for a painting. Sites like X and Facebook crop previews
 // to about 2:1, which cut a portrait painting down to a thin strip, so the
 // whole painting sits in a card on the left with its title on the right.
-// Built on the first share and kept for an hour; deleting the post clears it
+// Built on the first share and kept for 30 days; deleting the post clears it
 // sooner (lib/delete-painting.ts), so a removed painting doesn't linger here.
 export const dynamic = "force-static";
-export const revalidate = 86400; // matches SHARE_PICTURE_HEADERS
+export const revalidate = 2592000; // matches PAINTING_PICTURE_HEADERS
 
 export const alt = "A beginner painting shared on justpaint";
 export const size = { width: 1200, height: 630 };
@@ -120,6 +120,6 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         </div>
       </div>
     ),
-    { ...size, fonts, headers: SHARE_PICTURE_HEADERS }
+    { ...size, fonts, headers: PAINTING_PICTURE_HEADERS }
   );
 }

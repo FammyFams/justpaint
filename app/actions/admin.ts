@@ -102,6 +102,8 @@ export async function adminSetOctoberChallengeAction(
   revalidatePath("/admin");
   revalidateFeeds();
   revalidatePath(`/painting/${paintingId}`);
+  // Its share picture shows the challenge day.
+  revalidatePath(`/painting/${paintingId}/opengraph-image`);
   return { success: true };
 }
 

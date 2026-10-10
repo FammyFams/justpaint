@@ -91,8 +91,8 @@ export function ProfileEditForm({ artist }: { artist: Artist }) {
       setRemoving(false);
     }
 
-    // A name or bio save rebuilds every cached page on the site, so skip it
-    // when only the picture changed.
+    // A name or bio save rebuilds cached pages (a new name, every page with
+    // their posts or comments), so skip it when only the picture changed.
     if (values.displayName === artist.displayName && (values.bio ?? "") === artist.bio) {
       return null;
     }

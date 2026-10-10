@@ -1,6 +1,5 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import { revalidatePath } from "next/cache";
 import sharp from "sharp";
 import * as z from "zod";
 import { SERVER_BUSY } from "@/lib/busy";
@@ -8,7 +7,7 @@ import { visitorKey } from "@/lib/client-ip";
 import { deletePaintingRecord } from "@/lib/delete-painting";
 import { allImagePaths, sizedImagePath, SMALL_WIDTHS, type SmallWidth } from "@/lib/painting-sizes";
 import { makeSmallCopies } from "@/lib/resize-painting";
-import { revalidateFeeds } from "@/lib/revalidate";
+import { revalidateFeeds, revalidateProfileById } from "@/lib/revalidate";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hasBlockedWord, NAME_BLOCKED } from "@/lib/text-filter";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, MAX_IMAGE_LABEL } from "@/lib/validations/painting";
@@ -236,7 +235,7 @@ export async function createPainting(
   }
 
   revalidateFeeds();
-  if (ownerId) revalidatePath("/artist/[id]", "page");
+  if (ownerId) await revalidateProfileById(ownerId);
   return { ok: true, paintingId: rpcData as string };
 }
 

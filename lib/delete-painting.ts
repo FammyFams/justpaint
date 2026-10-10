@@ -2,7 +2,7 @@ import "server-only";
 import { revalidatePath } from "next/cache";
 import { allImagePaths } from "@/lib/painting-sizes";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { revalidateFeeds } from "@/lib/revalidate";
+import { revalidateFeeds, revalidateProfileById } from "@/lib/revalidate";
 import type { FailureCode } from "@/lib/writes/result";
 
 // Not a Server Action: this lives outside app/actions and is server-only, so
@@ -53,11 +53,10 @@ export async function deletePaintingRecord(
 
   revalidateFeeds();
   revalidatePath(`/painting/${paintingId}`);
-  // Share pictures are cached for a day; drop this one now so a removed
+  // Share pictures are cached for weeks; drop this one now so a removed
   // painting stops showing up in link previews.
   revalidatePath(`/painting/${paintingId}/opengraph-image`);
-  // "layout" also covers each profile's share picture, which shows the
-  // latest paintings.
-  if (painting.owner_id) revalidatePath("/artist/[id]", "layout");
+  // Also the profile's share picture, which shows the latest paintings.
+  if (painting.owner_id) await revalidateProfileById(painting.owner_id);
   return { success: true, ownerId: painting.owner_id };
 }

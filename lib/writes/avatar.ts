@@ -1,8 +1,8 @@
 import "server-only";
-import { revalidatePath } from "next/cache";
 import sharp from "sharp";
 import { avatarStoragePath } from "@/lib/avatar-url";
 import { SERVER_BUSY } from "@/lib/busy";
+import { revalidatePaintingsShowing, revalidateProfileById } from "@/lib/revalidate";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, MAX_IMAGE_LABEL } from "@/lib/validations/painting";
 import { fail, type WriteFailure } from "@/lib/writes/result";
@@ -26,23 +26,13 @@ function folder(userId: string) {
 }
 
 /**
- * Cached pages that show this person's picture: every profile page (the
- * same rebuild a new post does), the pages of their paintings, and the
- * pages they commented on. Only these, not the whole site, since everyone
- * changing their picture at once shouldn't empty the cache.
+ * Cached pages that show this person's picture: their profile, the pages of
+ * their paintings, and the pages they commented on. Only these, not the
+ * whole site, since everyone changing their picture at once shouldn't empty
+ * the cache.
  */
 async function revalidateAvatarPages(userId: string) {
-  revalidatePath("/artist/[id]", "page");
-  const admin = createAdminClient();
-  const [posts, comments] = await Promise.all([
-    admin.from("paintings").select("id").eq("owner_id", userId),
-    admin.from("comments").select("painting_id").eq("user_id", userId),
-  ]);
-  const ids = new Set([
-    ...(posts.data ?? []).map((p) => p.id),
-    ...(comments.data ?? []).map((c) => c.painting_id),
-  ]);
-  for (const id of ids) revalidatePath(`/painting/${id}`);
+  await Promise.all([revalidateProfileById(userId), revalidatePaintingsShowing(userId)]);
 }
 
 async function currentPath(userId: string): Promise<string | null> {

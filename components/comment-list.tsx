@@ -59,13 +59,13 @@ export function CommentList({
         // Hidden from signed-in browsers until their account arrives.
         <p data-guest-only="" className="text-sm text-muted-foreground">
           <Link
-            href={`/login?next=/painting/${paintingId}`}
+            href={`/login?next=/painting/${paintingId}`} prefetch={false}
             className="text-primary underline underline-offset-2"
           >
             Log in
           </Link>{" "}
           or{" "}
-          <Link href="/signup" className="text-primary underline underline-offset-2">
+          <Link href="/signup" prefetch={false} className="text-primary underline underline-offset-2">
             sign up
           </Link>{" "}
           to comment.
@@ -83,7 +83,7 @@ export function CommentList({
               {/* Same place as the name link next to it, so keyboards and
                   screen readers skip it instead of meeting it twice. */}
               <Link
-                href={artistHref({ id: comment.authorId, displayName: comment.authorName })}
+                href={artistHref({ id: comment.authorId, displayName: comment.authorName })} prefetch={false}
                 aria-hidden
                 tabIndex={-1}
                 className="shrink-0"
@@ -97,7 +97,7 @@ export function CommentList({
               <div className="min-w-0">
                 <div className="flex items-baseline gap-2">
                   <Link
-                    href={artistHref({ id: comment.authorId, displayName: comment.authorName })}
+                    href={artistHref({ id: comment.authorId, displayName: comment.authorName })} prefetch={false}
                     className="text-sm font-medium hover:underline"
                   >
                     {comment.authorName}

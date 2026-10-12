@@ -95,7 +95,7 @@ export default async function PaintingPage({
         <div>
           {painting.octoberChallenge && (
             <Link
-              href="/october-challenge"
+              href="/october-challenge" prefetch={false}
               className="mb-2 inline-block text-xs font-medium tracking-wide text-primary uppercase hover:underline"
             >
               {CHALLENGE_NAME}
@@ -109,7 +109,7 @@ export default async function PaintingPage({
 
           {painting.artistId ? (
             <Link
-              href={artistHref({ id: painting.artistId, displayName: painting.authorName })}
+              href={artistHref({ id: painting.artistId, displayName: painting.authorName })} prefetch={false}
               className="mt-4 flex items-center gap-2.5"
             >
               <ArtistAvatar

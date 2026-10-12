@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { jakartaFonts } from "@/lib/og-fonts";
-import { PAINTING_PICTURE_HEADERS, logoPicture, paintingPicture } from "@/lib/og-images";
+import { PAINTING_PICTURE_HEADERS, asJpeg, logoPicture, paintingPicture } from "@/lib/og-images";
 import { getPaintingById } from "@/lib/paintings";
 import { createPublicClient } from "@/lib/supabase/public";
 import { PROMPTS } from "@/lib/october-challenge";
@@ -15,7 +15,7 @@ export const revalidate = 2592000; // matches PAINTING_PICTURE_HEADERS
 
 export const alt = "A beginner painting shared on justpaint";
 export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+export const contentType = "image/jpeg";
 
 const PAPER = "#fbf5f3";
 const INK = "#000022";
@@ -39,7 +39,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const titleSize = title.length <= 22 ? 64 : title.length <= 44 ? 52 : 42;
   const day = painting?.octoberChallenge ? painting.octoberDay : null;
 
-  return new ImageResponse(
+  const card = new ImageResponse(
     (
       <div
         style={{
@@ -120,6 +120,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         </div>
       </div>
     ),
-    { ...size, fonts, headers: PAINTING_PICTURE_HEADERS }
+    { ...size, fonts }
   );
+  return asJpeg(card, PAINTING_PICTURE_HEADERS);
 }

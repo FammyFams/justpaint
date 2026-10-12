@@ -208,7 +208,7 @@ export function UploadForm({ tags }: { tags: Tag[] }) {
             // Hidden from signed-in browsers until their account arrives.
             <p data-guest-only="" className="text-sm text-muted-foreground">
               Posting as a guest.{" "}
-              <Link href="/login?next=/upload" className="text-primary underline underline-offset-2">
+              <Link href="/login?next=/upload" prefetch={false} className="text-primary underline underline-offset-2">
                 Log in
               </Link>{" "}
               to keep your paintings on a profile.
@@ -314,7 +314,7 @@ export function UploadForm({ tags }: { tags: Tag[] }) {
                   <span>
                     I&rsquo;m 13 or older and agree to the{" "}
                     <Link
-                      href="/terms"
+                      href="/terms" prefetch={false}
                       target="_blank"
                       className="text-primary underline underline-offset-2"
                     >
@@ -322,7 +322,7 @@ export function UploadForm({ tags }: { tags: Tag[] }) {
                     </Link>{" "}
                     and{" "}
                     <Link
-                      href="/privacy"
+                      href="/privacy" prefetch={false}
                       target="_blank"
                       className="text-primary underline underline-offset-2"
                     >
@@ -358,7 +358,7 @@ export function UploadForm({ tags }: { tags: Tag[] }) {
                 <span>
                   This is part of the{" "}
                   <Link
-                    href="/october-challenge"
+                    href="/october-challenge" prefetch={false}
                     target="_blank"
                     className="text-primary underline underline-offset-2"
                   >

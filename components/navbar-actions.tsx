@@ -29,7 +29,7 @@ export function NavbarActions() {
     <div className="flex items-center gap-2">
       {admin && (
         <>
-          <Link href="/admin" className={buttonVariants({ size: "sm", variant: "ghost" })}>
+          <Link href="/admin" prefetch={false} className={buttonVariants({ size: "sm", variant: "ghost" })}>
             <Shield />
             {/* Icon only on phones, but still named for screen readers. */}
             <span className="sr-only sm:not-sr-only">Admin</span>

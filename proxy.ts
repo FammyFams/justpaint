@@ -35,23 +35,27 @@ export async function proxy(request: NextRequest) {
   return supabaseResponse;
 }
 
-// Only for browsers holding a Supabase login cookie: there's no session to
-// refresh otherwise. Every run of this counts toward Vercel's free 4 hours
-// of server CPU a month, and before this it ran on every request, guests
-// and cached pages included. Vercel checks the cookie before starting it.
+// Only where a Server Component reads the session: those can't save a
+// refreshed token themselves (lib/supabase/server.ts), so it's refreshed
+// here first. That's /notifications, /artist/<name>/edit and
+// /reset-password (getCurrentUser). Server actions and route handlers save
+// their own refreshed tokens, and every other page is cached and the same
+// for everyone, so a run there does nothing. Each run is billed Active CPU;
+// running on every signed-in request was about 4,500 runs a day.
 //
-// The name is Supabase's sb-<project ref>-auth-token (AUTH_COOKIE in
-// lib/session-cookie.ts; this config can't import it), plus .0 for a
-// session long enough to be split across cookies. A new Supabase project
-// means a new name here. Static files and images are skipped either way.
+// Only for browsers holding a Supabase login cookie, checked by Vercel
+// before starting it. The name is Supabase's sb-<project ref>-auth-token
+// (AUTH_COOKIE in lib/session-cookie.ts; this config can't import it), plus
+// .0 for a session long enough to be split across cookies. A new Supabase
+// project means a new name here.
 export const config = {
   matcher: [
     {
-      source: "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp|ico|txt|xml)$).*)",
+      source: "/(notifications|reset-password|artist/[^/]+/edit)",
       has: [{ type: "cookie", key: "sb-ptiwywmprtiardksjgad-auth-token" }],
     },
     {
-      source: "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp|ico|txt|xml)$).*)",
+      source: "/(notifications|reset-password|artist/[^/]+/edit)",
       has: [{ type: "cookie", key: "sb-ptiwywmprtiardksjgad-auth-token.0" }],
     },
   ],

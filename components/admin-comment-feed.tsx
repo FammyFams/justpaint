@@ -72,7 +72,7 @@ export function AdminCommentFeed({ initialComments }: { initialComments: AdminCo
               className={`p-3 text-sm transition-colors duration-1000 ${fresh.has(c.id) ? "bg-primary/10" : ""}`}
             >
               <p className="text-muted-foreground">
-                <Link href={artistHref({ id: c.authorId, displayName: c.authorName })} className="font-medium text-foreground hover:underline">
+                <Link href={artistHref({ id: c.authorId, displayName: c.authorName })} prefetch={false} className="font-medium text-foreground hover:underline">
                   {c.authorName}
                 </Link>{" "}
                 on{" "}

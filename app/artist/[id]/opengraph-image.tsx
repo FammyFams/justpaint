@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { jakartaFonts } from "@/lib/og-fonts";
-import { SHARE_PICTURE_HEADERS, logoPicture, paintingPicture, type OgPicture } from "@/lib/og-images";
+import { SHARE_PICTURE_HEADERS, asJpeg, logoPicture, paintingPicture, type OgPicture } from "@/lib/og-images";
 import { findArtist, getPaintingsByArtist } from "@/lib/paintings";
 import { createPublicClient } from "@/lib/supabase/public";
 
@@ -11,7 +11,7 @@ export const revalidate = 86400; // matches SHARE_PICTURE_HEADERS
 
 export const alt = "Paintings by an artist on justpaint";
 export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+export const contentType = "image/jpeg";
 
 const PAPER = "#fbf5f3";
 const INK = "#000022";
@@ -51,7 +51,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const nameSize = Math.max(36, Math.min(84, Math.floor(440 / (0.62 * name.length))));
   const count = paintings.length;
 
-  return new ImageResponse(
+  const card = new ImageResponse(
     (
       <div
         style={{
@@ -147,6 +147,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         )}
       </div>
     ),
-    { ...size, fonts, headers: SHARE_PICTURE_HEADERS }
+    { ...size, fonts }
   );
+  return asJpeg(card, SHARE_PICTURE_HEADERS);
 }

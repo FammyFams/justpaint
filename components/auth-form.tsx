@@ -268,7 +268,7 @@ export function SignupForm() {
                 <span>
                   I&rsquo;m 13 or older and agree to the{" "}
                   <Link
-                    href="/terms"
+                    href="/terms" prefetch={false}
                     target="_blank"
                     className="text-primary underline underline-offset-2"
                   >
@@ -276,7 +276,7 @@ export function SignupForm() {
                   </Link>{" "}
                   and{" "}
                   <Link
-                    href="/privacy"
+                    href="/privacy" prefetch={false}
                     target="_blank"
                     className="text-primary underline underline-offset-2"
                   >

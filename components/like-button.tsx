@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useViewer } from "@/components/viewer";
 import { cn } from "@/lib/utils";
-import { setHeartAction } from "@/app/actions/hearts";
 
 const HEARTED_KEY = "jp_hearted";
 
@@ -41,7 +40,7 @@ function HeartButton({
   compact,
 }: {
   paintingId: string;
-  /** The page's count. Cached pages can be a few minutes behind. */
+  /** The page's count. Cached pages can be up to an hour behind. */
   initialCount: number;
   /** Small ghost-style heart for feed cards. */
   compact?: boolean;
@@ -80,8 +79,13 @@ function HeartButton({
 
     startTransition(async () => {
       try {
-        const result = await setHeartAction(paintingId, next);
-        if ("error" in result) throw new Error(result.error);
+        const res = await fetch(`/api/hearts/${paintingId}`, {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ hearted: next }),
+        });
+        if (!res.ok) throw new Error(`heart save failed: ${res.status}`);
+        const result: { count: number } = await res.json();
         viewer.setHeart(paintingId, next, result.count);
       } catch {
         show(!next, before);

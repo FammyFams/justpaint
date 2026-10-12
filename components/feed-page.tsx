@@ -64,7 +64,7 @@ export async function FeedPage({
           a painting community for beginners.
         </p>
         <Link
-          href="/october-challenge"
+          href="/october-challenge" prefetch={false}
           className="mt-3 inline-block text-sm font-medium text-primary underline underline-offset-2 hover:decoration-2"
         >
           {CHALLENGE_NAME}: rules and prompts &rarr;

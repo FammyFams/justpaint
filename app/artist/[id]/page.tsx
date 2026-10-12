@@ -8,8 +8,8 @@ import { artistJsonLd, jsonLdHtml } from "@/lib/seo";
 import { CanonicalAddress } from "@/components/address-query";
 
 // Cached per artist and the same for everyone. New posts, deletes and
-// renames rebuild it right away; heart counts catch up within 10 minutes.
-export const revalidate = 600;
+// renames rebuild it right away; heart counts catch up within an hour.
+export const revalidate = 3600;
 
 // None built ahead of time: each profile is built on its first visit.
 export async function generateStaticParams() {

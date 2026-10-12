@@ -9,7 +9,7 @@ export function EditProfileLink({ artistId, href }: { artistId: string; href: st
   const { user } = useViewer();
   if (user?.id !== artistId) return null;
   return (
-    <Link href={href} className={buttonVariants({ variant: "outline" })}>
+    <Link href={href} prefetch={false} className={buttonVariants({ variant: "outline" })}>
       Edit profile
     </Link>
   );

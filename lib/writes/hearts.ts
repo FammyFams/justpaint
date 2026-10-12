@@ -6,8 +6,8 @@ import { visitorKey } from "@/lib/client-ip";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fail, type WriteFailure } from "@/lib/writes/result";
 
-// Hearts, shared by the website's server action (app/actions/hearts.ts) and
-// the app API (app/api/app/v1/hearts/*), so both follow the same rules.
+// Hearts, shared by the website (app/api/hearts/*) and the app API
+// (app/api/app/v1/hearts/*), so both follow the same rules.
 
 const GONE = "That painting no longer exists.";
 

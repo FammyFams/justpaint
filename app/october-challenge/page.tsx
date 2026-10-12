@@ -80,9 +80,9 @@ const ABOUT = [
 ];
 
 // Cached and the same for everyone. New entries show right away
-// (lib/revalidate.ts); today's prompt turns over within 10 minutes of
-// midnight Pacific.
-export const revalidate = 600;
+// (lib/revalidate.ts); today's prompt turns over within an hour of
+// midnight Pacific, or with the first post after it.
+export const revalidate = 3600;
 
 export default async function OctoberChallengePage() {
   const today = octoberDay();
@@ -142,7 +142,7 @@ export default async function OctoberChallengePage() {
           </div>
           {/* Circled by hand, like circling something on paper. */}
           <Link
-            href="/upload"
+            href="/upload" prefetch={false}
             className="group relative inline-block px-4 py-2 text-base font-semibold text-foreground"
           >
             <svg
@@ -178,7 +178,7 @@ export default async function OctoberChallengePage() {
                 ) : (
                   <>
                     {before}
-                    <Link href="/upload" className={LINK}>
+                    <Link href="/upload" prefetch={false} className={LINK}>
                       justpaint.art
                     </Link>
                     {after}
@@ -319,7 +319,7 @@ export default async function OctoberChallengePage() {
         <h2 className="mb-2 font-heading text-xl">How to enter</h2>
         <p>
           When you{" "}
-          <Link href="/upload" className={LINK}>
+          <Link href="/upload" prefetch={false} className={LINK}>
             post a painting
           </Link>
           , tick &ldquo;This is part of the {CHALLENGE_NAME}&rdquo; and pick the

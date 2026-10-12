@@ -19,8 +19,8 @@ interface ViewerContextValue {
   /** Signed-in user's hearted paintings. Guests' hearts live in localStorage (like-button.tsx). */
   hearted: ReadonlySet<string>;
   /**
-   * Heart counts from hearts given during this visit. Cached pages can be a
-   * few minutes behind, so these win over a page's own count.
+   * Heart counts from hearts given during this visit. Cached pages can be up
+   * to an hour behind, so these win over a page's own count.
    */
   heartCounts: ReadonlyMap<string, number>;
   setHeart: (paintingId: string, hearted: boolean, count: number) => void;

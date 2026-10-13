@@ -13,13 +13,16 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { deleteAccountAction } from "@/app/actions/account";
+import { useViewer } from "@/components/viewer";
 
 export function DeleteAccountButton() {
   const [open, setOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const { expectLogout } = useViewer();
 
   async function handleDelete() {
     setDeleting(true);
+    expectLogout();
     try {
       const result = await deleteAccountAction();
       if (result && "error" in result) {

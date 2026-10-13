@@ -84,6 +84,12 @@ function HeartButton({
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ hearted: next }),
         });
+        if (res.status === 401) {
+          // The login ended (app/api/hearts): no guest heart, just the logged-out view.
+          show(!next, before);
+          viewer.loginEnded();
+          return;
+        }
         if (!res.ok) throw new Error(`heart save failed: ${res.status}`);
         const result: { count: number } = await res.json();
         viewer.setHeart(paintingId, next, result.count);

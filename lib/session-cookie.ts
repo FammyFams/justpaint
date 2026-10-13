@@ -15,3 +15,8 @@ export const SESSION_COOKIE_PATTERN = `(?:^|; )(?:${AUTH_COOKIE}(?:\\.\\d+)?|${A
 export function hasSessionCookie(cookies: string): boolean {
   return new RegExp(SESSION_COOKIE_PATTERN).test(cookies);
 }
+
+/** Just Supabase's login cookie, without the admin flag. */
+export function hasLoginCookie(cookies: string): boolean {
+  return new RegExp(`(?:^|; )${AUTH_COOKIE}(?:\\.\\d+)?=`).test(cookies);
+}

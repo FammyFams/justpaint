@@ -1,7 +1,7 @@
 "use server";
 
 import { isAdmin } from "@/lib/admin";
-import { getCurrentUser } from "@/lib/current-user";
+import { getCurrentSession } from "@/lib/current-user";
 import { getAllHeartedIds } from "@/lib/hearts";
 import { getUnreadCount } from "@/lib/notifications";
 
@@ -12,6 +12,8 @@ export interface Viewer {
   unread: number;
   /** Paintings this account has hearted, so hearts show filled on any device. */
   heartedIds: string[];
+  /** The browser sent a login whose session is over; its cookies were just deleted. */
+  loggedOut: boolean;
 }
 
 /**
@@ -22,8 +24,8 @@ export interface Viewer {
  * (components/viewer.tsx). Guests never call it.
  */
 export async function getViewerAction(): Promise<Viewer> {
-  const [admin, user] = await Promise.all([isAdmin(), getCurrentUser()]);
-  if (!user) return { user: null, admin, unread: 0, heartedIds: [] };
+  const [admin, { user, ended }] = await Promise.all([isAdmin(), getCurrentSession()]);
+  if (!user) return { user: null, admin, unread: 0, heartedIds: [], loggedOut: ended };
 
   const [unread, heartedIds] = await Promise.all([
     getUnreadCount(user.id),
@@ -34,5 +36,6 @@ export async function getViewerAction(): Promise<Viewer> {
     admin,
     unread,
     heartedIds,
+    loggedOut: false,
   };
 }

@@ -9,6 +9,7 @@ import { ArtistAvatar } from "@/components/artist-avatar";
 import { Badge } from "@/components/ui/badge";
 import { LikeButton } from "@/components/like-button";
 import { CommentList } from "@/components/comment-list";
+import { PostedToast } from "@/components/posted-toast";
 import { formatDate } from "@/lib/format";
 import { CHALLENGE_NAME, PROMPTS } from "@/lib/october-challenge";
 import { jsonLdHtml, paintingJsonLd } from "@/lib/seo";
@@ -68,6 +69,7 @@ export default async function PaintingPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={jsonLdHtml(paintingJsonLd(painting, comments.length))}
       />
+      <PostedToast paintingId={painting.id} />
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.3fr_1fr]">
         <div className="rounded-sm border border-border/70 bg-card p-3 shadow-[0_1px_2px_rgba(0,0,34,0.06)] sm:p-4">
           <div className="relative w-full overflow-hidden rounded-[2px] bg-muted">

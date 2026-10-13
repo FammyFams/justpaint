@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -28,6 +28,7 @@ import { compressImage } from "@/lib/compress-image";
 import { CHALLENGE_NAME, PROMPTS, octoberDay } from "@/lib/october-challenge";
 import type { Tag } from "@/lib/types";
 import { useViewer } from "@/components/viewer";
+import { POSTED_KEY } from "@/components/posted-toast";
 
 function detectAspect(file: File): Promise<"portrait" | "landscape" | "square"> {
   return new Promise((resolve) => {
@@ -56,6 +57,9 @@ export function UploadForm({ tags }: { tags: Tag[] }) {
   const [preview, setPreview] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [preparing, setPreparing] = useState(false);
+  // Stays true until the new painting's page is on screen, so the button
+  // keeps saying "Posting…" through the page change.
+  const [navigating, startNavigation] = useTransition();
 
   const form = useForm<PaintingFormValues>({
     resolver: zodResolver(paintingSchema),
@@ -113,10 +117,16 @@ export function UploadForm({ tags }: { tags: Tag[] }) {
       return;
     }
 
-    form.reset();
-    setPreview(null);
-    router.push(`/painting/${result.paintingId}`);
+    // The painting's page says "Posted successfully." once it's on screen.
+    try {
+      sessionStorage.setItem(POSTED_KEY, result.paintingId);
+    } catch {}
+    // No form.reset() here: clearing it showed an empty form for a moment
+    // before the painting page loaded. Leaving the page clears it anyway.
+    startNavigation(() => router.push(`/painting/${result.paintingId}`));
   }
+
+  const posting = form.formState.isSubmitting || navigating;
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} noValidate>
@@ -414,16 +424,16 @@ export function UploadForm({ tags }: { tags: Tag[] }) {
 
           {/* Says out loud what the button's label shows while it's busy. */}
           <p role="status" className="sr-only">
-            {preparing ? "Preparing image" : form.formState.isSubmitting ? "Posting" : ""}
+            {preparing ? "Preparing image" : posting ? "Posting" : ""}
           </p>
           <div className="flex justify-end">
             <Button
               type="submit"
-              disabled={preparing || form.formState.isSubmitting}
+              disabled={preparing || posting}
             >
               {preparing
                 ? "Preparing image…"
-                : form.formState.isSubmitting
+                : posting
                   ? "Posting…"
                   : "Post painting"}
             </Button>

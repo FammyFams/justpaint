@@ -23,10 +23,11 @@ const NAME_TAKEN = "That display name is taken. Try another.";
 
 // Supabase's own auth limits see the server's IP, not the visitor's, so count
 // tries here: sign-in 10 per 15 minutes per IP and per email, sign-up 5 per
-// hour per IP, password reset 3 per hour per IP and per email
-// (claim_auth_attempt). Returns a failure, or null to go on.
+// hour per IP, password reset 3 per hour per IP and per email, "send a new
+// link" 5 per hour per IP and per email (claim_auth_attempt). Returns a
+// failure, or null to go on.
 export async function claimAuthAttempt(
-  kind: "sign_in" | "sign_up" | "password_reset",
+  kind: "sign_in" | "sign_up" | "password_reset" | "confirm_resend",
   email?: string
 ): Promise<WriteFailure | null> {
   const { error } = await createAdminClient().rpc("claim_auth_attempt", {
@@ -42,10 +43,11 @@ export async function claimAuthAttempt(
     console.error("claim_auth_attempt missing: apply migration 20260930000001");
     return null;
   }
-  // 23514: the table doesn't allow password_reset yet (migration
-  // 20261003000001 not applied). Supabase's own email limits still apply.
+  // 23514: the table doesn't allow this kind yet (password_reset: migration
+  // 20261003000001, confirm_resend: 20261023000001, not applied). Supabase's
+  // own email limits still apply.
   if (error.code === "23514") {
-    console.error("password_reset limit missing: apply migration 20261003000001");
+    console.error(`${kind} limit missing: apply its migration`);
     return null;
   }
   console.error("claim_auth_attempt failed", error);

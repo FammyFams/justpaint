@@ -22,6 +22,10 @@ export const forgotPasswordSchema = z.object({
   email: z.email("Enter a valid email"),
 });
 
+export const resendConfirmationSchema = z.object({
+  email: z.email("Enter a valid email"),
+});
+
 export const resetPasswordSchema = z
   .object({
     password: newPasswordSchema,
@@ -36,3 +40,4 @@ export type LoginFormValues = z.infer<typeof loginSchema>;
 export type SignupFormValues = z.infer<typeof signupSchema>;
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+export type ResendConfirmationFormValues = z.infer<typeof resendConfirmationSchema>;

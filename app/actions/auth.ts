@@ -7,6 +7,7 @@ import { safeNext } from "@/lib/safe-next";
 import {
   forgotPasswordSchema,
   loginSchema,
+  resendConfirmationSchema,
   resetPasswordSchema,
 } from "@/lib/validations/auth";
 import { authFailure, claimAuthAttempt, signUp } from "@/lib/writes/account";
@@ -28,10 +29,22 @@ export async function signUpAction(values: {
   return { success: true, needsConfirmation: true };
 }
 
+// Sending an email: Supabase waits 60 seconds between emails to one address
+// and sends at most 30 auth emails an hour in all; Resend sends 100 a day.
+function emailFailure(error: { message: string; code?: string; status?: number }) {
+  if (error.status === 429 || error.code === "over_email_send_rate_limit") {
+    return { error: "The server can't send another email yet. Wait a few minutes and try again." };
+  }
+  if (error.message.toLowerCase().includes("error sending")) {
+    return { error: "The server is busy and couldn't send the email. Try again later." };
+  }
+  return { error: authFailure(error).error };
+}
+
 export async function signInAction(
   values: { email: string; password: string },
   next?: string
-): Promise<{ error: string } | undefined> {
+): Promise<{ error: string; unconfirmed?: boolean } | undefined> {
   const parsed = loginSchema.safeParse(values);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
@@ -44,10 +57,40 @@ export async function signInAction(
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
+    // Their confirmation link expired or never came; the form offers a new one.
+    if (error.code === "email_not_confirmed") {
+      return { error: authFailure(error).error, unconfirmed: true };
+    }
     return { error: authFailure(error).error };
   }
 
   redirect(safeNext(next));
+}
+
+// Sends the "confirm your email" link again, for one that expired or never
+// came. Supabase answers the same way when the email has no account or is
+// already confirmed (and sends nothing), so the form can't be used to look up
+// who's signed up.
+export async function resendConfirmationAction(values: {
+  email: string;
+}): Promise<{ error: string } | { success: true }> {
+  const parsed = resendConfirmationSchema.safeParse(values);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  }
+
+  const limited = await claimAuthAttempt("confirm_resend", parsed.data.email);
+  if (limited) return { error: limited.error };
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email: parsed.data.email,
+    options: { emailRedirectTo: `${getSiteUrl()}/auth/confirm` },
+  });
+
+  if (error) return emailFailure(error);
+  return { success: true };
 }
 
 // Answers the same way whether or not the email has an account (Supabase
@@ -71,18 +114,7 @@ export async function requestPasswordResetAction(values: {
     redirectTo: `${getSiteUrl()}/auth/confirm?next=/reset-password`,
   });
 
-  if (error) {
-    // Supabase waits 60 seconds between emails to one address and sends at
-    // most 30 auth emails an hour in all.
-    if (error.status === 429 || error.code === "over_email_send_rate_limit") {
-      return { error: "The server can't send another email yet. Wait a few minutes and try again." };
-    }
-    if (error.message.toLowerCase().includes("error sending")) {
-      return { error: "The server is busy and couldn't send the email. Try again later." };
-    }
-    return { error: authFailure(error).error };
-  }
-
+  if (error) return emailFailure(error);
   return { success: true };
 }
 

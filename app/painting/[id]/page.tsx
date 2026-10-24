@@ -15,9 +15,12 @@ import { CHALLENGE_NAME, PROMPTS } from "@/lib/october-challenge";
 import { jsonLdHtml, paintingJsonLd } from "@/lib/seo";
 
 // Cached per painting and the same for everyone; the heart, delete and
-// comment buttons fill in from the browser. Hearts, comments and deletes
-// rebuild the page right away (revalidatePath in their actions).
-export const revalidate = 86400;
+// comment buttons fill in from the browser. Everything that changes the page
+// rebuilds it right away: hearts, comments, deletes, the artist's or a
+// commenter's name or picture (revalidatePaintingsShowing), the challenge
+// checkbox. So the 30 days is only a backstop: at 1 day, crawlers going
+// through old posts set off ~370 rebuilds a day that changed nothing.
+export const revalidate = 2592000;
 
 // None built ahead of time: each painting is built on its first visit, then
 // cached.

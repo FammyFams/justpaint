@@ -10,7 +10,7 @@ import { avatarUrlOrNull } from "@/lib/avatar-url";
 
 const PAINTING_SELECT = `
   id, title, description, image_path, aspect, owner_id, guest_name, created_at, heart_count,
-  october_challenge, october_day,
+  challenge, challenge_day,
   profiles!paintings_owner_id_fkey ( display_name, avatar_url ),
   paintings_tags ( tags ( id, name, slug ) )
 `;
@@ -25,8 +25,8 @@ interface PaintingRow {
   guest_name: string | null;
   created_at: string;
   heart_count: number;
-  october_challenge: boolean;
-  october_day: number | null;
+  challenge: string | null;
+  challenge_day: number | null;
   profiles: { display_name: string; avatar_url: string | null } | null;
   paintings_tags: { tags: { id: string; name: string; slug: string } | null }[];
 }
@@ -58,8 +58,8 @@ function toPainting(
     // in migration 20260926000002).
     likeCount: row.heart_count,
     createdAt: row.created_at,
-    octoberChallenge: row.october_challenge,
-    octoberDay: row.october_day,
+    challenge: row.challenge,
+    challengeDay: row.challenge_day,
   };
 }
 
@@ -84,12 +84,13 @@ export interface FeedPage {
 
 export async function getFeed({
   tag: tagSlug,
-  octoberChallenge = false,
+  challenge,
   limit,
   withCount = false,
 }: {
   tag?: string;
-  octoberChallenge?: boolean;
+  /** Only this challenge's entries (an id from lib/challenges.ts). */
+  challenge?: string;
   limit: number;
   withCount?: boolean;
 }): Promise<FeedPage> {
@@ -117,11 +118,11 @@ export async function getFeed({
   if (paintingIds) {
     query = query.in("id", paintingIds);
   }
-  if (octoberChallenge) {
+  if (challenge) {
     // Grouped by prompt day, newest day first; posts with no day go last.
     query = query
-      .eq("october_challenge", true)
-      .order("october_day", { ascending: false, nullsFirst: false });
+      .eq("challenge", challenge)
+      .order("challenge_day", { ascending: false, nullsFirst: false });
   }
   query = query.order("created_at", { ascending: false }).limit(limit + 1);
 

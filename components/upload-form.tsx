@@ -25,7 +25,7 @@ import {
 import { createPaintingAction } from "@/app/actions/paintings";
 import { TagSelect } from "@/components/tag-select";
 import { compressImage } from "@/lib/compress-image";
-import { CHALLENGE_NAME, PROMPTS, octoberDay } from "@/lib/october-challenge";
+import { CURRENT_CHALLENGE as CHALLENGE, challengeDay, challengePath } from "@/lib/challenges";
 import type { Tag } from "@/lib/types";
 import { useViewer } from "@/components/viewer";
 import { POSTED_KEY } from "@/components/posted-toast";
@@ -69,11 +69,11 @@ export function UploadForm({ tags }: { tags: Tag[] }) {
       description: "",
       tags: [],
       agreedToTerms: false,
-      octoberChallenge: false,
+      inChallenge: false,
     },
   });
   // The day picker only shows once the challenge box is ticked.
-  const inChallenge = useWatch({ control: form.control, name: "octoberChallenge" });
+  const inChallenge = useWatch({ control: form.control, name: "inChallenge" });
 
   async function onSubmit(values: PaintingFormValues) {
     setFormError(null);
@@ -86,8 +86,8 @@ export function UploadForm({ tags }: { tags: Tag[] }) {
       form.setError("name", { message: "Add your name" });
       return;
     }
-    if (values.octoberChallenge && !values.octoberDay) {
-      form.setError("octoberDay", { message: "Pick which day it's for" });
+    if (values.inChallenge && !values.challengeDay) {
+      form.setError("challengeDay", { message: "Pick which day it's for" });
       return;
     }
 
@@ -102,8 +102,8 @@ export function UploadForm({ tags }: { tags: Tag[] }) {
         image: values.image,
         guestName: currentUser ? undefined : values.name,
         agreedToTerms: values.agreedToTerms,
-        octoberChallenge: values.octoberChallenge,
-        octoberDay: values.octoberChallenge ? values.octoberDay : undefined,
+        challenge: values.inChallenge ? CHALLENGE.id : undefined,
+        challengeDay: values.inChallenge ? values.challengeDay : undefined,
       });
     } catch {
       setFormError(
@@ -347,7 +347,7 @@ export function UploadForm({ tags }: { tags: Tag[] }) {
           />
 
           <Controller
-            name="octoberChallenge"
+            name="inChallenge"
             control={form.control}
             render={({ field }) => (
               <label className="flex items-start gap-2.5 text-sm">
@@ -356,10 +356,11 @@ export function UploadForm({ tags }: { tags: Tag[] }) {
                   checked={field.value}
                   onChange={(e) => {
                     field.onChange(e.target.checked);
-                    // During October, start the day on today's prompt.
-                    if (e.target.checked && !form.getValues("octoberDay")) {
-                      const today = octoberDay();
-                      if (today) form.setValue("octoberDay", today);
+                    // During the challenge's month, start the day on today's
+                    // prompt.
+                    if (e.target.checked && !form.getValues("challengeDay")) {
+                      const today = challengeDay(CHALLENGE);
+                      if (today) form.setValue("challengeDay", today);
                     }
                   }}
                   onBlur={field.onBlur}
@@ -368,11 +369,11 @@ export function UploadForm({ tags }: { tags: Tag[] }) {
                 <span>
                   This is part of the{" "}
                   <Link
-                    href="/october-challenge" prefetch={false}
+                    href={challengePath(CHALLENGE)} prefetch={false}
                     target="_blank"
                     className="text-primary underline underline-offset-2"
                   >
-                    {CHALLENGE_NAME}
+                    {CHALLENGE.name}
                   </Link>
                   .
                 </span>
@@ -382,18 +383,18 @@ export function UploadForm({ tags }: { tags: Tag[] }) {
 
           {inChallenge && (
             <Controller
-              name="octoberDay"
+              name="challengeDay"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid} className="pl-6.5">
-                  <FieldLabel htmlFor="octoberDay">Which day?</FieldLabel>
+                  <FieldLabel htmlFor="challengeDay">Which day?</FieldLabel>
                   <div className="relative">
                     <select
-                      id="octoberDay"
+                      id="challengeDay"
                       value={field.value ?? ""}
                       onChange={(e) => {
                         field.onChange(e.target.value ? Number(e.target.value) : undefined);
-                        form.clearErrors("octoberDay");
+                        form.clearErrors("challengeDay");
                       }}
                       onBlur={field.onBlur}
                       aria-invalid={fieldState.invalid}
@@ -402,11 +403,14 @@ export function UploadForm({ tags }: { tags: Tag[] }) {
                       <option value="" disabled>
                         Pick a day
                       </option>
-                      {PROMPTS.map((prompt, i) => (
-                        <option key={i} value={i + 1}>
-                          Oct {i + 1}: {prompt}
-                        </option>
-                      ))}
+                      {CHALLENGE.prompts.map((prompt, i) => {
+                        const date = `${CHALLENGE.month.slice(0, 3)} ${i + 1}`;
+                        return (
+                          <option key={i} value={i + 1}>
+                            {prompt ? `${date}: ${prompt}` : date}
+                          </option>
+                        );
+                      })}
                     </select>
                     <ChevronDown className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground" />
                   </div>

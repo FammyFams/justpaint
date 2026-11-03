@@ -262,6 +262,8 @@ export type Database = {
       paintings: {
         Row: {
           aspect: string
+          challenge: string | null
+          challenge_day: number | null
           created_at: string
           description: string
           guest_name: string | null
@@ -277,6 +279,8 @@ export type Database = {
         }
         Insert: {
           aspect?: string
+          challenge?: string | null
+          challenge_day?: number | null
           created_at?: string
           description?: string
           guest_name?: string | null
@@ -292,6 +296,8 @@ export type Database = {
         }
         Update: {
           aspect?: string
+          challenge?: string | null
+          challenge_day?: number | null
           created_at?: string
           description?: string
           guest_name?: string | null

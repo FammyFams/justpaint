@@ -7,6 +7,7 @@ import { FEED_LOAD_MORE_SIZE, FEED_MAX } from "@/lib/feed";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Painting } from "@/lib/types";
+import { challengeBySlug } from "@/lib/challenges";
 
 // Saved on this page's own history entry, so Back from a painting brings
 // the same posts and scroll spot, while a fresh visit starts at the top.
@@ -50,16 +51,17 @@ export function HomeFeed({
   initialPaintings,
   initialHasMore,
   tag,
-  octoberChallenge,
+  challenge,
   emptyHint,
 }: {
   initialPaintings: Painting[];
   initialHasMore: boolean;
   tag?: string;
-  octoberChallenge: boolean;
+  /** A challenge tab (its slug), grouped by day. */
+  challenge?: string;
   emptyHint?: string;
 }) {
-  const filter = `${tag ?? ""}|${octoberChallenge}`;
+  const filter = `${tag ?? ""}|${challenge ?? ""}`;
   // Back from a painting: start with the posts the visitor had, so the first
   // frame is already the full feed instead of the first posts and then a jump.
   const [restored] = useState(() => {
@@ -76,7 +78,7 @@ export function HomeFeed({
 
   const params = new URLSearchParams();
   if (tag) params.set("tag", tag);
-  if (octoberChallenge) params.set("challenge", "october");
+  if (challenge) params.set("challenge", challenge);
   params.set("shown", String(shown + FEED_LOAD_MORE_SIZE));
   const moreHref = `/?${params}`;
 
@@ -84,7 +86,7 @@ export function HomeFeed({
     setLoading(true);
     setFailed(false);
     try {
-      const result = await loadFeedAction({ tag, octoberChallenge, shown: count });
+      const result = await loadFeedAction({ tag, challenge, shown: count });
       if ("error" in result) {
         setFailed(true);
         return false;
@@ -155,7 +157,7 @@ export function HomeFeed({
       <PaintingGrid
         paintings={paintings}
         emptyHint={emptyHint}
-        groupByOctoberDay={octoberChallenge}
+        groupByChallenge={challengeBySlug(challenge)}
       />
       {hasMore && shown < FEED_MAX && (
         <div className="mt-10 flex flex-col items-center gap-2">

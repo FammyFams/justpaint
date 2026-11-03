@@ -43,8 +43,8 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    // The home feed is cached at / (all posts) and /feed/october (the
-    // October tab), and built per request at /feed for a tag or a longer
+    // The home feed is cached at / (all posts) and /feed/november (each
+    // challenge's tab), and built per request at /feed for a tag or a longer
     // list. Visitors keep seeing / with its query in the address bar.
     // Link to these with a plain <a>, never <Link>: Next's router treats any
     // /?query as the home page it already has and never asks the server, so
@@ -55,8 +55,9 @@ const nextConfig: NextConfig = {
         { source: "/", has: [{ type: "query", key: "shown" }], destination: "/feed" },
         {
           source: "/",
-          has: [{ type: "query", key: "challenge", value: "october" }],
-          destination: "/feed/october",
+          // Every challenge's slug (lib/challenges.ts).
+          has: [{ type: "query", key: "challenge", value: "(?<challenge>october|november)" }],
+          destination: "/feed/:challenge",
         },
       ],
     };

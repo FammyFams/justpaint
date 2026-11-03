@@ -11,7 +11,7 @@ import { LikeButton } from "@/components/like-button";
 import { CommentList } from "@/components/comment-list";
 import { PostedToast } from "@/components/posted-toast";
 import { formatDate } from "@/lib/format";
-import { CHALLENGE_NAME, PROMPTS } from "@/lib/october-challenge";
+import { challengeById, challengePath, promptFor } from "@/lib/challenges";
 import { jsonLdHtml, paintingJsonLd } from "@/lib/seo";
 
 // Cached per painting and the same for everyone; the heart, delete and
@@ -63,6 +63,8 @@ export default async function PaintingPage({
   const { id } = await params;
   const painting = await getPaintingById(id);
   if (!painting) notFound();
+  const challenge = challengeById(painting.challenge);
+  const prompt = challenge ? promptFor(challenge, painting.challengeDay) : null;
 
   const comments = await getCommentsForPainting(painting.id);
 
@@ -98,14 +100,14 @@ export default async function PaintingPage({
         </div>
 
         <div>
-          {painting.octoberChallenge && (
+          {challenge && (
             <Link
-              href="/october-challenge" prefetch={false}
+              href={challengePath(challenge)} prefetch={false}
               className="mb-2 inline-block text-xs font-medium tracking-wide text-primary uppercase hover:underline"
             >
-              {CHALLENGE_NAME}
-              {painting.octoberDay &&
-                ` · Day ${painting.octoberDay}: ${PROMPTS[painting.octoberDay - 1]}`}
+              {challenge.name}
+              {painting.challengeDay && ` · Day ${painting.challengeDay}`}
+              {prompt && `: ${prompt}`}
             </Link>
           )}
           <h1 className="font-heading text-3xl italic leading-tight sm:text-4xl">

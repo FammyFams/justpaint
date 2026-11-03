@@ -31,10 +31,10 @@ export interface Painting {
   tags: Tag[];
   likeCount: number;
   createdAt: string;
-  /** Entered in the October painting challenge. */
-  octoberChallenge: boolean;
-  /** Day of the October challenge prompt it's for (1 = October 1), if any. */
-  octoberDay: number | null;
+  /** The challenge it was entered in (an id from lib/challenges.ts), if any. */
+  challenge: string | null;
+  /** Which day's prompt it's for (1 = the 1st), if any. */
+  challengeDay: number | null;
 }
 
 export interface Artist {

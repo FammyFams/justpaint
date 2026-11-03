@@ -1,11 +1,11 @@
 import type { Painting } from "@/lib/types";
 import { PaintingCard } from "@/components/painting-card";
-import { PROMPTS } from "@/lib/october-challenge";
+import { promptFor, type Challenge } from "@/lib/challenges";
 
 export function PaintingGrid({
   paintings,
   emptyHint = "Try a different tag, or check back soon.",
-  groupByOctoberDay = false,
+  groupByChallenge,
   narrow = false,
   underHeading = false,
 }: {
@@ -13,10 +13,10 @@ export function PaintingGrid({
   /** Second line of the empty state. */
   emptyHint?: string;
   /**
-   * Splits the posts under a heading per challenge day ("October 22 · Pumpkin
+   * Splits this challenge's posts under a heading per day ("October 22 · Pumpkin
    * pie"). Expects them already sorted by day.
    */
-  groupByOctoberDay?: boolean;
+  groupByChallenge?: Challenge;
   /** At most three columns, for pages narrower than the home feed. */
   narrow?: boolean;
   /** The grid sits under its own h2, so painting titles are h3s. */
@@ -36,7 +36,7 @@ export function PaintingGrid({
   }
 
   // Day headings are h2s, so titles under them are h3s.
-  const titleAs = underHeading || groupByOctoberDay ? "h3" : "h2";
+  const titleAs = underHeading || groupByChallenge ? "h3" : "h2";
 
   const renderGrid = (items: Painting[], offset: number) => (
     <div
@@ -53,14 +53,14 @@ export function PaintingGrid({
     </div>
   );
 
-  if (!groupByOctoberDay) return renderGrid(paintings, 0);
+  if (!groupByChallenge) return renderGrid(paintings, 0);
 
   // Consecutive posts for the same day share one section.
   const groups: { day: number | null; items: Painting[]; offset: number }[] = [];
   paintings.forEach((painting, i) => {
     const last = groups.at(-1);
-    if (last && last.day === painting.octoberDay) last.items.push(painting);
-    else groups.push({ day: painting.octoberDay, items: [painting], offset: i });
+    if (last && last.day === painting.challengeDay) last.items.push(painting);
+    else groups.push({ day: painting.challengeDay, items: [painting], offset: i });
   });
 
   return (
@@ -71,10 +71,10 @@ export function PaintingGrid({
             {group.day ? (
               <>
                 <span className="text-xs font-semibold tracking-widest text-primary uppercase">
-                  October {group.day}
+                  {groupByChallenge.month} {group.day}
                 </span>
                 <span className="font-heading text-2xl font-semibold text-foreground">
-                  {PROMPTS[group.day - 1]}
+                  {promptFor(groupByChallenge, group.day)}
                 </span>
               </>
             ) : (

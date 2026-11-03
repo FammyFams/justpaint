@@ -72,7 +72,7 @@ export default function AccessibilityPage() {
               so how well a painting is described depends on them.
             </li>
             <li>
-              The October challenge calendar is also a picture. Every prompt in
+              Each painting challenge calendar is also a picture. Every prompt in
               it is listed as text on the same page.
             </li>
           </ul>

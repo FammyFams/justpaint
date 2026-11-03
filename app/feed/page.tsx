@@ -15,7 +15,7 @@ export default async function FilteredFeed({
   return (
     <FeedPage
       tag={typeof tag === "string" ? tag : undefined}
-      challenge={challenge === "october"}
+      challenge={typeof challenge === "string" ? challenge : undefined}
       shown={feedShown(shown)}
     />
   );

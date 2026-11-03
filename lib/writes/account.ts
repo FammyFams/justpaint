@@ -4,7 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { SERVER_BUSY } from "@/lib/busy";
 import { hashedClientIp, hashedEmail } from "@/lib/client-ip";
 import { allImagePaths } from "@/lib/painting-sizes";
-import { revalidateFeeds, revalidatePaintingsShowing, revalidateProfile } from "@/lib/revalidate";
+import { revalidateAllFeeds, revalidatePaintingsShowing, revalidateProfile } from "@/lib/revalidate";
 import { getSiteUrl } from "@/lib/site-url";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
@@ -184,7 +184,7 @@ export async function updateProfile(
   revalidateProfile(userId, parsed.data.displayName);
   if (before?.display_name !== parsed.data.displayName) {
     if (before?.display_name) revalidateProfile(userId, before.display_name);
-    revalidateFeeds();
+    revalidateAllFeeds();
     await revalidatePaintingsShowing(userId);
   }
   return { ok: true, profile: { displayName: parsed.data.displayName, bio } };

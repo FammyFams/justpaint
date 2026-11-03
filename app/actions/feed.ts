@@ -1,6 +1,7 @@
 "use server";
 
 import { getFeed } from "@/lib/paintings";
+import { challengeBySlug } from "@/lib/challenges";
 import { SERVER_BUSY } from "@/lib/busy";
 import { feedShown } from "@/lib/feed";
 import type { Painting } from "@/lib/types";
@@ -12,14 +13,15 @@ import type { Painting } from "@/lib/types";
  */
 export async function loadFeedAction(input: {
   tag?: string;
-  octoberChallenge?: boolean;
+  /** A challenge tab's slug ("november"). */
+  challenge?: string;
   shown: number;
 }): Promise<{ error: string } | { paintings: Painting[]; hasMore: boolean }> {
   const tag = typeof input.tag === "string" ? input.tag.slice(0, 100) : undefined;
   const limit = feedShown(String(input.shown));
 
   try {
-    return await getFeed({ tag, octoberChallenge: input.octoberChallenge === true, limit });
+    return await getFeed({ tag, challenge: challengeBySlug(input.challenge)?.id, limit });
   } catch (error) {
     console.error("loadFeedAction failed", error);
     return { error: SERVER_BUSY };

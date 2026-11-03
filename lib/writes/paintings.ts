@@ -7,6 +7,7 @@ import { visitorKey } from "@/lib/client-ip";
 import { deletePaintingRecord } from "@/lib/delete-painting";
 import { allImagePaths, sizedImagePath, SMALL_WIDTHS, type SmallWidth } from "@/lib/painting-sizes";
 import { makeSmallCopies } from "@/lib/resize-painting";
+import { challengeById, challengeColumns } from "@/lib/challenges";
 import { revalidateFeeds, revalidateProfileById } from "@/lib/revalidate";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { hasBlockedWord, NAME_BLOCKED } from "@/lib/text-filter";
@@ -27,10 +28,10 @@ export interface CreatePaintingInput {
   guestName?: string;
   /** Covers both the 13+ age confirmation and the Terms agreement. */
   agreedToTerms: boolean;
-  /** Entered in the October painting challenge. */
-  octoberChallenge?: boolean;
-  /** Which day's prompt it's for (1 = October 1). */
-  octoberDay?: number;
+  /** The challenge it's entered in (an id from lib/challenges.ts). */
+  challenge?: string;
+  /** Which day's prompt it's for (1 = the 1st). */
+  challengeDay?: number;
 }
 
 // Server Actions and the app API are public endpoints that accept anything,
@@ -52,8 +53,11 @@ const inputSchema = z.object({
   agreedToTerms: z.literal(true, {
     error: "Confirm you're 13 or older and agree to the Terms of Use.",
   }),
-  octoberChallenge: z.boolean().optional(),
-  octoberDay: z.number().int().min(1).max(31).optional(),
+  challenge: z
+    .string()
+    .refine((id) => Boolean(challengeById(id)), "That challenge doesn't exist.")
+    .optional(),
+  challengeDay: z.number().int().min(1).max(31).optional(),
   image: z
     .instanceof(File, { message: "Add an image." })
     .refine((f) => f.size > 0, "Add an image.")
@@ -115,6 +119,11 @@ export async function createPainting(
     return fail("invalid", parsed.error.issues[0]?.message ?? "Check the form and try again.");
   }
   const { title, description, tags, aspect, image } = parsed.data;
+  const challenge = challengeById(parsed.data.challenge);
+  const challengeDay = challenge ? (parsed.data.challengeDay ?? null) : null;
+  if (challenge && challengeDay && challengeDay > challenge.prompts.length) {
+    return fail("invalid", `${challenge.month} only has ${challenge.prompts.length} days.`);
+  }
   if (hasBlockedWord(title)) {
     return fail("invalid", "The title has a word we don't allow. Please reword it.");
   }
@@ -215,26 +224,23 @@ export async function createPainting(
   }
 
   // Fingerprint of the stored file, so a takedown can also find identical
-  // copies (see resolveReportAction in app/actions/reports.ts). The October
-  // challenge flag and day are set here too, so create_painting stays
-  // unchanged. The painting is already posted, so a failure here doesn't
-  // undo it; it's retried once and logged so a missing challenge flag can be
-  // fixed by hand.
-  const octoberChallenge = parsed.data.octoberChallenge ?? false;
+  // copies (see resolveReportAction in app/actions/reports.ts). The
+  // challenge and day are set here too, so create_painting stays unchanged.
+  // The painting is already posted, so a failure here doesn't undo it; it's
+  // retried once and logged so a missing challenge can be fixed by hand.
   const extras = {
     image_sha256: createHash("sha256").update(cleanImage.data).digest("hex"),
-    october_challenge: octoberChallenge,
-    october_day: octoberChallenge ? (parsed.data.octoberDay ?? null) : null,
+    ...challengeColumns(challenge?.id ?? null, challengeDay),
   };
   let { error: extrasError } = await admin.from("paintings").update(extras).eq("id", paintingId);
   if (extrasError) {
     ({ error: extrasError } = await admin.from("paintings").update(extras).eq("id", paintingId));
   }
   if (extrasError) {
-    console.error("post-create update failed", paintingId, extras.october_challenge, extrasError);
+    console.error("post-create update failed", paintingId, extras.challenge, extras.challenge_day, extrasError);
   }
 
-  revalidateFeeds();
+  revalidateFeeds(extras.challenge);
   if (ownerId) await revalidateProfileById(ownerId);
   return { ok: true, paintingId: rpcData as string };
 }

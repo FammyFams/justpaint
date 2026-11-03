@@ -3,7 +3,7 @@ import { jakartaFonts } from "@/lib/og-fonts";
 import { PAINTING_PICTURE_HEADERS, asJpeg, logoPicture, paintingPicture } from "@/lib/og-images";
 import { getPaintingById } from "@/lib/paintings";
 import { createPublicClient } from "@/lib/supabase/public";
-import { PROMPTS } from "@/lib/october-challenge";
+import { challengeById, promptFor } from "@/lib/challenges";
 
 // The share preview for a painting. Sites like X and Facebook crop previews
 // to about 2:1, which cut a portrait painting down to a thin strip, so the
@@ -37,7 +37,11 @@ export default async function Image({ params }: { params: Promise<{ id: string }
 
   const title = painting?.title ?? "A painting on justpaint";
   const titleSize = title.length <= 22 ? 64 : title.length <= 44 ? 52 : 42;
-  const day = painting?.octoberChallenge ? painting.octoberDay : null;
+  // "November 3 · Taco" above the title, for a challenge entry with a day.
+  const challenge = challengeById(painting?.challenge);
+  const day = challenge ? painting?.challengeDay : null;
+  const prompt = challenge ? promptFor(challenge, day) : null;
+  const dayLine = challenge && day ? `${challenge.month} ${day}${prompt ? ` · ${prompt}` : ""}` : null;
 
   const card = new ImageResponse(
     (
@@ -81,7 +85,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           }}
         >
           <div style={{ display: "flex", flexDirection: "column" }}>
-            {day && (
+            {dayLine && (
               <div
                 style={{
                   display: "flex",
@@ -93,7 +97,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
                   marginBottom: 18,
                 }}
               >
-                {`October ${day} · ${PROMPTS[day - 1]}`}
+                {dayLine}
               </div>
             )}
             <div style={{ display: "flex", fontSize: titleSize, fontStyle: "italic", fontWeight: 600, lineHeight: 1.1 }}>

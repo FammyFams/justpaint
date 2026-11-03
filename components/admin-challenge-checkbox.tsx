@@ -2,39 +2,43 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { adminSetOctoberChallengeAction } from "@/app/actions/admin";
-import { PROMPTS } from "@/lib/october-challenge";
+import { adminSetChallengeAction } from "@/app/actions/admin";
+import { CHALLENGES, challengeById, promptFor } from "@/lib/challenges";
 
-// The October box, plus a day picker once it's ticked. Each change saves
-// right away.
+const SELECT =
+  "h-7 max-w-32 rounded-md border border-input bg-transparent px-1.5 text-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+
+// Which challenge a post is in, plus a day picker once one is picked. Each
+// change saves right away.
 export function AdminChallengeCheckbox({
   paintingId,
-  initialChecked,
+  initialChallenge,
   initialDay,
 }: {
   paintingId: string;
-  initialChecked: boolean;
+  initialChallenge: string | null;
   initialDay: number | null;
 }) {
-  const [checked, setChecked] = useState(initialChecked);
+  const [challengeId, setChallengeId] = useState(initialChallenge);
   const [day, setDay] = useState(initialDay);
   const [saving, setSaving] = useState(false);
+  const challenge = challengeById(challengeId);
 
-  async function save(nextChecked: boolean, nextDay: number | null) {
-    const before = { checked, day };
-    setChecked(nextChecked);
+  async function save(nextChallenge: string | null, nextDay: number | null) {
+    const before = { challengeId, day };
+    setChallengeId(nextChallenge);
     setDay(nextDay);
     setSaving(true);
     try {
-      const result = await adminSetOctoberChallengeAction(paintingId, nextChecked, nextDay);
+      const result = await adminSetChallengeAction(paintingId, nextChallenge, nextDay);
       if ("error" in result) {
         toast.error(result.error);
-        setChecked(before.checked);
+        setChallengeId(before.challengeId);
         setDay(before.day);
       }
     } catch {
       toast.error("Couldn't save that. Check your connection and try again.");
-      setChecked(before.checked);
+      setChallengeId(before.challengeId);
       setDay(before.day);
     } finally {
       setSaving(false);
@@ -43,31 +47,38 @@ export function AdminChallengeCheckbox({
 
   return (
     <div className="flex shrink-0 flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-2">
-      <label className="flex items-center gap-1.5 text-sm text-muted-foreground">
-        <input
-          type="checkbox"
-          checked={checked}
-          disabled={saving}
-          // Unticking clears the day, as the server does.
-          onChange={(e) => save(e.target.checked, e.target.checked ? day : null)}
-          className="size-4 accent-primary"
-        />
-        October
-      </label>
-      {checked && (
+      <select
+        aria-label="Challenge"
+        value={challengeId ?? ""}
+        disabled={saving}
+        // A new challenge starts with no day, as does taking it out.
+        onChange={(e) => save(e.target.value || null, null)}
+        className={SELECT}
+      >
+        <option value="">No challenge</option>
+        {CHALLENGES.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.month}
+          </option>
+        ))}
+      </select>
+      {challenge && (
         <select
           aria-label="Challenge day"
           value={day ?? ""}
           disabled={saving}
-          onChange={(e) => save(true, e.target.value ? Number(e.target.value) : null)}
-          className="h-7 max-w-32 rounded-md border border-input bg-transparent px-1.5 text-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          onChange={(e) => save(challenge.id, e.target.value ? Number(e.target.value) : null)}
+          className={SELECT}
         >
           <option value="">No day</option>
-          {PROMPTS.map((prompt, i) => (
-            <option key={i} value={i + 1}>
-              {i + 1}: {prompt}
-            </option>
-          ))}
+          {challenge.prompts.map((_, i) => {
+            const prompt = promptFor(challenge, i + 1);
+            return (
+              <option key={i} value={i + 1}>
+                {prompt ? `${i + 1}: ${prompt}` : `${i + 1}`}
+              </option>
+            );
+          })}
         </select>
       )}
     </div>

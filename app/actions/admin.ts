@@ -8,7 +8,8 @@ import { hashedClientIp } from "@/lib/client-ip";
 import { deletePaintingRecord } from "@/lib/delete-painting";
 import { ADMIN_COOKIE, adminToken, isAdmin, safeEqual } from "@/lib/admin";
 import { ADMIN_FLAG_COOKIE } from "@/lib/session-cookie";
-import { revalidateFeeds } from "@/lib/revalidate";
+import { revalidateAllFeeds } from "@/lib/revalidate";
+import { challengeById, challengeColumns } from "@/lib/challenges";
 import { getLatestComments, type AdminComment } from "@/lib/admin-comments";
 import { SERVER_BUSY } from "@/lib/busy";
 
@@ -74,33 +75,35 @@ export async function adminDeletePaintingAction(
 }
 
 /**
- * Puts a post in or out of the October challenge, and sets which day's
- * prompt it's for (null = no day). Taking a post out also clears the day.
+ * Puts a post in a challenge (an id from lib/challenges.ts) or takes it out
+ * (null), and sets which day's prompt it's for (null = no day). Taking a
+ * post out also clears the day.
  */
-export async function adminSetOctoberChallengeAction(
+export async function adminSetChallengeAction(
   paintingId: string,
-  octoberChallenge: boolean,
-  octoberDay: number | null = null
+  challengeId: string | null,
+  day: number | null = null
 ): Promise<{ error: string } | { success: true }> {
   if (!(await isAdmin())) return { error: "Not authorized." };
-  if (octoberDay !== null && !(Number.isInteger(octoberDay) && octoberDay >= 1 && octoberDay <= 31)) {
-    return { error: "Pick a day from 1 to 31." };
+  const challenge = challengeById(challengeId);
+  if (challengeId !== null && !challenge) return { error: "That challenge doesn't exist." };
+  const days = challenge?.prompts.length ?? 31;
+  if (day !== null && !(Number.isInteger(day) && day >= 1 && day <= days)) {
+    return { error: `Pick a day from 1 to ${days}.` };
   }
 
   const { error } = await createAdminClient()
     .from("paintings")
-    .update({
-      october_challenge: octoberChallenge,
-      october_day: octoberChallenge ? octoberDay : null,
-    })
+    .update(challengeColumns(challenge?.id ?? null, day))
     .eq("id", paintingId);
   if (error) {
-    console.error("adminSetOctoberChallengeAction failed", paintingId, error);
+    console.error("adminSetChallengeAction failed", paintingId, error);
     return { error: "Couldn't save that. Try again." };
   }
 
   revalidatePath("/admin");
-  revalidateFeeds();
+  // Whichever challenge it was in before needs rebuilding too.
+  revalidateAllFeeds();
   revalidatePath(`/painting/${paintingId}`);
   // Its share picture shows the challenge day.
   revalidatePath(`/painting/${paintingId}/opengraph-image`);

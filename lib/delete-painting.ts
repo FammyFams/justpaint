@@ -27,7 +27,7 @@ export async function deletePaintingRecord(
   const admin = createAdminClient();
   const { data: painting } = await admin
     .from("paintings")
-    .select("image_path, owner_id")
+    .select("image_path, owner_id, challenge")
     .eq("id", paintingId)
     .maybeSingle();
 
@@ -51,7 +51,7 @@ export async function deletePaintingRecord(
     await admin.storage.from("paintings").remove(allImagePaths(painting.image_path));
   }
 
-  revalidateFeeds();
+  revalidateFeeds(painting.challenge);
   revalidatePath(`/painting/${paintingId}`);
   // Share pictures are cached for weeks; drop this one now so a removed
   // painting stops showing up in link previews.

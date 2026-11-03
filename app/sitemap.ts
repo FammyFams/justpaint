@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site-url";
 import { getSitemapPaintings } from "@/lib/paintings";
 import { artistHref } from "@/lib/artist-url";
+import { CHALLENGES, CURRENT_CHALLENGE, challengePath } from "@/lib/challenges";
 
 // Rebuilt at most once an hour, so new paintings show up without a redeploy.
 export const revalidate = 3600;
@@ -13,7 +14,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getSiteUrl();
   const pages: MetadataRoute.Sitemap = [
     { url: base, changeFrequency: "hourly", priority: 1 },
-    { url: `${base}/october-challenge`, changeFrequency: "weekly", priority: 0.9 },
+    // The challenge that's on now first; past ones change less.
+    ...CHALLENGES.map((c) => ({
+      url: `${base}${challengePath(c)}`,
+      changeFrequency: c === CURRENT_CHALLENGE ? ("weekly" as const) : ("monthly" as const),
+      priority: c === CURRENT_CHALLENGE ? 0.9 : 0.6,
+    })),
     { url: `${base}/upload`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${base}/terms`, changeFrequency: "yearly", priority: 0.2 },
     { url: `${base}/privacy`, changeFrequency: "yearly", priority: 0.2 },

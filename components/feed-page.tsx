@@ -6,10 +6,10 @@ import { FEED_FIRST } from "@/lib/feed";
 import { FeedFilter } from "@/components/feed-filter";
 import { getSiteUrl } from "@/lib/site-url";
 import { SITE_DESCRIPTION } from "@/lib/seo";
-import { CHALLENGE_NAME } from "@/lib/october-challenge";
+import { CURRENT_CHALLENGE, challengeBySlug, challengePath } from "@/lib/challenges";
 import { TodayMark } from "@/components/today-mark";
 
-// Every version of the home feed (/, /?challenge=october, /?tag=, /?shown=)
+// Every version of the home feed (/, /?challenge=november, /?tag=, /?shown=)
 // is the same page to search engines.
 export const feedMetadata: Metadata = {
   title: "justpaint | A Painting Community for Beginners",
@@ -28,24 +28,27 @@ const websiteJsonLd = {
 };
 
 /**
- * The home feed. app/page.tsx (all posts) and app/feed/october (the October
- * tab) are cached; app/feed builds the ?tag= and ?shown= versions per
- * request. next.config.ts sends each address to the right one.
+ * The home feed. app/page.tsx (all posts) and app/feed/[challenge] (each
+ * challenge's tab) are cached; app/feed builds the ?tag= and ?shown=
+ * versions per request. next.config.ts sends each address to the right one.
  */
 export async function FeedPage({
   tag,
-  challenge = false,
+  challenge: challengeSlug,
   shown = FEED_FIRST,
 }: {
   tag?: string;
-  challenge?: boolean;
+  /** Only this challenge's entries (its slug, "november"). */
+  challenge?: string;
   shown?: number;
 }) {
+  const challenge = challengeBySlug(challengeSlug);
   const [{ paintings, hasMore, total }, tags] = await Promise.all([
-    getFeed({ tag, octoberChallenge: challenge, limit: shown, withCount: Boolean(tag) }),
+    getFeed({ tag, challenge: challenge?.id, limit: shown, withCount: Boolean(tag) }),
     getAllTags(),
   ]);
   const activeTag = tag ? tags.find((t) => t.slug === tag) : undefined;
+  const pageChallenge = challenge ?? CURRENT_CHALLENGE;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
@@ -63,16 +66,17 @@ export async function FeedPage({
         <p className="mt-1 text-sm text-muted-foreground">
           a painting community for beginners.
         </p>
+        {/* The open tab's challenge, or the one that's on now. */}
         <Link
-          href="/october-challenge" prefetch={false}
+          href={challengePath(pageChallenge)} prefetch={false}
           className="mt-3 inline-block text-sm font-medium text-primary underline underline-offset-2 hover:decoration-2"
         >
-          {CHALLENGE_NAME}: rules and prompts &rarr;
+          {pageChallenge.name}: rules and prompts &rarr;
         </Link>
       </div>
 
       <div className="mb-6">
-        <FeedFilter challenge={challenge} tag={tag} />
+        <FeedFilter challenge={challenge?.slug} tag={tag} />
       </div>
 
       {activeTag && (
@@ -84,14 +88,14 @@ export async function FeedPage({
 
       <HomeFeed
         // Start over when the filter changes.
-        key={`${tag ?? ""}|${challenge}`}
+        key={`${tag ?? ""}|${challenge?.slug ?? ""}`}
         initialPaintings={paintings}
         initialHasMore={hasMore}
         tag={tag}
-        octoberChallenge={challenge}
+        challenge={challenge?.slug}
         emptyHint={
           challenge
-            ? `No ${CHALLENGE_NAME} entries yet. Post one and be the first.`
+            ? `No ${challenge.name} entries yet. Post one and be the first.`
             : undefined
         }
       />

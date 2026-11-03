@@ -1,6 +1,7 @@
 import "server-only";
 import { revalidatePath } from "next/cache";
 import { artistHref } from "@/lib/artist-url";
+import { CHALLENGES, challengePath } from "@/lib/challenges";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 // Every revalidatePath here costs a page rebuild on the next visit, and
@@ -11,14 +12,24 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
  * Cached pages that list posts. They rebuild on their own every hour
- * (heart counts), and right away through this when a post is added,
- * removed or moved in or out of the challenge. /feed/october is the October
- * tab of the home feed (/?challenge=october, see next.config.ts rewrites).
+ * (heart counts), and right away through this when a post is added or
+ * removed. The home page always; a challenge's page and its tab of the home
+ * feed (/feed/november, shown at /?challenge=november, see next.config.ts
+ * rewrites) only for the challenges passed in, the ones the post is or was
+ * entered in.
  */
-export function revalidateFeeds() {
+export function revalidateFeeds(...challengeIds: (string | null | undefined)[]) {
   revalidatePath("/");
-  revalidatePath("/feed/october");
-  revalidatePath("/october-challenge");
+  for (const challenge of CHALLENGES) {
+    if (!challengeIds.includes(challenge.id)) continue;
+    revalidatePath(`/feed/${challenge.slug}`);
+    revalidatePath(challengePath(challenge));
+  }
+}
+
+/** Every feed, for changes that can show on any post (a new name). */
+export function revalidateAllFeeds() {
+  revalidateFeeds(...CHALLENGES.map((c) => c.id));
 }
 
 /**

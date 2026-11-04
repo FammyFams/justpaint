@@ -211,9 +211,9 @@ export function challengeOver(c: Challenge) {
 }
 
 /**
- * The database columns for a post's challenge entry. The app (justPaint Art)
- * still reads October's own columns, so those are kept in step until it
- * reads challenge and challenge_day.
+ * The database columns for a post's challenge entry. App builds from before
+ * /api/app/v1/challenge/latest still read October's own columns, so those are
+ * kept in step while people still use those builds.
  */
 export function challengeColumns(id: string | null, day: number | null) {
   const october = id === OCTOBER.id;

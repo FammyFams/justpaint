@@ -2,7 +2,9 @@
 // (/november-challenge), home feed tab (/?challenge=november) and calendar
 // picture, all built from what's here. Adding a month: a new entry at the
 // top of CHALLENGES, a copy of app/november-challenge, and its slug in the
-// challenge rewrite in next.config.ts.
+// challenge rewrite in next.config.ts. When a month is over: a 30-day
+// revalidate on its page, and a copy of app/feed/october for its tab, left
+// out of generateStaticParams in app/feed/[challenge].
 
 export interface Challenge {
   /** Stored in paintings.challenge. */

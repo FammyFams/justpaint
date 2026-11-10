@@ -12,11 +12,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
  * Cached pages that list posts. They rebuild on their own every hour
- * (heart counts), and right away through this when a post is added or
- * removed. The home page always; a challenge's page and its tab of the home
- * feed (/feed/november, shown at /?challenge=november, see next.config.ts
- * rewrites) only for the challenges passed in, the ones the post is or was
- * entered in.
+ * (heart counts; a finished month's every 30 days), and right away through
+ * this when a post is added or removed. The home page always; a challenge's
+ * page and its tab of the home feed (/feed/november, shown at
+ * /?challenge=november, see next.config.ts rewrites) only for the challenges
+ * passed in, the ones the post is or was entered in.
  */
 export function revalidateFeeds(...challengeIds: (string | null | undefined)[]) {
   revalidatePath("/");
@@ -35,7 +35,7 @@ export function revalidateAllFeeds() {
 /**
  * One person's profile page and its share picture (name, count, latest
  * three). Old /artist/<id> links are cached on their own, so they go too;
- * other capitalizations of the name catch up within an hour.
+ * other capitalizations of the name catch up within a day.
  */
 export function revalidateProfile(userId: string, displayName: string | null | undefined) {
   const href = artistHref({ id: userId, displayName });

@@ -40,7 +40,7 @@ function HeartButton({
   compact,
 }: {
   paintingId: string;
-  /** The page's count. Cached pages can be up to an hour behind. */
+  /** The page's count. Cached pages can be behind. */
   initialCount: number;
   /** Small ghost-style heart for feed cards. */
   compact?: boolean;

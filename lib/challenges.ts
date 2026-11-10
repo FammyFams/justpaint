@@ -211,6 +211,20 @@ export function challengeOver(c: Challenge) {
 }
 
 /**
+ * The last day whose entries the challenge's lists show: today during the
+ * month, every day once it's over, none before it starts. An entry posted
+ * early for a later prompt (day 22 on the 9th) waits for its day.
+ */
+export function lastShownDay(c: Challenge): number {
+  const today = pacificToday();
+  const now = today.year * 12 + today.month;
+  const month = c.year * 12 + c.monthNumber;
+  if (now > month) return c.prompts.length;
+  if (now < month) return 0;
+  return today.day;
+}
+
+/**
  * The database columns for a post's challenge entry. App builds from before
  * /api/app/v1/challenge/latest still read October's own columns, so those are
  * kept in step while people still use those builds.

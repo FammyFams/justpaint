@@ -4,6 +4,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import type { Artist, Comment, Painting, Tag } from "@/lib/types";
 import { artistSlug, isUuid } from "@/lib/artist-url";
 import { avatarUrlOrNull } from "@/lib/avatar-url";
+import { challengeById, lastShownDay } from "@/lib/challenges";
 
 // Everything here reads what any visitor can see, with a client that never
 // reads cookies, so the pages using it can be cached (lib/supabase/public.ts).
@@ -120,9 +121,11 @@ export async function getFeed({
   }
   if (challenge) {
     // Grouped by prompt day, newest day first; posts with no day go last.
-    query = query
-      .eq("challenge", challenge)
-      .order("challenge_day", { ascending: false, nullsFirst: false });
+    // Entries for a day that hasn't come yet wait for it.
+    const c = challengeById(challenge);
+    query = query.eq("challenge", challenge);
+    if (c) query = query.or(`challenge_day.is.null,challenge_day.lte.${lastShownDay(c)}`);
+    query = query.order("challenge_day", { ascending: false, nullsFirst: false });
   }
   query = query.order("created_at", { ascending: false }).limit(limit + 1);
 
